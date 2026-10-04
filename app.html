@@ -1391,7 +1391,7 @@ let CF='all';
 let CACHE_POSTS=[],_pl=0;
 async function loadPosts(){
   if(!SB) return;
-  const {data,error}=await SB.from('posts').select('*').order('created_at',{ascending:false}).limit(100);
+  const {data,error}=await SB.from('community_posts').select('*').order('created_at',{ascending:false}).limit(100);
   if(error){ console.warn('posts',error); return; }
   CACHE_POSTS=data.map(x=>({id:x.id,uid:x.uid,author:x.author,avatar:x.avatar,tag:x.tag,text:x.text,t:new Date(x.created_at).getTime(),likes:x.likes||[],replies:x.replies||[]}));
 }
@@ -1898,7 +1898,7 @@ const ACT = {
     if(SB){ viewKomunitas(); const {error}=await SB.rpc('toggle_like',{pid:p.id}); if(error){ toast('Gagal menyimpan suka.'); _pl=0; } return; }
     LS.set('posts',ps); viewKomunitas(); },
   async 'post-del'(t){ if(needLogin('Masuk untuk mengelola postinganmu.')) return;
-    if(SB){ const {error}=await SB.from('posts').delete().eq('id',t.dataset.id); if(error) return toast('Gagal menghapus postingan.'); CACHE_POSTS=CACHE_POSTS.filter(x=>x.id!==t.dataset.id); viewKomunitas(); return toast('Postingan dihapus'); }
+    if(SB){ const {error}=await SB.from('community_posts').delete().eq('id',t.dataset.id); if(error) return toast('Gagal menghapus postingan.'); CACHE_POSTS=CACHE_POSTS.filter(x=>x.id!==t.dataset.id); viewKomunitas(); return toast('Postingan dihapus'); }
     LS.set('posts',getPosts().filter(x=>x.id!==t.dataset.id)); viewKomunitas(); toast('Postingan dihapus'); },
   'nera-chip'(t){ neraAsk(t.dataset.v); },
   'nera-clear'(){ DATA.neraChat=[]; save(); renderNera(); },
@@ -2034,15 +2034,15 @@ document.addEventListener('submit',async e=>{
     } else if(kind==='post'){
       if(needLogin('Masuk untuk menulis postingan di komunitas.')) return;
       const text=(v.text||'').trim(); if(!text) return toast('Tulis sesuatu dulu sebelum mengirim.');
-      if(SB){ const av=DATA.profile.avatar||DATA.profile.gpic||''; const {data,error}=await SB.from('posts').insert({uid:U.id,author:DATA.profile.name,tag:v.tag,text:text.slice(0,280),avatar:/^https?:/.test(av)?av:null}).select().single();
-        if(error){ console.warn(error); return toast('Gagal mengirim. Coba lagi.'); }
+      if(SB){ const av=DATA.profile.avatar||DATA.profile.gpic||''; const {data,error}=await SB.from('community_posts').insert({uid:U.id,author:DATA.profile.name,tag:v.tag,text:text.slice(0,280),avatar:/^https?:/.test(av)?av:null}).select().single();
+        if(error){ console.warn(error); return toast('Gagal mengirim: '+(error.message||'coba lagi')); }
         CACHE_POSTS.unshift({id:data.id,uid:data.uid,author:data.author,avatar:data.avatar,tag:data.tag,text:data.text,t:new Date(data.created_at).getTime(),likes:[],replies:[]}); viewKomunitas(); return toast('Terkirim'); }
       const ps=getPosts(); ps.push({id:uid(),uid:U.id,author:DATA.profile.name,tag:v.tag,text,t:Date.now(),likes:[],replies:[]}); LS.set('posts',ps); viewKomunitas(); toast('Terkirim');
     } else if(kind==='reply'){
       if(needLogin('Masuk untuk membalas postingan.')) return;
       const text=(v.text||'').trim(); if(!text) return;
       const ps=getPosts(), p=ps.find(x=>x.id===f.dataset.id); if(!p) return; p.replies.push({author:DATA.profile.name,text:text.slice(0,200),t:Date.now()});
-      if(SB){ viewKomunitas(); const {error}=await SB.rpc('add_reply',{pid:p.id,body:text.slice(0,200)}); if(error){ toast('Gagal mengirim balasan.'); _pl=0; } return; }
+      if(SB){ viewKomunitas(); const {error}=await SB.rpc('add_reply',{pid:p.id,body:text.slice(0,200)}); if(error){ console.warn(error); toast('Gagal mengirim balasan: '+error.message); _pl=0; } return; }
       LS.set('posts',ps); viewKomunitas();
     } else if(kind==='nera'){
       const text=(v.msg||'').trim(); if(!text) return; neraAsk(text);

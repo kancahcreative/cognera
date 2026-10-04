@@ -47,7 +47,7 @@ const R={
   f:[{k:'id',l:'ID (huruf kecil, tanpa spasi; tidak bisa diubah)',t:'txt',req:1,lock:1},{k:'title',l:'Judul',t:'txt',req:1},{k:'jalur',l:'Jalur',t:'sel',o:JAL},
    {k:'access',l:'Akses',t:'sel',o:{free:'Gratis',premium:'Premium'}},{k:'subs',l:'Kode subtes (satu per baris, mis. pu, pk, lbi)',t:'lines'},
    {k:'tries',l:'Batas percobaan (kosong = tanpa batas)',t:'num'},{k:'image_url',l:'Gambar kartu',t:'img'},{k:'active',l:'Aktif',t:'bool',d:true}]},
- posts:{t:'Komunitas',pk:['id'],order:'created_at',noAdd:1,
+ community_posts:{t:'Komunitas',pk:['id'],order:'created_at',noAdd:1,
   cols:[['avatar','Foto','a'],['author','Penulis'],['tag','Subtes','s'],['text','Isi','t'],['likes','Suka','n'],['replies','Balasan','n'],['created_at','Waktu','d']],
   f:[{k:'text',l:'Isi postingan',t:'ta',req:1}]},
  profiles:{t:'Pengguna',pk:['id'],noAdd:1,noDel:1,
@@ -143,7 +143,7 @@ async function dash(){
  }catch(e){main.innerHTML=`<div class="err">${esc(e.message)}<br>Pastikan admin-schema.sql sudah dijalankan.</div>`}}
 
 /* ===== Shell, login ===== */
-let main;const TABS=[['dash','Dasbor'],['questions','Soal'],['tryouts','Tryout'],['profiles','Pengguna'],['results','Hasil'],['posts','Komunitas'],['entitlements','Akses paket']];
+let main;const TABS=[['dash','Dasbor'],['questions','Soal'],['tryouts','Tryout'],['profiles','Pengguna'],['results','Hasil'],['community_posts','Komunitas'],['entitlements','Akses paket']];
 function go(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));t==='dash'?dash():t==='results'?results():crud(t)}
 function shell(){$('#app').innerHTML=`<header class="top"><span class="brand"><b>C</b>Admin</span>${TABS.map(t=>`<button class="tab" data-t="${t[0]}">${t[1]}</button>`).join('')}<span class="sp"></span><button class="btn s" id="out">Keluar</button></header><main id="main"></main>`;main=$('#main');
  $('.top').onclick=e=>{const b=e.target.closest('.tab');if(b)go(b.dataset.t)};$('#out').onclick=async()=>{await SB.auth.signOut();login()};go('dash')}
