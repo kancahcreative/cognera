@@ -454,11 +454,12 @@ details.rv .inner{padding:0 16px 16px}
 .dmHead{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--line)}.dmHead h3{margin:0;font-size:19px}
 .dmX{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:22px;line-height:1;color:var(--muted)}.dmX:hover{background:var(--bg)}.dmX:focus{outline:none;box-shadow:none}.dmOpt .ckRadio{margin-left:auto}.dmOpt.on .ckRadio{border-color:var(--ink)}.dmOpt.on .ckRadio:after{content:"";position:absolute;top:4px;left:4px;right:4px;bottom:4px;border-radius:50%;background:var(--ink)}
 .dmBody{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);overflow:auto;flex:1}
-.dmL{background:var(--yellow-pale);padding:22px 24px;display:flex;flex-direction:column;gap:10px}.dmL .dmName{font:800 22px Manrope,system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 6px}
-.dmFeat{background:#fff;border:1px solid #f0dc8a;border-radius:14px;padding:11px 14px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start}.dmFeat svg{width:16px;height:16px;flex:none;margin-top:2px;stroke:var(--ink);stroke-width:3}
+.dmL{background:var(--yellow);padding:22px 24px;display:flex;flex-direction:column;gap:10px}.dmL .dmName{font:800 22px Manrope,system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 6px}
+.dmFeat{background:#fff;border:1px solid rgba(25,27,32,.14);border-radius:14px;padding:11px 14px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start}.dmFeat svg{width:16px;height:16px;flex:none;margin-top:2px;stroke:var(--ink);stroke-width:3}
 .dmR{padding:22px 24px}.dmR small.k{color:#0a8f5b;font-weight:800;font-size:13px}.dmR h2{margin:2px 0 6px;font-size:24px;letter-spacing:-.03em}.dmR p.sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
-.dmOpt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 16px;border:1.5px solid var(--line);border-radius:16px;background:#fff;margin-bottom:10px}.dmOpt:hover{border-color:var(--ink)}.dmOpt.on{border-color:var(--ink);background:var(--yellow-pale)}
+.dmOpt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 16px;border:1.5px solid var(--line);border-radius:16px;background:#fff;margin-bottom:10px}.dmOpt:hover{border-color:var(--ink)}.dmOpt.on,.dmOpt.on:hover{border-color:var(--yellow);background:var(--yellow)}
 .dmOpt .tags{display:flex;gap:6px;align-items:center;margin-bottom:6px}.dmOpt .mo{font-size:12px;font-weight:800;background:var(--bg);border-radius:99px;padding:3px 10px}.dmOpt .rec{font-size:12px;font-weight:800;background:var(--ink);color:#fff;border-radius:99px;padding:3px 10px}
+.dmL .chip{background:#fff;border-color:transparent}.dmOpt.on .mo{background:#fff}.dmOpt .pl{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px}.dmOpt .pl .sv{margin-left:0}.dmOpt .st{font-size:14px;font-weight:600;color:#9aa1ad;text-decoration:line-through}.dmOpt.on .st{color:#5c5217}.dmOpt.on .sv{color:#0c4a2b}
 .dmOpt b.nm{display:block;font-size:15px}.dmOpt .pr{font:800 22px Manrope,system-ui,sans-serif;letter-spacing:-.03em}.dmOpt .sv{font-size:13px;font-weight:700;color:#0a8f5b;margin-left:6px}
 .dmFoot{padding:16px 24px;border-top:1px solid var(--line)}
 @media(max-width:720px){.dmBody{grid-template-columns:1fr}.dmL{display:none}.dmHead,.dmR,.dmFoot{padding-left:16px;padding-right:16px}}
@@ -610,17 +611,17 @@ const TRYOUTS = [
 
 /* ===== PAKET (harga dari landing page) ===== */
 const PACKAGES = [
-  {id:'utbk27', name:'UTBK SNBT 2027', tag:'Terlengkap', covers:['utbk'], price:79000, strike:399000, items:['Akses materi belajar UTBK','Try Out Premium UTBK tanpa batas selama masa aktif','Pembahasan soal teks & video']},
-  {id:'ssu-itb', name:'SSU ITB 2026', covers:['mandiri'], price:59000, strike:79000, items:['Try out SSU ITB','Drill Matematika dan Fisika','Pembahasan teks atau video']},
-  {id:'simak-ui', name:'SIMAK UI 2026', covers:['mandiri'], price:59000, strike:79000, items:['Try out SIMAK UI','Drill TKD dan PEKA','Pembahasan teks atau video']},
-  {id:'cbt-ugm', name:'CBT-UM UGM 2026', covers:['mandiri'], price:59000, strike:79000, items:['Try out CBT-UM UGM','Drill TKDU, TPA, dan TKA','Pembahasan teks atau video']},
-  {id:'um-undip', name:'UM UNDIP 2026', covers:['mandiri'], price:59000, strike:79000, items:['Try out UM UNDIP','Drill jalur UM UNDIP','Pembahasan teks atau video']},
-  {id:'smua-unair', name:'SMUA UNAIR 2026', covers:['mandiri'], price:59000, strike:79000, items:['Try out SMUA UNAIR','Drill TPA dan mata pelajaran pilihan','Pembahasan teks atau video']},
-  {id:'smup-unpad', name:'SMUP UNPAD 2026', covers:['mandiri'], price:59000, strike:79000, items:['Try out SMUP UNPAD','Drill Tes Skolastik dan Literasi SMUP','Pembahasan teks atau video']},
-  {id:'smits-its', name:'SMITS ITS 2026', covers:['mandiri'], price:59000, strike:79000, items:['Try out SMITS ACE ITS','Drill Tes Skolastik, Matematika, dan bidang','Pembahasan teks atau video']},
-  {id:'um-uny', name:'UM UNY 2026', covers:['mandiri'], price:59000, strike:79000, items:['Try out UM UNY','Drill jalur UM UNY','Pembahasan teks atau video']},
-  {id:'tka-sma', name:'TKA SMA 2026', covers:['tka'], price:39000, strike:49000, items:['Try out TKA SMA','Drill mata pelajaran wajib dan pilihan','Pembahasan teks atau video']},
-  {id:'skd-2026', name:'SKD Kedinasan 2026', tag:'Semua program', covers:['kedinasan','utbk','mandiri'], price:59000, strike:79000, items:['Semua program: UTBK, TKA, dan Kedinasan','Tujuh jalur mandiri PTN','Tryout premium dan drill tanpa batas']}
+  {id:'utbk27', name:'UTBK SNBT 2027', tag:'Paling lengkap', covers:['utbk'], price:79000, strike:399000, items:['Materi UTBK lengkap lewat video dan latihan soal','Try Out Premium UTBK sepuasnya selama akses aktif','Pembahasan soal dalam bentuk teks maupun video']},
+  {id:'ssu-itb', name:'SSU ITB 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi try out SSU ITB','Latihan drill Matematika dan Fisika','Pembahasan soal berformat teks atau video']},
+  {id:'simak-ui', name:'SIMAK UI 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi try out SIMAK UI','Latihan drill TKD dan PEKA','Pembahasan soal berformat teks atau video']},
+  {id:'cbt-ugm', name:'CBT-UM UGM 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi try out CBT-UM UGM','Latihan drill TKDU, TPA, dan TKA','Pembahasan soal berformat teks atau video']},
+  {id:'um-undip', name:'UM UNDIP 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi try out UM UNDIP','Latihan drill sesuai pola soal UM UNDIP','Pembahasan soal berformat teks atau video']},
+  {id:'smua-unair', name:'SMUA UNAIR 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi try out SMUA UNAIR','Latihan drill TPA dan mata pelajaran pilihan','Pembahasan soal berformat teks atau video']},
+  {id:'smup-unpad', name:'SMUP UNPAD 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi try out SMUP UNPAD','Latihan drill Tes Skolastik dan Literasi SMUP','Pembahasan soal berformat teks atau video']},
+  {id:'smits-its', name:'SMITS ITS 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi try out SMITS ACE ITS','Latihan drill Tes Skolastik, Matematika, dan materi bidang','Pembahasan soal berformat teks atau video']},
+  {id:'um-uny', name:'UM UNY 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi try out UM UNY','Latihan drill sesuai pola soal UM UNY','Pembahasan soal berformat teks atau video']},
+  {id:'tka-sma', name:'TKA SMA 2026', covers:['tka'], price:39000, strike:49000, items:['Simulasi try out TKA SMA','Latihan drill mata pelajaran wajib dan pilihan','Pembahasan soal berformat teks atau video']},
+  {id:'skd-2026', name:'SKD Kedinasan 2026', tag:'Semua jalur', covers:['kedinasan','utbk','mandiri'], price:59000, strike:79000, items:['Mencakup seluruh program: UTBK, TKA, dan Kedinasan','Tujuh jalur seleksi mandiri PTN','Try out premium dan latihan drill tanpa batas']}
 ];
 
 /* ===== MATERI ===== */
@@ -1480,16 +1481,27 @@ async function neraAsk(text,qid){
 }
 
 /* ===== PAKET ===== */
-function viewPaket(){
+function viewPaket(qs){
   mount(shell('paket',`<div class="pageHead"><h1>Paket belajar</h1><p>Satu akun Cognera, semua persiapan di satu tempat. Paket membuka Try Out Premium, materi, dan pembahasan lengkap.</p></div>
     <div id="myOrders">${ordersBox()}</div>
     <div class="grid g3">${PACKAGES.map(p=>{const own=DATA.packages.includes(p.id);return `<article class="card pk ${own?'owned':''}" style="display:flex;flex-direction:column;gap:10px">
       <div class="row between">${p.tag?`<span class="chip dark">${p.tag}</span>`:'<span></span>'}${own?'<span class="chip ok">Aktif</span>':''}</div>
-      <h3>${p.name}</h3><div><span class="price">${rp(p.price)}</span><span class="strike">${rp(p.strike)}</span></div><div class="muted small">Pilihan durasi 1 sampai 12 bulan</div>
+      <h3>${p.name}</h3>${startFrom(p)}
       <ul style="margin:0;padding-left:18px;font-size:14px;line-height:1.7">${p.items.map(i=>`<li>${i}</li>`).join('')}</ul>
       <button class="btn ${own?'btn-ghost':'btn-yellow'} mt8" style="margin-top:auto" data-act="buy" data-v="${p.id}" ${own?'disabled':''}>${own?'Sudah aktif':'Pilih paket'}</button></article>`}).join('')}
       <article class="card" style="border-style:dashed"><span class="chip">Segera hadir</span><h3 class="mt12">SKD CPNS 2026</h3><p class="muted">Latihan TWK, TIU, dan TKP untuk seleksi CPNS. Harga tampil saat dibuka.</p></article></div>`));
   refreshPay();
+  if(!DUR_LOADED) loadDurPrices().then(()=>{ if(DUR_LOADED&&/^#\/paket\/?$/.test(location.hash)) viewPaket(); });
+  const pq=new URLSearchParams(qs||''), bid=pq.get('buy');
+  if(bid&&PACKAGES.some(x=>x.id===bid)){
+    history.replaceState(null,'','#/paket');
+    const bm=DURS.includes(Number(pq.get('m')))?Number(pq.get('m')):12;
+    if(!needLogin('Untuk melanjutkan pembelian paket, kamu perlu masuk atau mendaftar dulu.')){
+      if(DATA.packages.includes(bid)) toast('Paket ini sudah aktif');
+      else if(CONFIG.DEMO_MODE) openBuy(bid);
+      else { DURSEL={id:bid,m:bm}; go('/checkout/'+bid+'/'+bm); }
+    }
+  }
 }
 /* Semua e-wallet diarahkan ke satu QRIS dinamis; bank memakai Virtual Account. Dikonfirmasi otomatis oleh webhook. */
 const PAYM=[
@@ -1518,6 +1530,7 @@ const DURS=[12,6,3,1], DUR_R={12:1,6:.665,3:.565,1:.264}, DUR_PRICES={}; let DUR
 const r1k=n=>Math.max(1000,Math.round(n/1000)*1000);
 function durPrice(p,m){ const x=DUR_PRICES[p.id+':'+m]; if(x) return x; return m===12?{price:p.price,strike:p.strike||p.price}:{price:r1k(p.price*DUR_R[m]),strike:r1k((p.strike||p.price)*DUR_R[m])}; }
 async function loadDurPrices(){ if(DUR_LOADED||!SB) return; try{ const r=await SB.from('package_prices').select('*'); if(!r.error&&r.data){ r.data.forEach(x=>{ DUR_PRICES[x.package_id+':'+x.months]={price:x.price,strike:x.strike||x.price}; }); DUR_LOADED=true; } }catch(_){} }
+function startFrom(p){ const m=DURS.reduce((x,y)=>durPrice(p,y).price<durPrice(p,x).price?y:x,DURS[0]), d=durPrice(p,m); return `<div><div class="muted small">Mulai dari</div><span class="price">${rp(d.price)}</span>${d.strike>d.price?`<span class="strike">${rp(d.strike)}</span>`:''}</div><div class="muted small">Akses ${m} bulan · pilihan durasi 1 sampai 12 bulan</div>`; }
 function pkgBox(p){ return `<h3>${p.name}</h3><div><span class="price">${rp(p.price)}</span><span class="strike">${rp(p.strike)}</span></div><p class="muted small">Akses 12 bulan</p>`; }
 function openBuy(id){
   const p=PACKAGES.find(x=>x.id===id);
@@ -1533,7 +1546,7 @@ function durModal(id){
   if(DURSEL.id!==id) DURSEL={id,m:12};
   const p=PACKAGES.find(x=>x.id===id); if(!p) return;
   const feats=pkgFeatures(p,0).list.map(i=>`<div class="dmFeat">${ic('check')}<span>${esc(i)}</span></div>`).join('');
-  const opts=DURS.map(m=>{ const d=durPrice(p,m), sv=d.strike-d.price; return `<button type="button" class="dmOpt ${DURSEL.m===m?'on':''}" role="radio" aria-checked="${DURSEL.m===m}" data-act="dur-pick" data-v="${m}"><span class="grow"><span class="tags"><span class="mo">${m} bulan</span>${m===12?'<span class="rec">Rekomendasi</span>':''}</span><b class="nm">${esc(p.name)}</b><span class="pr">${rp(d.price)}</span>${sv>0?`<span class="sv">Hemat ${rp(sv)}</span>`:''}</span><span class="ckRadio"></span></button>`; }).join('');
+  const opts=DURS.map(m=>{ const d=durPrice(p,m), sv=d.strike-d.price; return `<button type="button" class="dmOpt ${DURSEL.m===m?'on':''}" role="radio" aria-checked="${DURSEL.m===m}" data-act="dur-pick" data-v="${m}"><span class="grow"><span class="tags"><span class="mo">${m} bulan</span>${m===12?'<span class="rec">Rekomendasi</span>':''}</span><b class="nm">${esc(p.name)}</b><span class="pl"><span class="pr">${rp(d.price)}</span>${sv>0?`<s class="st">${rp(d.strike)}</s><span class="sv">Hemat ${rp(sv)}</span>`:''}</span></span><span class="ckRadio"></span></button>`; }).join('');
   const keep=$('#overlay .dmR'); const sc=keep?keep.scrollTop:0;
   openModal(`<div class="dmHead"><h3>Pilih paket ${esc(p.name)}</h3><button type="button" class="dmX" data-act="close" aria-label="Tutup">&times;</button></div>
     <div class="dmBody"><div class="dmL"><span class="chip" style="align-self:flex-start">Ujian PTN</span><h2 class="dmName">${esc(p.name)}</h2>${feats}</div>
@@ -1547,7 +1560,7 @@ function pkgFeatures(p,m){
   const prem=TRYOUTS.filter(t=>t.access==='premium'&&p.covers.includes(t.jalur)).length;
   const tiles=[prem?{k:'Tryout premium',v:prem+' tryout terbuka'}:{k:'Tryout',v:p.items[0]},{k:'Latihan & pembahasan',v:'Aktif '+mt}];
   const hasDrill=p.items.some(i=>/drill/i.test(i));
-  const extra=['Drill latihan soal per subtes','Skor estimasi per subtes di setiap tryout','Laporan belajar: tren skor dan subtes terlemah','Akses penuh '+mt+', aktif otomatis setelah pembayaran berhasil'].filter(i=>!(hasDrill&&/drill/i.test(i)));
+  const extra=['Latihan drill terpisah untuk tiap subtes','Perkiraan skor tiap subtes setelah setiap tryout','Laporan belajar yang menampilkan tren skor dan subtes yang perlu dikejar','Akses penuh '+mt+', langsung aktif begitu pembayaran berhasil'].filter(i=>!(hasDrill&&/drill/i.test(i)));
   const seen={}, list=[];
   p.items.concat(extra).forEach(i=>{ const k=i.toLowerCase(); if(!seen[k]){ seen[k]=1; list.push(i); } });
   return {tiles,list};
@@ -1779,7 +1792,7 @@ function route(){
     case 'laporan': return viewLaporan();
     case 'komunitas': return viewKomunitas();
     case 'nera': return viewNera(qs);
-    case 'paket': return viewPaket();
+    case 'paket': return viewPaket(qs);
     case 'checkout': return viewCheckout(p[1],p[2]);
     case 'bayar': return viewBayar(p[1]);
     case 'akun': return viewAkun();
