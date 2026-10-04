@@ -1,29 +1,128 @@
 <!doctype html>
 <html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4c62f">
 <title>Cognera Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-:root{--y:#f4c62f;--ink:#191b20;--line:#e5e8ed;--bg:#f7f7f7;--mut:#68717f;--bad:#d64545}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+:root{--y:#f4c62f;--yd:#e5b419;--yp:#fff7d7;--ink:#191b20;--line:#e5e8ed;--bg:#f7f7f7;--mut:#68717f;--bad:#d64545;--badbg:#fdecec;--ok:#1f9d55;--okbg:#e6f6ec;--r:14px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "DM Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:Manrope,"DM Sans",sans-serif;letter-spacing:-.03em;margin:0;line-height:1.15}
 button,input,select,textarea{font:inherit;color:inherit}button{cursor:pointer}
-.top{background:#fff;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;display:flex;gap:6px;align-items:center;padding:10px 16px;flex-wrap:wrap}
-.brand{font-weight:800;font-size:18px;margin-right:10px}.brand b{background:var(--y);padding:2px 8px;border-radius:8px;margin-right:6px}
-.tab{border:0;background:none;padding:8px 13px;border-radius:99px;font-weight:600;color:#414955}.tab.on{background:var(--y);color:var(--ink);font-weight:800}.sp{flex:1}
-main{max-width:1180px;margin:0 auto;padding:22px 16px 80px}h1{font-size:24px;margin:0 0 14px}
-.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px}.mut{color:var(--mut)}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));margin-bottom:16px}.grid b{display:block;font-size:28px}
-.btn{border:1.5px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font-weight:700}.btn:hover{border-color:var(--ink)}
-.btn.y{background:var(--y);border-color:var(--y)}.btn.p{background:var(--ink);color:#fff;border-color:var(--ink)}.btn.d{color:var(--bad)}.btn.s{padding:3px 10px;font-size:12px}
-.bar{display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap}.tw{overflow-x:auto;padding:0}
-table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
-th{font-size:12px;color:var(--mut);text-transform:uppercase}td img{width:38px;height:38px;object-fit:cover;border-radius:6px;display:block}
-input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;background:#fff}textarea{min-height:76px;resize:vertical}
-label{display:block;font-weight:700;font-size:13px;margin:12px 0 4px}label.ck{display:flex;gap:8px;align-items:center}label.ck input{width:auto}
-.ov{position:fixed;inset:0;background:rgba(25,27,32,.55);display:grid;place-items:center;z-index:20;padding:16px}
-.md{background:#fff;border-radius:16px;width:min(640px,100%);max-height:92vh;overflow:auto;padding:22px}.md h3{margin:0 0 4px;font-size:18px}
-.act{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}.err{background:#fdecec;color:#a52f2f;border-radius:10px;padding:9px 12px;margin-top:10px}
-.pv{max-width:160px;max-height:120px;border-radius:8px;margin-top:6px;display:block}.chip{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:2px 10px;margin:2px;font-size:12px;font-weight:700}
-.lg{max-width:380px;margin:12vh auto;padding:0 16px}#toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:99px;z-index:30}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-radius:6px}
+svg.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* Brand */
+.brand{display:flex;align-items:center;gap:9px;font:800 22px Manrope,system-ui,sans-serif;letter-spacing:-1px}
+.brandMark{width:30px;height:30px;border-radius:9px;background:var(--y);display:grid;place-items:center;color:#171717;font:800 17px Manrope,system-ui,sans-serif;letter-spacing:0}
+.tag{font:800 11px "DM Sans",sans-serif;letter-spacing:.04em;text-transform:uppercase;background:var(--yp);color:#8a6a00;padding:3px 8px;border-radius:99px}
+
+/* Layout: sidebar kiri */
+.app{display:grid;grid-template-columns:260px minmax(0,1fr);min-height:100vh}
+.side{position:sticky;top:0;height:100vh;background:#fff;border-right:1px solid var(--line);padding:22px 14px 16px;display:flex;flex-direction:column;gap:18px;z-index:40;overflow-y:auto}
+.side .brand{padding:0 8px;gap:9px}
+.grp{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);padding:0 14px;margin:6px 0 4px}
+.nav{display:grid;gap:3px}
+.nav button{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:11px 14px;border-radius:14px;border:1.5px solid transparent;background:none;font-weight:600;font-size:14.5px;color:#414955}
+.nav button:hover{background:var(--bg)}
+.nav button.on{background:none;border-color:transparent;color:var(--yd);font-weight:800}
+.nav .bd{margin-left:auto;background:var(--y);color:var(--ink);font-size:11px;font-weight:800;border-radius:99px;min-width:22px;padding:0 6px;text-align:center;line-height:18px}
+.sideFoot{margin-top:auto;border-top:1px solid var(--line);padding-top:14px;display:grid;gap:10px}
+.me{display:flex;align-items:center;gap:10px;padding:0 6px;min-width:0}
+.av{width:36px;height:36px;border-radius:50%;background:var(--y);color:var(--ink);display:grid;place-items:center;font:800 14px Manrope,system-ui,sans-serif;flex:none}
+.me div{min-width:0;line-height:1.3}.me b{display:block;font-size:13px}.me div span{display:block;font-size:12px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top{display:none;position:sticky;top:0;z-index:30;height:58px;align-items:center;gap:12px;padding:0 16px;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.ib{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;border:0;background:none}.ib:hover{background:var(--bg)}
+.scrim{display:none}
+.content{min-width:0}
+main{max-width:1180px;margin:0 auto;padding:28px 28px 90px}
+main>h1,.ph h1{font-size:28px}.ph{margin-bottom:18px}.ph p{margin:6px 0 0;color:var(--mut)}
+.mut{color:var(--mut)}
+
+/* Komponen */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:40px;padding:0 18px;border:1.5px solid var(--line);background:#fff;border-radius:99px;font-weight:700;font-size:14px;white-space:nowrap;transition:background .15s,transform .15s}
+.btn:hover{border-color:var(--ink)}.btn:active{transform:translateY(1px)}
+.btn.y{background:var(--y);border-color:var(--y)}.btn.y:hover{background:#ffd84b;border-color:#ffd84b}
+.btn.p{background:var(--y);color:var(--ink);border-color:var(--y)}.btn.p:hover{background:#ffd84b;border-color:#ffd84b}
+.btn.d{color:var(--bad)}.btn.d:hover{border-color:var(--bad)}
+.btn.s{min-height:32px;padding:0 12px;font-size:12.5px}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
+.chip{white-space:nowrap;display:inline-flex;align-items:center;gap:6px;padding:3px 10px;margin:2px;border-radius:99px;background:var(--bg);border:1px solid var(--line);font-size:12px;font-weight:700}
+.chip.ok{background:var(--okbg);border-color:#bfe5cd;color:#13703c}
+.chip.bad{background:var(--badbg);border-color:#f3c5c5;color:#a52f2f}
+.chip.y{background:var(--yp);border-color:#f0dc8a}
+.seg{display:inline-flex;background:#eceff3;border-radius:99px;padding:4px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:7px 15px;border-radius:99px;font-weight:700;font-size:13px;color:#4b5563}
+.seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.bar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.tw{overflow-x:auto;padding:0}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+th{font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;background:#fafafa;font-weight:800}
+td img{width:38px;height:38px;object-fit:cover;border-radius:8px;display:block}
+input,select,textarea{width:100%;min-height:44px;border:1.5px solid #cfd5dd;border-radius:12px;padding:9px 13px;background:#fff;transition:border-color .15s}
+textarea{min-height:80px;resize:vertical}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 3px rgba(244,198,47,.55)}
+label{display:block;font-weight:700;font-size:13px;margin:14px 0 6px}
+label.ck{display:flex;gap:8px;align-items:center}label.ck input{width:auto;min-height:0}
+.err{background:var(--badbg);border:1px solid #f3c5c5;color:#a52f2f;border-radius:10px;padding:10px 12px;font-size:13px;font-weight:600;margin-top:12px}
+.pv{max-width:160px;max-height:120px;border-radius:8px;margin-top:6px;display:block}
+
+/* Modal ala web utama */
+.ov{position:fixed;inset:0;background:rgba(25,27,32,.55);display:grid;place-items:center;z-index:60;padding:16px}
+.md{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.18);width:min(640px,100%);max-height:92vh;overflow:auto;padding:24px}
+.md h3{margin:0 0 4px;font-size:20px}
+.act{display:flex;gap:8px;justify-content:flex-end;margin-top:20px}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:99px;font-weight:700;font-size:14px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+
+/* Dasbor */
+.kpis{display:grid;gap:14px;grid-template-columns:repeat(3,minmax(0,1fr));margin-bottom:18px}
+.kpi{display:flex;gap:14px;align-items:center;padding:16px}
+.kpi .ico{width:44px;height:44px;border-radius:12px;background:var(--y);display:grid;place-items:center;flex:none}
+.kpi small{display:block;color:var(--mut);font-weight:600;font-size:12.5px}
+.kpi b{display:block;font:800 24px Manrope,system-ui,sans-serif;letter-spacing:-.04em;line-height:1.2}
+.kpi.hl{background:var(--y);border-color:var(--y)}
+.kpi.hl .ico{background:#fff}.kpi.hl small{color:#3d3820}
+.g2{display:grid;gap:14px;grid-template-columns:1.6fr 1fr;margin-bottom:14px}
+.g2e{display:grid;gap:14px;grid-template-columns:1fr 1fr;margin-bottom:14px}.g2e.last{grid-template-columns:1fr 1.5fr}.nw td{white-space:nowrap}
+.ch h3{font-size:16px}.ch .sub{color:var(--mut);font-size:12.5px;margin:2px 0 12px}
+.ch svg{width:100%;height:auto;display:block}
+.ch .ax{font:600 11px "DM Sans",sans-serif;fill:#68717f}
+.hb{display:grid;gap:11px}.hb .r{display:grid;grid-template-columns:150px 1fr 38px;gap:10px;align-items:center;font-size:13px;font-weight:600}
+.hb .t{height:12px;border-radius:99px;background:#eceff3;overflow:hidden}.hb .t i{display:block;height:100%;background:var(--y);border-radius:99px}
+.hb .r span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.hb .r span:last-child{text-align:right;font-weight:800}
+.dn{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.dn svg{width:150px;flex:none}
+.lg2{display:grid;gap:7px;font-size:13px;font-weight:600;min-width:0;flex:1}.lg2 div{display:flex;align-items:center;gap:8px}.lg2 i{width:11px;height:11px;border-radius:4px;flex:none}.lg2 b{margin-left:auto}
+.empty{border:1.5px dashed #cfd5dd;border-radius:var(--r);padding:22px;text-align:center;color:var(--mut)}
+.card .hd{padding:16px 16px 4px;display:flex;align-items:center;justify-content:space-between;gap:8px}.card .hd h3{font-size:16px}
+.note{background:var(--yp);border:1px solid #f0dc8a;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-bottom:14px}
+
+/* Login ala halaman masuk web utama */
+.auth{min-height:100vh;display:grid;grid-template-columns:1.05fr 1fr}
+.authSide{background:var(--y);padding:44px 52px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+.authSide:after{content:"";position:absolute;width:380px;height:380px;border-radius:50%;background:rgba(255,255,255,.26);right:-140px;bottom:-150px}
+.authSide h1{font-size:clamp(32px,4vw,46px);letter-spacing:-.055em;max-width:480px;margin:0 0 14px}
+.authSide p{max-width:420px;color:#48412c;font-size:16px;line-height:1.6;margin:0}
+.authForm{display:flex;align-items:center;justify-content:center;padding:36px 24px;background:#fff}
+.authBox{width:min(400px,100%)}.authBox h2{font-size:28px;margin-bottom:4px}
+
+@media(max-width:1000px){.g2,.g2e,.g2e.last{grid-template-columns:1fr}}
+@media(max-width:640px){.kpis{grid-template-columns:1fr 1fr}.kpi{padding:12px;gap:10px}.kpi .ico{width:38px;height:38px}.kpi b{font-size:19px}}
+@media(max-width:900px){
+ .app{grid-template-columns:1fr}
+ .side{position:fixed;left:0;top:0;bottom:0;width:272px;transform:translateX(-102%);transition:transform .2s;box-shadow:none}
+ .app.open .side{transform:none;box-shadow:8px 0 30px rgba(0,0,0,.18)}
+ .app.open .scrim{display:block;position:fixed;inset:0;background:rgba(25,27,32,.45);z-index:35}
+ .top{display:flex}
+ main{padding:20px 16px 90px}
+ .auth{grid-template-columns:1fr}.authSide{display:none}
+}
+@media(max-width:560px){.hb .r{grid-template-columns:110px 1fr 34px}}
 </style></head><body><div id="app"></div><script>
 const CFG={URL:'https://azjseobcambbbllqlqxx.supabase.co',KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6anNlb2JjYW1iYmJsbHFscXh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwOTYwMzAsImV4cCI6MjEwNjY3MjAzMH0.vZITnNh_K2vy7a78gpZyhHnLdHtzTn5ahe_3ARIMt18',BUCKET:'media'}; // isi KEY = anon/publishable key
 const SB=supabase.createClient(CFG.URL,CFG.KEY||'x');
@@ -129,28 +228,134 @@ async function results(uid){
  main.innerHTML='<p class="mut">Memuat…</p>';let L;try{L=await attempts(uid)}catch(e){return main.innerHTML=`<div class="err">${esc(e.message)}</div>`}
  main.innerHTML=`<h1>Hasil tryout${uid?' (satu pengguna)':''}</h1>${uid?'<div class="bar"><button class="btn" id="all">Lihat semua</button></div>':''}<div class="card tw"><table>${headA}${rowsA(L.slice(0,300))}</table></div>`;
  if($('#all'))$('#all').onclick=()=>results();$('.tw table').onclick=e=>{const b=e.target.closest('button');if(b)detail(L[b.dataset.i],()=>results(uid))}}
+/* ===== Ikon (sama dengan web utama) ===== */
+const ICONS={
+ home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+ tryout:'<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9z"/><path d="M9 14l2 2 4-4"/>',
+ drill:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+ chart:'<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>',
+ users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><path d="M16 4.5a3.5 3.5 0 010 7M18 14.5c2.2.6 3.5 2.6 3.5 5.5"/>',
+ bag:'<path d="M5 8h14l-1 12H6z"/><path d="M9 8a3 3 0 016 0"/>',
+ key:'<circle cx="8" cy="15" r="4"/><path d="M11 12l9-9M16 7l3 3"/>',
+ wallet:'<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18M16 15h2"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ spark:'<path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/>',
+ menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+ out:'<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>'
+};
+const ic=n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]||''}</svg>`;
+const rp=n=>'Rp'+Number(n||0).toLocaleString('id-ID');
+const MET={qris:'QRIS',dana:'DANA',gopay:'GoPay',shopeepay:'ShopeePay',jago:'Bank Jago',bsi:'BSI'};
+const STAT={pending:['Menunggu','y'],paid:['Lunas','ok'],rejected:['Ditolak','bad']};
+
+/* ===== Chart SVG (tanpa library) ===== */
+const DAY=864e5,dk=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+function series(n,items,getT,getV){const o=[],idx={},now=Date.now();
+ for(let i=n-1;i>=0;i--){const t=now-i*DAY;idx[dk(t)]=o.length;o.push({l:new Date(t).toLocaleDateString('id-ID',{day:'numeric',month:'short'}),v:0})}
+ items.forEach(x=>{const k=dk(getT(x));if(k in idx)o[idx[k]].v+=getV(x)});return o}
+function niceMax(m){if(m<=4)return 4;const p=Math.pow(10,Math.floor(Math.log10(m))),f=m/p;return (f<=1?1:f<=2?2:f<=2.5?2.5:f<=5?5:10)*p}
+function plot(pts,type,fy){
+ const W=640,H=230,L=52,R=14,T=14,B=30,mx=niceMax(Math.max(...pts.map(p=>p.v),1)),n=pts.length,iw=W-L-R,ih=H-T-B;
+ const X=i=>L+(n===1?iw/2:i*iw/(n-1)),Y=v=>T+ih-(v/mx)*ih;let g='';
+ for(let k=0;k<=4;k++){const v=mx*k/4,y=Y(v);g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="#e5e8ed"/><text class="ax" x="${L-8}" y="${y+4}" text-anchor="end">${fy(v)}</text>`}
+ const st=Math.ceil(n/6);pts.forEach((p,i)=>{if(i%st===0||i===n-1)g+=`<text class="ax" x="${X(i)}" y="${H-8}" text-anchor="middle">${p.l}</text>`});
+ if(type==='bar'){const bw=Math.min(22,iw/n*.62);pts.forEach((p,i)=>{const h=(p.v/mx)*ih;g+=`<rect x="${X(i)-bw/2}" y="${T+ih-h}" width="${bw}" height="${Math.max(h,p.v?2:0)}" rx="4" fill="#f4c62f"><title>${p.l}: ${fy(p.v)}</title></rect>`})}
+ else{const d=pts.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(p.v).toFixed(1)).join(' ');
+  g+=`<path d="${d} L${X(n-1)} ${T+ih} L${X(0)} ${T+ih}Z" fill="#fff7d7"/><path d="${d}" fill="none" stroke="#e5b419" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>`;
+  pts.forEach((p,i)=>{g+=`<circle cx="${X(i)}" cy="${Y(p.v)}" r="${n<=16?4.5:3}" fill="#fff" stroke="#e5b419" stroke-width="2.5"><title>${p.l}: ${fy(p.v)}</title></circle>`})}
+ return `<svg viewBox="0 0 ${W} ${H}" role="img">${g}</svg>`}
+function hbar(items){const m=Math.max(...items.map(x=>x[1]),1);return `<div class="hb">${items.map(([l,v])=>`<div class="r"><span title="${esc(l)}">${esc(l)}</span><div class="t"><i style="width:${Math.max(v/m*100,3)}%"></i></div><span>${v}</span></div>`).join('')}</div>`}
+const PAL=['#f4c62f','#f9dc78','#c99a00','#fbe9a6','#e5b419','#fdf2c6','#a07d00','#ffd84b'];
+function donut(items){const tot=items.reduce((s,x)=>s+x[1],0)||1,r=54,C=2*Math.PI*r;let off=0,s='';
+ items.forEach(([l,v],i)=>{const len=v/tot*C;s+=`<circle r="${r}" cx="75" cy="75" fill="none" stroke="${PAL[i%PAL.length]}" stroke-width="24" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 75 75)"/>`;off+=len});
+ return `<div class="dn"><svg viewBox="0 0 150 150" role="img"><circle r="${r}" cx="75" cy="75" fill="none" stroke="#eceff3" stroke-width="24"/>${s}<text x="75" y="73" text-anchor="middle" style="font:800 24px Manrope,sans-serif" fill="#191b20">${items.reduce((a,x)=>a+x[1],0)}</text><text x="75" y="91" text-anchor="middle" class="ax">total</text></svg>
+ <div class="lg2">${items.map(([l,v],i)=>`<div><i style="background:${PAL[i%PAL.length]}"></i><span>${esc(l)}</span><b>${v}</b></div>`).join('')}</div></div>`}
+
+/* ===== Pesanan ===== */
+async function loadOrders(){
+ const {data,error}=await SB.from('orders').select('*').order('created_at',{ascending:false}).limit(1000);if(error)throw error;
+ const [u,p]=await Promise.all([SB.rpc('admin_users'),SB.from('profiles').select('id,name')]);
+ const em=Object.fromEntries((u.data||[]).map(x=>[x.id,x.email])),nm=Object.fromEntries((p.data||[]).map(x=>[x.id,x.name]));
+ data.forEach(x=>x.who=[nm[x.user_id],em[x.user_id]].filter(Boolean).join(' · ')||x.user_id);return data}
+async function proofView(o){
+ const m=modal('<p class="mut">Memuat bukti…</p>');
+ const {data,error}=await SB.storage.from('proofs').createSignedUrl(o.proof_path,600);
+ if(error){m.querySelector('.md').innerHTML=`<div class="err">${esc(error.message)}</div><div class="act"><button class="btn p" id="ok">Tutup</button></div>`;return m.querySelector('#ok').onclick=()=>m.remove()}
+ m.querySelector('.md').innerHTML=`<h3>Bukti transfer</h3><p class="mut">${esc(o.who)} · ${esc(MET[o.method]||o.method)} · <b>${rp(o.amount)}</b></p><img src="${esc(data.signedUrl)}" alt="Bukti transfer" style="max-width:100%;max-height:62vh;border-radius:10px;border:1px solid var(--line);display:block;margin:0 auto"><div class="act"><a class="btn" href="${esc(data.signedUrl)}" target="_blank" rel="noopener">Buka ukuran penuh</a><button class="btn p" id="ok">Tutup</button></div>`;
+ m.querySelector('#ok').onclick=()=>m.remove()}
+async function orders(st='pending'){
+ main.innerHTML='<p class="mut">Memuat…</p>';let L;
+ try{L=await loadOrders()}catch(e){return main.innerHTML=`<div class="err">${esc(e.message)}<br>Pastikan payments-schema.sql sudah dijalankan di Supabase.</div>`}
+ const cnt=k=>L.filter(x=>x.status===k).length,V=st==='all'?L:L.filter(x=>x.status===st);
+ main.innerHTML=`<div class="ph"><h1>Pesanan</h1><p>Cocokkan nominal (termasuk kode unik) dengan mutasi rekening / e-wallet, lalu setujui. Paket aktif otomatis 12 bulan.</p></div>
+ <div class="bar"><div class="seg">${[['pending','Menunggu'],['paid','Lunas'],['rejected','Ditolak'],['all','Semua']].map(([k,l])=>`<button data-s="${k}" class="${k===st?'on':''}">${l}${k==='all'?'':' ('+cnt(k)+')'}</button>`).join('')}</div></div>
+ <div class="card tw"><table><tr><th>Waktu</th><th>Pengguna</th><th>Paket</th><th>Metode</th><th>Total</th><th>Bukti</th><th>Status</th><th></th></tr>
+ ${V.map(x=>`<tr><td>${esc(fmt(x.created_at))}</td><td>${esc(x.who)}</td><td><span class="chip">${esc(x.package_id)}</span></td><td>${esc(MET[x.method]||x.method)}</td><td><b>${rp(x.amount)}</b></td>
+ <td>${x.proof_path?`<button class="btn s" data-p="${x.id}">Lihat</button>`:'<span class="mut">Belum ada</span>'}</td>
+ <td><span class="chip ${STAT[x.status][1]}">${STAT[x.status][0]}</span>${x.note&&x.status==='rejected'?`<div class="mut" style="font-size:12px">${esc(x.note)}</div>`:''}</td>
+ <td style="white-space:nowrap">${x.status==='pending'?`<button class="btn s y" data-a="${x.id}">Setujui</button> <button class="btn s d" data-r="${x.id}">Tolak</button>`:''}</td></tr>`).join('')||'<tr><td colspan="8" class="mut" style="padding:22px">Tidak ada pesanan.</td></tr>'}</table></div>`;
+ main.onclick=async e=>{const b=e.target.closest('button');if(!b)return;const d=b.dataset;
+  if(d.s)return orders(d.s);
+  if(d.p)return proofView(L.find(x=>x.id===d.p));
+  if(d.a){const o=L.find(x=>x.id===d.a);if(!confirm(`Setujui ${rp(o.amount)} dari ${o.who}?\nPaket ${o.package_id} langsung aktif 12 bulan.`))return;
+   b.disabled=true;const {error}=await SB.rpc('admin_approve_order',{p_order:d.a});if(error){b.disabled=false;return toast(error.message)}toast('Pesanan disetujui, paket aktif');badge();orders(st)}
+  if(d.r){const n=prompt('Alasan penolakan (opsional, terlihat oleh admin):','');if(n===null)return;
+   const {error}=await SB.rpc('admin_reject_order',{p_order:d.r,p_note:n||null});if(error)return toast(error.message);toast('Pesanan ditolak');badge();orders(st)}}}
+async function badge(){
+ try{const {count}=await SB.from('orders').select('*',{count:'exact',head:true}).eq('status','pending');const el=document.getElementById('bd-orders');if(el){el.textContent=count||'';el.hidden=!count}}catch(e){}}
+
+/* ===== Dasbor ===== */
 async function dash(){
  main.innerHTML='<p class="mut">Memuat…</p>';const cnt=async t=>(await SB.from(t).select('*',{count:'exact',head:true})).count||0;
- try{const [u,t,qs,L,en]=await Promise.all([cnt('profiles'),cnt('tryouts'),SB.from('questions').select('subtest,active'),attempts(),SB.from('entitlements').select('package_id,ends_at')]);
+ try{
+  const [u,t,qs,L,en]=await Promise.all([cnt('profiles'),cnt('tryouts'),SB.from('questions').select('subtest,active'),attempts(),SB.from('entitlements').select('package_id,ends_at')]);
+  let O=[],oerr=false;try{O=await loadOrders()}catch(e){oerr=true}
   const nw=Date.now(),ps={};(en.data||[]).forEach(z=>{if(!z.ends_at||new Date(z.ends_at)>nw)ps[z.package_id]=(ps[z.package_id]||0)+1});
-  const q=qs.data||[],bs={};q.filter(x=>x.active).forEach(x=>bs[x.subtest]=(bs[x.subtest]||0)+1);const avg=L.length?Math.round(L.reduce((s,a)=>s+a.total,0)/L.length):0;
-  const st=[['Pengguna',u],['Soal',q.length],['Tryout',t],['Percobaan tryout',L.length],['Rata-rata skor',avg]];
-  main.innerHTML=`<h1>Dasbor</h1><div class="grid">${st.map(s=>`<div class="card"><span class="mut">${s[0]}</span><b>${s[1]}</b></div>`).join('')}</div><div class="card" style="margin-bottom:16px"><b>Soal aktif per subtes</b><div style="margin-top:8px">${Object.entries(bs).map(([k,v])=>`<span class="chip">${esc(SUBS[k]||k)}: ${v}</span>`).join('')||'<span class="mut">Belum ada soal.</span>'}</div></div><div class="card" style="margin-bottom:16px"><b>Pelanggan aktif per paket</b><div style="margin-top:8px">${Object.entries(ps).map(([k,v])=>`<span class="chip">${esc(k)}: ${v}</span>`).join('')||'<span class="mut">Belum ada pelanggan paket.</span>'}</div></div><div class="card tw"><div style="padding:14px 14px 0"><b>Hasil terbaru</b></div><table>${headA}${rowsA(L.slice(0,8))}</table></div>`;
-  $('.tw table').onclick=e=>{const b=e.target.closest('button');if(b)detail(L[b.dataset.i],dash)}
+  const q=qs.data||[],bs={};q.filter(x=>x.active).forEach(x=>bs[x.subtest]=(bs[x.subtest]||0)+1);
+  const avg=L.length?Math.round(L.reduce((s,a)=>s+a.total,0)/L.length):0;
+  const paid=O.filter(x=>x.status==='paid'),pend=O.filter(x=>x.status==='pending'),rev=paid.reduce((s,x)=>s+x.amount,0);
+  const rev30=series(30,paid,x=>new Date(x.paid_at||x.created_at).getTime(),x=>x.amount),att14=series(14,L,x=>x.at,()=>1);
+  const rev30sum=rev30.reduce((s,x)=>s+x.v,0);
+  const K=[['wallet','Total pendapatan',rp(rev),'hl'],['clock','Pesanan menunggu',pend.length,''],['users','Pengguna',u,''],['tryout','Percobaan tryout',L.length,''],['chart','Rata-rata skor',avg,''],['drill','Soal aktif',q.filter(x=>x.active).length+' / '+q.length,'']];
+  const shortRp=v=>v>=1e6?(v/1e6).toFixed(v%1e6?1:0)+' jt':v>=1e3?Math.round(v/1e3)+' rb':String(Math.round(v));
+  main.innerHTML=`<div class="ph"><h1>Dasbor</h1><p>Ringkasan Cognera hari ini.</p></div>
+  ${oerr?'<div class="note">Data pesanan belum bisa dibaca. Jalankan <b>payments-schema.sql</b> di Supabase SQL Editor supaya pendapatan dan pesanan muncul di sini.</div>':''}
+  <div class="kpis">${K.map(k=>`<div class="card kpi ${k[3]}"><span class="ico">${ic(k[0])}</span><div><small>${k[1]}</small><b>${k[2]}</b></div></div>`).join('')}</div>
+  <div class="g2"><section class="card ch"><h3>Pendapatan 30 hari terakhir</h3><div class="sub">Total ${rp(rev30sum)} dari ${paid.length} pesanan lunas (sepanjang waktu)</div>${plot(rev30,'bar',shortRp)}</section>
+   <section class="card ch"><h3>Pelanggan aktif per paket</h3><div class="sub">Akses yang belum berakhir</div>${Object.keys(ps).length?donut(Object.entries(ps).sort((a,b)=>b[1]-a[1])):'<div class="empty">Belum ada pelanggan paket.</div>'}</section></div>
+  <div class="g2e"><section class="card ch"><h3>Percobaan tryout 14 hari terakhir</h3><div class="sub">Jumlah tryout yang dikerjakan pengguna</div>${plot(att14,'line',v=>String(Math.round(v)))}</section>
+   <section class="card ch"><h3>Soal aktif per subtes</h3><div class="sub">Bank soal yang tampil di aplikasi</div>${Object.keys(bs).length?hbar(Object.entries(bs).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[SUBS[k]||k,v])):'<div class="empty">Belum ada soal.</div>'}</section></div>
+  <div class="g2e last"><div class="card tw"><div class="hd"><h3>Pesanan menunggu</h3><button class="btn s" data-go="orders">Lihat semua</button></div>
+   <table class="nw"><tr><th>Pengguna</th><th>Paket</th><th>Total</th></tr>${pend.slice(0,5).map(x=>`<tr><td>${esc(x.who.split(' · ')[0])}</td><td><span class="chip">${esc(x.package_id)}</span></td><td><b>${rp(x.amount)}</b></td></tr>`).join('')||'<tr><td colspan="3" class="mut" style="padding:18px">Tidak ada pesanan menunggu.</td></tr>'}</table></div>
+   <div class="card tw" id="lastres"><div class="hd"><h3>Hasil terbaru</h3><button class="btn s" data-go="results">Lihat semua</button></div><table class="nw"><tr><th>Pengguna</th><th>Tryout</th><th>Skor</th><th>Waktu</th><th></th></tr>${L.slice(0,5).map((a,i)=>`<tr><td>${esc(a.name)}</td><td>${esc(a.title)}</td><td><b>${a.total}</b></td><td>${esc(new Date(a.at).toLocaleDateString('id-ID',{day:'numeric',month:'short'}))}</td><td><button class="btn s" data-i="${i}">Detail</button></td></tr>`).join('')||'<tr><td colspan="5" class="mut" style="padding:18px">Belum ada hasil.</td></tr>'}</table></div></div>`;
+  main.onclick=e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.go)return go(b.dataset.go);if(b.dataset.i!=null)detail(L[b.dataset.i],dash)}
  }catch(e){main.innerHTML=`<div class="err">${esc(e.message)}<br>Pastikan admin-schema.sql sudah dijalankan.</div>`}}
 
-/* ===== Shell, login ===== */
-let main;const TABS=[['dash','Dasbor'],['questions','Soal'],['tryouts','Tryout'],['profiles','Pengguna'],['results','Hasil'],['entitlements','Akses paket']];
-function go(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));t==='dash'?dash():t==='results'?results():crud(t)}
-function shell(){$('#app').innerHTML=`<header class="top"><span class="brand"><b>C</b>Admin</span>${TABS.map(t=>`<button class="tab" data-t="${t[0]}">${t[1]}</button>`).join('')}<span class="sp"></span><button class="btn s" id="out">Keluar</button></header><main id="main"></main>`;main=$('#main');
- $('.top').onclick=e=>{const b=e.target.closest('.tab');if(b)go(b.dataset.t)};$('#out').onclick=async()=>{await SB.auth.signOut();login()};go('dash')}
-function login(msg){$('#app').innerHTML=`<form class="lg card"><h1>Cognera Admin</h1><label>Email</label><input name="e" type="email" required autocomplete="username"><label>Kata sandi</label><input name="p" type="password" required autocomplete="current-password"><div id="le">${msg?`<div class="err">${esc(msg)}</div>`:''}</div><div class="act"><button class="btn p" style="width:100%">Masuk</button></div></form>`;
+/* ===== Shell (sidebar kiri), login ===== */
+let main,ME='';
+const NAV=[['Utama',[['dash','Dasbor','home'],['orders','Pesanan','wallet']]],['Konten',[['questions','Soal','drill'],['tryouts','Tryout','tryout']]],['Pengguna',[['profiles','Pengguna','users'],['results','Hasil tryout','chart'],['entitlements','Akses paket','key']]]];
+function go(t){
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.t===t));$('.app').classList.remove('open');main.onclick=null;window.scrollTo(0,0);
+ t==='dash'?dash():t==='orders'?orders():t==='results'?results():crud(t)}
+function shell(){
+ $('#app').innerHTML=`<div class="app"><aside class="side"><div class="brand"><span class="brandMark">C</span>cognera <span class="tag">Admin</span></div>
+ <nav class="nav">${NAV.map(([g,it])=>`<div class="grp">${g}</div>${it.map(t=>`<button data-t="${t[0]}">${ic(t[2])}${t[1]}${t[0]==='orders'?'<span class="bd" id="bd-orders" hidden></span>':''}</button>`).join('')}`).join('')}</nav>
+ <div class="sideFoot"><div class="me"><span class="av">${esc((ME[0]||'A').toUpperCase())}</span><div><b>Admin</b><span>${esc(ME)}</span></div></div><button class="btn" id="out">${ic('out')}Keluar</button></div></aside>
+ <div class="scrim" id="scrim"></div>
+ <div class="content"><header class="top"><button class="ib" id="mb" aria-label="Buka menu">${ic('menu')}</button><span class="brand" style="font-size:19px"><span class="brandMark" style="width:26px;height:26px;font-size:14px">C</span>admin</span></header><main id="main"></main></div></div>`;
+ main=$('#main');
+ $('.nav').onclick=e=>{const b=e.target.closest('button');if(b)go(b.dataset.t)};
+ $('#mb').onclick=()=>$('.app').classList.add('open');$('#scrim').onclick=()=>$('.app').classList.remove('open');
+ $('#out').onclick=async()=>{await SB.auth.signOut();login()};go('dash');badge()}
+function login(msg){
+ $('#app').innerHTML=`<div class="auth"><div class="authSide"><div class="brand"><span class="brandMark" style="background:#fff">C</span>cognera</div><div><h1>Kelola Cognera dari satu tempat.</h1><p>Soal, tryout, pengguna, dan pesanan paket. Masuk dengan akun admin.</p></div><span></span></div>
+ <div class="authForm"><form class="authBox"><h2>Masuk admin</h2><p class="mut" style="margin:0 0 6px">Khusus pengelola Cognera.</p><label>Email</label><input name="e" type="email" required autocomplete="username"><label>Kata sandi</label><input name="p" type="password" required autocomplete="current-password"><div id="le">${msg?`<div class="err">${esc(msg)}</div>`:''}</div><button class="btn p" style="width:100%;margin-top:20px;min-height:46px">Masuk</button></form></div></div>`;
  $('form').onsubmit=async e=>{e.preventDefault();const f=e.target.elements,{error}=await SB.auth.signInWithPassword({email:f.e.value.trim(),password:f.p.value});
   if(error)return $('#le').innerHTML='<div class="err">Email atau kata sandi salah.</div>';boot()}}
 async function boot(){
- if(!CFG.KEY)return $('#app').innerHTML='<div class="lg card"><b>Isi CFG.KEY di admin.html</b> dengan anon/publishable key Supabase.</div>';
+ if(!CFG.KEY)return $('#app').innerHTML='<div class="authForm" style="min-height:100vh"><div class="card"><b>Isi CFG.KEY di admin.html</b> dengan anon/publishable key Supabase.</div></div>';
  const {data}=await SB.auth.getSession();if(!data.session)return login();
  const a=await SB.from('admins').select('user_id').eq('user_id',data.session.user.id).maybeSingle();
- if(!a.data){await SB.auth.signOut();return login('Akun ini bukan admin.')}shell()}
+ if(!a.data){await SB.auth.signOut();return login('Akun ini bukan admin.')}ME=data.session.user.email||'';shell()}
 boot();
 </script></body></html>
