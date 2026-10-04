@@ -55,6 +55,11 @@ svg.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;strok
 .avatar img,.pa img{width:100%;height:100%;object-fit:cover;display:block}
 .pRow{display:flex;gap:12px}.pRow .pa{flex:0 0 auto}.pact{display:flex;align-items:center;gap:22px;margin-top:10px}
 .pbtn{display:inline-flex;align-items:center;gap:6px;border:0;background:none;color:var(--muted);padding:4px;cursor:pointer;font:inherit;font-size:14px;border-radius:8px}.pbtn:hover{color:var(--ink)}.pbtn.pl{color:#e0245e}.pbtn.po,.pbtn.ps{color:var(--ink)}.pact .sv{margin-left:auto}.pRep{margin-top:6px}
+.cgHead{display:flex;align-items:center;gap:10px;margin-bottom:12px}.cgHead>b{flex:1;text-align:center}.cgHead #cq{flex:1;min-width:0}.cgSel{width:auto;max-width:46%;font-weight:700;border-radius:99px}
+.cgBox{padding:0;overflow:hidden}.cgBox .post{border:0;border-radius:0;box-shadow:none;margin:0;background:none;padding:16px 18px;border-bottom:1px solid var(--line)}.cgBox .post:last-child{border-bottom:0}.post.clk{cursor:pointer}.post.clk:hover{background:rgba(0,0,0,.02)}.cgComp{margin-bottom:12px}
+.cgText{margin:8px 0 0;white-space:pre-wrap;font-family:var(--cg-ff,inherit);font-size:var(--cg-fs,15px);line-height:var(--cg-lh,1.55);text-align:var(--cg-ta,left)}
+.cgReply{display:flex;gap:10px;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line)}.cgReply .input{flex:1}.cgRep{display:flex;gap:12px;padding:14px 18px;border-bottom:1px solid var(--line)}.cgRep p{margin:4px 0 0}
+.cgr{width:100%;margin-top:10px;accent-color:var(--yellow,#f4c62f)}.cgPrev{margin-top:16px;padding:12px 14px;border:1px solid var(--line);border-radius:12px}
 .avBig{position:relative;width:96px;height:96px;border-radius:50%;flex:none;padding:0}
 .avBig .avatar{width:96px;height:96px;font-size:38px}
 .avBig .cam{position:absolute;right:-2px;bottom:-2px;width:32px;height:32px;border-radius:50%;background:var(--yellow);border:3px solid #fff;display:grid;place-items:center}
@@ -1416,45 +1421,77 @@ function getPosts(){
 const DEF_TOPICS=[{id:'umum',name:'Umum'},{id:'snbt',name:'SNBT'},{id:'mandiri-ptn',name:'Mandiri PTN'},{id:'um-uny',name:'UM UNY'},{id:'um-ugm',name:'UM UGM'},{id:'kedinasan',name:'Kedinasan'}];
 let TOPICS=DEF_TOPICS,FOLLOWS=new Set(),TCOUNT={},CT='semua',SAVED=new Set(),OPEN=new Set();
 const isFol=id=>id==='umum'||FOLLOWS.has(id), topicName=id=>(TOPICS.find(x=>x.id===(id||'umum'))||{name:id}).name;
+let OPENPOST=null,CQ='',_fy=0,CGS=Object.assign({ff:'std',fs:15,lh:1.55,j:false},LS.get('cgset',{}));
+const cgIc=(d,f)=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="${f?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const CG_GEAR='<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>';
+function cPosts(){
+  const sc=p=>p.likes.length*2+p.replies.length*3, tp=p=>p.topic||'umum', q=CQ.trim().toLowerCase();
+  return getPosts().filter(p=>(CT==='simpan'?SAVED.has(p.id):(isFol(tp(p))&&(CF==='all'||tp(p)===CF)))&&(!q||(p.text||'').toLowerCase().includes(q)||(p.author||'').toLowerCase().includes(q)))
+    .sort((a,b)=>CT==='populer'?(sc(b)-sc(a)||b.t-a.t):b.t-a.t);
+}
+function listHtml(){ const L=cPosts(); return L.length?L.map(p=>postHtml(p)).join(''):`<div class="empty">${CQ.trim()?'Tidak ada cogit yang cocok dengan pencarianmu.':CT==='populer'?'Belum ada cogit populer.':CT==='simpan'?'Belum ada cogit tersimpan. Ketuk ikon simpan pada cogit yang ingin kamu baca lagi.':'Belum ada cogit di sini. Jadilah yang pertama.'}</div>`; }
+function cgApply(){
+  const F={std:'inherit',serif:'Georgia,"Times New Roman",serif',lexend:'Lexend,system-ui,sans-serif'};
+  if(CGS.ff==='lexend'&&!document.getElementById('cgfont')){ const l=document.createElement('link'); l.id='cgfont'; l.rel='stylesheet'; l.href='https://fonts.googleapis.com/css2?family=Lexend:wght@400;600&display=swap'; document.head.append(l); }
+  document.querySelectorAll('#cgScope,#cgPrev').forEach(el=>{ el.style.setProperty('--cg-ff',F[CGS.ff]||'inherit'); el.style.setProperty('--cg-fs',CGS.fs+'px'); el.style.setProperty('--cg-lh',CGS.lh); el.style.setProperty('--cg-ta',CGS.j?'justify':'left'); });
+}
+const cgSave=()=>LS.set('cgset',CGS);
+function cgSheet(){
+  const fb=(k,l,st)=>`<button class="btn btn-sm ${CGS.ff===k?'btn-ink':'btn-ghost'}" style="${st}" data-act="cg-font" data-v="${k}">${l}</button>`;
+  openModal(`<h3>Tampilan percakapan</h3><p class="muted small" style="margin:4px 0 0">Pengaturan ini hanya berlaku di halaman Komunitas dan tersimpan di perangkatmu.</p>
+    <b class="small" style="display:block;margin-top:16px">Jenis huruf</b><div class="row mt12 wrapflex" style="gap:8px">${fb('std','Standar','')}${fb('serif','Serif','font-family:Georgia,serif')}${fb('lexend','Mudah dibaca','')}</div>
+    <b class="small" style="display:block;margin-top:18px">Ukuran teks <span class="muted">${CGS.fs}px</span></b><input class="cgr" type="range" min="13" max="22" step="1" value="${CGS.fs}" data-k="fs" aria-label="Ukuran teks">
+    <b class="small" style="display:block;margin-top:14px">Spasi baris <span class="muted">${CGS.lh}</span></b><input class="cgr" type="range" min="1.3" max="2" step="0.1" value="${CGS.lh}" data-k="lh" aria-label="Spasi baris">
+    <label class="row mt16" style="gap:10px;cursor:pointer"><input type="checkbox" data-k="j" ${CGS.j?'checked':''}> Rata kiri-kanan (justify)</label>
+    <div id="cgPrev" class="cgPrev"><p class="cgText" style="margin:0">Contoh: cogit adalah cara singkat untuk berbagi nalar, tanya soal, dan saling bantu belajar.</p></div>
+    <div class="row mt16"><button class="btn btn-ghost grow" data-act="cg-reset">Atur ulang</button><button class="btn btn-yellow grow" data-act="close">Selesai</button></div>`);
+  cgApply();
+}
+document.addEventListener('input',e=>{ const t=e.target;
+  if(t.id==='cq'){ CQ=t.value; const b=document.getElementById('cList'); if(b) b.innerHTML=listHtml(); }
+  else if(t.classList&&t.classList.contains('cgr')){ const k=t.dataset.k; CGS[k]=Number(t.value); cgSave(); cgApply(); const sp=t.previousElementSibling&&t.previousElementSibling.lastElementChild; if(sp) sp.textContent=k==='fs'?CGS.fs+'px':CGS.lh; } });
+document.addEventListener('change',e=>{ const t=e.target;
+  if(t.id==='cgTopic'){ CF=t.value; if(CT==='topik') CT='semua'; viewKomunitas(); }
+  else if(t.dataset&&t.dataset.k==='j'){ CGS.j=t.checked; cgSave(); cgApply(); } });
+window.addEventListener('popstate',()=>{ if(OPENPOST){ OPENPOST=null; viewKomunitas(); window.scrollTo(0,_fy); } });
+
 function viewKomunitas(){
   if(!SB){ FOLLOWS=new Set(LS.get('tfol',[])); SAVED=new Set(LS.get('csaved',[])); }
   if(SB&&Date.now()-_pl>8000){ _pl=Date.now(); loadPosts().then(()=>{ if((location.hash||'').indexOf('komunitas')>-1) viewKomunitas(); }); }
-  const sc=p=>p.likes.length*2+p.replies.length*3, tp=p=>p.topic||'umum';
-  const posts=getPosts().filter(p=>CT==='simpan'?SAVED.has(p.id):(isFol(tp(p))&&(CF==='all'||tp(p)===CF))).sort((a,b)=>CT==='populer'?(sc(b)-sc(a)||b.t-a.t):b.t-a.t);
-  const mineT=TOPICS.filter(x=>isFol(x.id)), locked=CF!=='all'&&!isFol(CF);
+  const op=OPENPOST&&getPosts().find(x=>x.id===OPENPOST); if(OPENPOST&&!op) OPENPOST=null;
+  const mineT=TOPICS.filter(x=>isFol(x.id)), locked=CF!=='all'&&!isFol(CF), _y=window.scrollY;
   const tabBtn=([k,l])=>`<button class="btn btn-sm ${CT===k?'btn-ink':'btn-ghost'}" data-act="ct" data-v="${k}">${l}</button>`;
   const folBtn=x=>x.id==='umum'?'':`<button class="btn btn-sm ${isFol(x.id)?'btn-ghost':'btn-yellow'}" data-act="tfol" data-id="${x.id}">${isFol(x.id)?'Diikuti':'Ikuti'}</button>`;
-  const composer=U.guest?`<div class="card"><b>Bagikan cogit</b><div class="muted small mt12">Masuk untuk menulis, menyukai, atau membalas cogit. Tanpa masuk, kamu hanya bisa membaca topik Umum.</div></div>`:
-    `<form class="card" data-form="post"><b>Bagikan cogit</b><textarea class="input mt12" name="text" maxlength="280" placeholder="Tulis cogit-mu: tanya soal, tips belajar, atau opini (maks. 280 karakter)" aria-label="Isi cogit"></textarea><div class="row mt12 wrapflex"><select class="input" name="topic" style="width:auto" aria-label="Topik">${mineT.map(x=>`<option value="${x.id}" ${x.id===CF?'selected':''}>${esc(x.name)}</option>`).join('')}</select><button class="btn btn-ink btn-sm" type="submit">Kirim cogit</button></div></form>`;
+  const composer=U.guest?`<div class="card" style="margin-bottom:12px"><b>Bagikan cogit</b><div class="muted small mt12">Masuk untuk menulis, menyukai, atau membalas cogit. Tanpa masuk, kamu hanya bisa membaca topik Umum.</div></div>`:
+    `<form class="card cgComp" data-form="post"><div class="row" style="align-items:flex-start;gap:12px">${avHtml('pa')}<textarea class="input grow" name="text" maxlength="280" rows="2" placeholder="Bagikan cogit-mu: tanya soal, tips belajar, atau opini" aria-label="Isi cogit"></textarea></div><div class="row mt12 wrapflex" style="justify-content:flex-end"><select class="input" name="topic" style="width:auto" aria-label="Topik">${mineT.map(x=>`<option value="${x.id}" ${x.id===CF?'selected':''}>${esc(x.name)}</option>`).join('')}</select><button class="btn btn-ink btn-sm" type="submit">Kirim cogit</button></div></form>`;
   const grid=`<div class="grid" style="gap:12px">${TOPICS.map(x=>`<div class="card"><div class="row"><div class="grow"><b>${esc(x.name)}</b><div class="muted small">${x.id==='umum'?'Terbuka untuk semua':(TCOUNT[x.id]||0)+' pengikut'}</div></div>${folBtn(x)}</div>${isFol(x.id)?`<button class="btn btn-ghost btn-sm mt12" data-act="cf" data-v="${x.id}">Buka percakapan</button>`:''}</div>`).join('')}</div>`;
   const lockCard=`<div class="card empty"><b>${esc(topicName(CF))}</b><p class="muted">Ikuti topik ini untuk melihat dan ikut dalam percakapannya.</p><button class="btn btn-yellow" data-act="tfol" data-id="${CF}">Ikuti ${esc(topicName(CF))}</button></div>`;
-  const list=posts.length?posts.map(postHtml).join(''):`<div class="empty">${CT==='populer'?'Belum ada cogit populer.':CT==='simpan'?'Belum ada cogit tersimpan. Ketuk ikon simpan pada cogit yang ingin kamu baca lagi.':'Belum ada cogit di sini. Jadilah yang pertama.'}</div>`;
-  const _y=window.scrollY;
-  mount(shell('komunitas',`
-    <div class="pageHead"><h1>Komunitas</h1><p>Ikuti topik, bagikan cogit, dan berdiskusi bersama pelajar lain.</p></div>
-    <div class="grid g-main"><div>
-      <div class="opts" style="gap:6px;margin-bottom:12px">${[['semua','Semua'],['populer','Populer'],['simpan','Tersimpan'],['topik','Topik']].map(tabBtn).join('')}</div>
-      ${CT==='topik'?grid:(locked&&CT!=='simpan')?lockCard:(CT==='simpan'?'':composer)+'<div class="'+(CT==='simpan'?'':'mt16')+'">'+list+'</div>'}</div>
-      <aside class="card" style="align-self:start"><b>Topik kamu</b><div class="opts mt12" style="gap:6px"><button class="btn btn-sm ${CF==='all'?'btn-ink':'btn-ghost'}" data-act="cf" data-v="all">Semua</button>${mineT.map(x=>`<button class="btn btn-sm ${CF===x.id?'btn-ink':'btn-ghost'}" style="justify-content:flex-start" data-act="cf" data-v="${x.id}">${esc(x.name)}</button>`).join('')}<button class="btn btn-sm btn-ghost" style="justify-content:flex-start" data-act="ct" data-v="topik">+ Jelajahi topik</button></div></aside>
-    </div>`));
-  if(_y) window.scrollTo(0,_y);
+  const head=`<div class="cgHead"><select id="cgTopic" class="input cgSel" aria-label="Topik"><option value="all">Semua topik</option>${mineT.map(x=>`<option value="${x.id}" ${CF===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</select><input id="cq" class="input" type="search" placeholder="Cari cogit atau penulis…" value="${esc(CQ)}" aria-label="Cari cogit"><button class="pbtn" data-act="cg-set" aria-label="Pengaturan tampilan">${cgIc(CG_GEAR)}</button></div>`;
+  const tabs=`<div class="opts" style="gap:6px;margin-bottom:12px">${[['semua','Semua'],['populer','Populer'],['simpan','Tersimpan'],['topik','Topik']].map(tabBtn).join('')}</div>`;
+  const feed=CT==='topik'?grid:(locked&&CT!=='simpan')?lockCard:(CT==='simpan'?'':composer)+`<div class="card cgBox" id="cList">${listHtml()}</div>`;
+  const sug=TOPICS.filter(x=>!isFol(x.id)).slice(0,4);
+  const aside=`<aside class="card" style="align-self:start"><b>Topik untuk diikuti</b>${sug.length?sug.map(x=>`<div class="row mt12"><div class="grow"><b class="small">${esc(x.name)}</b><div class="muted small">${TCOUNT[x.id]||0} pengikut</div></div><button class="btn btn-sm btn-yellow" data-act="tfol" data-id="${x.id}">Ikuti</button></div>`).join(''):'<p class="muted small mt12">Kamu sudah mengikuti semua topik.</p>'}<button class="btn btn-ghost btn-sm mt16" data-act="ct" data-v="topik">Lihat semua topik</button></aside>`;
+  mount(shell('komunitas',`<div class="pageHead"><h1>Komunitas</h1><p>Ikuti topik, bagikan cogit, dan berdiskusi bersama pelajar lain.</p></div>
+    ${op?`<div id="cgScope" style="max-width:720px">${cgDetail(op)}</div>`:`<div class="grid g-main"><div id="cgScope">${head}${tabs}${feed}</div>${aside}</div>`}`));
+  cgApply(); if(op) window.scrollTo(0,0); else if(_y) window.scrollTo(0,_y);
 }
-function postHtml(p){
-  const mine=!U.guest&&p.uid===U.id, liked=p.likes.includes(U.id), saved=SAVED.has(p.id), open=OPEN.has(p.id);
-  const src=p.avatar||(mine&&(DATA.profile.avatar||DATA.profile.gpic))||'';
-  const I=(d,f)=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="${f?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
-  const reps=p.replies.map(r=>`<div class="mt12" style="padding-left:14px;border-left:3px solid var(--line)"><b class="small">${esc(r.author)}</b> <span class="muted small">· ${timeAgo(r.t)}</span><div style="white-space:pre-wrap">${esc(r.text)}</div></div>`).join('');
-  return `<article class="post"><div class="pRow"><span class="pa">${src?`<img src="${esc(src)}" alt="" referrerpolicy="no-referrer">`:esc((p.author||'?').charAt(0).toUpperCase())}</span><div class="grow">
+function cgDetail(p){
+  const reps=p.replies.map(r=>`<div class="cgRep"><span class="pa">${esc((r.author||'?').charAt(0).toUpperCase())}</span><div class="grow"><b>${esc(r.author)}</b> <span class="muted small">· ${timeAgo(r.t)}</span><p class="cgText">${esc(r.text)}</p></div></div>`).join('');
+  return `<div class="cgHead"><button class="pbtn" data-act="cg-back" aria-label="Kembali">${cgIc('<path d="M19 12H5M12 19l-7-7 7-7"/>')}</button><b>Cogit</b><button class="pbtn" data-act="cg-set" aria-label="Pengaturan tampilan">${cgIc(CG_GEAR)}</button></div>
+    <div class="card cgBox">${postHtml(p,true)}${U.guest?'<div class="muted small" style="padding:14px 18px">Masuk untuk membalas cogit ini.</div>':`<form class="cgReply" data-form="reply" data-id="${p.id}">${avHtml('pa')}<input class="input" name="text" maxlength="200" placeholder="Balas ke ${esc(p.author)}" aria-label="Balasan"><button class="btn btn-yellow btn-sm" type="submit">Balas</button></form>`}${reps}</div>`;
+}
+function postHtml(p,det){
+  const mine=!U.guest&&p.uid===U.id, liked=p.likes.includes(U.id), saved=SAVED.has(p.id);
+  const src=p.avatar||(mine&&(DATA.profile.avatar||DATA.profile.gpic))||'', I=cgIc;
+  return `<article class="post${det?'':' clk'}" ${det?'':`data-act="cg-open" data-id="${p.id}"`}><div class="pRow"><span class="pa">${src?`<img src="${esc(src)}" alt="" referrerpolicy="no-referrer">`:esc((p.author||'?').charAt(0).toUpperCase())}</span><div class="grow">
     <div class="row"><div class="grow"><b>${esc(p.author)}</b> <span class="muted small">· ${timeAgo(p.t)}</span> <span class="chip">${esc(topicName(p.topic))}</span></div><button class="pbtn" data-act="post-menu" data-id="${p.id}" aria-label="Opsi">${I('<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',1)}</button></div>
-    <p style="margin:8px 0 0;white-space:pre-wrap">${esc(p.text)}</p>
+    <p class="cgText">${esc(p.text)}</p>
     <div class="pact">
       <button class="pbtn ${liked?'pl':''}" data-act="like" data-id="${p.id}" aria-pressed="${liked}" aria-label="Suka">${I('<path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.3 12C19 16.4 12 21 12 21z"/>',liked)}<span>${p.likes.length}</span></button>
-      <button class="pbtn ${open?'po':''}" data-act="cm-toggle" data-id="${p.id}" aria-label="Komentar">${I('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}<span>${p.replies.length}</span></button>
+      <button class="pbtn" data-act="cg-open" data-id="${p.id}" aria-label="Komentar">${I('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}<span>${p.replies.length}</span></button>
       <button class="pbtn" data-act="post-share" data-id="${p.id}" aria-label="Bagikan">${I('<path d="M12 16V4M7 9l5-5 5 5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>')}</button>
       <button class="pbtn sv ${saved?'ps':''}" data-act="post-save" data-id="${p.id}" aria-pressed="${saved}" aria-label="Simpan">${I('<path d="M6 4h12v17l-6-4-6 4z"/>',saved)}</button>
-    </div>
-    ${open?`<div class="pRep">${reps}<form class="row mt12" data-form="reply" data-id="${p.id}"><input class="input" name="text" maxlength="200" placeholder="Tulis balasan" aria-label="Balasan"><button class="btn btn-ghost btn-sm" type="submit">Balas</button></form></div>`:''}
-  </div></div></article>`;
+    </div></div></div></article>`;
 }
 
 /* ===== NERA AI ===== */
@@ -1929,7 +1966,11 @@ const ACT = {
   'lesson-done'(t){ const id=t.dataset.v, i=DATA.materiDone.indexOf(id); if(i>=0) DATA.materiDone.splice(i,1); else { DATA.materiDone.push(id); DATA.xp+=5; toast('Materi ditandai selesai'); } save(); viewLesson(id); },
   cf(t){ CF=t.dataset.v; CT='semua'; viewKomunitas(); },
   ct(t){ CT=t.dataset.v; viewKomunitas(); },
-  'cm-toggle'(t){ const id=t.dataset.id; OPEN.has(id)?OPEN.delete(id):OPEN.add(id); viewKomunitas(); },
+  'cg-open'(t){ const id=t.dataset.id; if(OPENPOST===id) return; _fy=window.scrollY; OPENPOST=id; try{ history.pushState({cg:1},''); }catch(e){} viewKomunitas(); },
+  'cg-back'(){ if(history.state&&history.state.cg) history.back(); else { OPENPOST=null; viewKomunitas(); window.scrollTo(0,_fy); } },
+  'cg-set'(){ cgSheet(); },
+  'cg-font'(t){ CGS.ff=t.dataset.v; cgSave(); closeModal(); cgSheet(); },
+  'cg-reset'(){ CGS={ff:'std',fs:15,lh:1.55,j:false}; cgSave(); closeModal(); cgSheet(); cgApply(); },
   async 'post-save'(t){ if(needLogin('Masuk untuk menyimpan cogit.')) return; const id=t.dataset.id, on=SAVED.has(id);
     on?SAVED.delete(id):SAVED.add(id); if(!SB) LS.set('csaved',[...SAVED]); viewKomunitas(); toast(on?'Dihapus dari tersimpan':'Cogit disimpan');
     if(SB){ const {error}=await (on?SB.from('community_saves').delete().match({user_id:U.id,post_id:id}):SB.from('community_saves').insert({user_id:U.id,post_id:id})); if(error){ on?SAVED.add(id):SAVED.delete(id); viewKomunitas(); toast('Gagal menyimpan: '+error.message); } } },
