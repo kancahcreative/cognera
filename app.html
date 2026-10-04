@@ -367,6 +367,101 @@ details.rv .inner{padding:0 16px 16px}
 @media(max-height:780px){.authSide .ill{display:none}}
 [data-act=google]{margin-top:18px}
 .gbtn{margin-top:18px;display:flex;justify-content:center;min-height:44px}
+/* ===== CHECKOUT & PEMBAYARAN (satu layer, kuning Cognera) ===== */
+.ckBack{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:var(--muted);margin-bottom:16px}.ckBack:hover{color:var(--ink)}.ckBack svg{width:18px;height:18px}
+.ckGrid{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:20px;align-items:start}
+.ckMain{display:grid;gap:20px;min-width:0}
+.ckSide{position:sticky;top:84px;display:grid;gap:16px;min-width:0}
+.ckHero{position:relative;overflow:hidden;background:var(--yellow);border-radius:20px;padding:30px 28px;color:var(--ink)}
+.ckHero:before,.ckHero:after{content:"";position:absolute;border-radius:50%;background:rgba(255,255,255,.28)}
+.ckHero:before{width:220px;height:220px;right:-60px;top:-80px}.ckHero:after{width:120px;height:120px;right:90px;bottom:-60px}
+.ckHero>*{position:relative;z-index:1}
+.ckHero h1{font-size:30px;letter-spacing:-.03em;margin:12px 0 6px}.ckHero p{margin:0;max-width:460px;font-weight:500}
+.ckHero .chip{background:rgba(255,255,255,.55);border-color:transparent}
+.ckHeroPrice{margin-top:16px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.ckHeroPrice .strike{color:rgba(25,27,32,.6)}
+.ckCard{padding:0;overflow:hidden}
+.ckHead{display:flex;align-items:center;gap:12px;padding:18px 20px;border-bottom:1px solid var(--line)}
+.ckHead h3{font-size:17px;margin:0}.ckHead p{margin:2px 0 0;font-size:13px;color:var(--muted)}.ckHead .ckTimer{margin-left:auto;flex:none}
+.ckIco{width:40px;height:40px;border-radius:12px;background:var(--yellow-pale);display:grid;place-items:center;flex:none}.ckIco svg{width:20px;height:20px;stroke:var(--ink);stroke-width:2.2}
+.ckBody{padding:20px}
+.ckTiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:20px 20px 0}
+.ckTile{background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;gap:14px;align-items:center}
+.ckTile small{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--muted);text-transform:uppercase}
+.ckTile b{display:block;font:800 17px/1.25 Manrope,system-ui,sans-serif;letter-spacing:-.02em;margin-top:2px}
+.ckBen{padding:20px}.ckBen h4{font-size:14px;margin:0 0 12px}
+.ckBenGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.ckBenItem{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1px solid var(--line);border-radius:12px;font-size:14px;line-height:1.45}
+.ckTick{width:22px;height:22px;border-radius:50%;background:var(--yellow);display:grid;place-items:center;flex:none}.ckTick svg{width:13px;height:13px;stroke:var(--ink);stroke-width:3}
+.ckPanel{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:20px;min-width:0}
+.ckPanel h3{font-size:15px;margin:0 0 14px}
+.ckM{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;margin-bottom:10px;transition:border-color .12s,background .12s}
+.ckM:hover{border-color:var(--ink)}.ckM.on{border-color:var(--ink);background:var(--yellow-pale)}
+.ckMi{width:40px;height:40px;border-radius:12px;background:var(--bg);display:grid;place-items:center;flex:none}.ckM.on .ckMi{background:var(--yellow)}.ckMi svg{width:20px;height:20px}
+.ckM b{font-size:15px}.ckM small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.ckTag{font-style:normal;font-size:10.5px;font-weight:800;background:var(--yellow);border-radius:99px;padding:2px 8px;margin-left:8px;vertical-align:middle;display:inline-block}
+.ckRadio{width:22px;height:22px;border-radius:50%;border:2px solid #cfd5dd;flex:none;position:relative}
+.ckM.on .ckRadio{border-color:var(--ink)}.ckM.on .ckRadio:after{content:"";position:absolute;top:4px;left:4px;right:4px;bottom:4px;border-radius:50%;background:var(--ink)}
+.ckSep{height:1px;background:var(--line);margin:14px 0}
+.ckLink{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14px;color:var(--ink);text-decoration:underline;text-decoration-color:var(--yellow);text-decoration-thickness:2px;text-underline-offset:3px}
+.ckLink svg{width:18px;height:18px}.ckLink.big{width:100%;padding:6px 0}
+.ckCode{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;background:var(--yellow-pale);border:1px solid #f0dc8a;border-radius:12px;font-size:14px}
+.ckCode span{display:flex;align-items:center;gap:8px;min-width:0}.ckCode svg{width:18px;height:18px;flex:none}
+.ckCodeBox .row{gap:8px}.ckCodeBox .btn{flex:none}.ckErr{margin-top:8px;font-size:13px;font-weight:600;color:#a52f2f}
+.ckRow{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:6px 0;font-size:14px;color:var(--muted)}
+.ckRow b{color:var(--ink);text-align:right;word-break:break-word}.ckRow b.strk{text-decoration:line-through;color:var(--muted);font-weight:600}
+.ckRow.ok,.ckRow.ok b{color:#13703c}
+.ckTotal{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-top:10px;padding-top:14px;border-top:1px solid var(--line)}
+.ckTotal span{font-weight:700}.ckTotal b{font:800 26px Manrope,system-ui,sans-serif;letter-spacing:-.04em}
+.ckNote{font-size:12.5px;color:var(--muted);margin:10px 0 0;line-height:1.55}
+.ckGo{margin-top:16px;min-height:50px;font-size:15px}
+.ckOptHead{display:flex;align-items:center;gap:12px;margin-bottom:16px}.ckOptHead h3{margin:0;font-size:19px}
+.ckOpt{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;text-align:left;padding:16px;border:1.5px solid var(--line);border-radius:16px;background:#fff;margin-bottom:12px;transition:border-color .12s,background .12s}
+.ckOpt:hover{border-color:var(--ink)}.ckOpt.rec{border-color:var(--yellow);background:var(--yellow-pale)}.ckOpt b{font-size:16px}.ckOpt small{color:var(--muted);font-size:13px}
+.ckChips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.ckChips i{font-style:normal;font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:99px;background:#fff;border:1px solid var(--line)}.ckChips i.warn{background:var(--yellow-pale);border-color:#f0dc8a}
+.ckSteps{display:flex;gap:8px;list-style:none;margin:0 0 18px;padding:0;flex-wrap:wrap}
+.ckSteps li{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--muted);padding:6px 14px 6px 6px;border-radius:99px;background:#fff;border:1px solid var(--line)}
+.ckSteps li span{width:24px;height:24px;border-radius:50%;background:var(--bg);display:grid;place-items:center;font:800 12px Manrope,system-ui,sans-serif}
+.ckSteps li.on{color:var(--ink);border-color:var(--yellow);background:var(--yellow-pale)}.ckSteps li.on span,.ckSteps li.done span{background:var(--yellow)}.ckSteps li.done{color:var(--ink)}
+.ckSteps li svg{width:12px;height:12px;stroke:var(--ink);stroke-width:3.5}
+.ckTimer{background:var(--yellow-pale);border:1px solid #f0dc8a;border-radius:99px;padding:5px 12px;font:800 13px Manrope,system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ckTimer.late{background:var(--bad-bg);border-color:#f3c5c5;color:#a52f2f}
+.payAmt{background:var(--yellow-pale);border:1px solid #f0dc8a;border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.payAmt small{display:block;color:var(--muted);font-size:12.5px}.payAmt b{font:800 28px Manrope,system-ui,sans-serif;letter-spacing:-.04em}
+.qrBox{display:grid;place-items:center;padding:16px;border:1.5px solid var(--line);border-radius:16px;background:#fff;margin-bottom:14px}
+.qrBox img{display:block;width:min(280px,100%);height:auto}
+.qrMiss{padding:46px 18px;text-align:center;color:var(--muted);font-size:13px;border:2px dashed #cfd5dd;border-radius:12px;width:100%}
+.ckHow{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}.ckHow summary{font-weight:700;font-size:14px;cursor:pointer}.ckHow ol{margin:10px 0 0;padding-left:20px;font-size:14px;line-height:1.7;color:var(--muted)}
+.dest{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding:14px 16px;border:1.5px solid var(--line);border-radius:14px}
+.dest small{display:block;color:var(--muted);font-size:12.5px}.destNo{display:block;font:800 22px Manrope,system-ui,sans-serif;letter-spacing:-.02em;word-break:break-all}
+.ckF2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.dz{position:relative;display:block;border:2px dashed #cfd5dd;border-radius:16px;background:#fff;cursor:pointer;transition:border-color .12s,background .12s}
+.dz:hover,.dz.over,.dz:focus-within{border-color:var(--yellow-deep);background:var(--yellow-pale)}
+.dz input{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
+.dzIn{display:flex;flex-direction:column;align-items:center;gap:10px;padding:24px 16px;text-align:center}
+.dzIn b{display:block;font-size:14px}.dzIn small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+.dzIc{width:46px;height:46px;border-radius:50%;background:var(--yellow);display:grid;place-items:center}.dzIc svg{width:22px;height:22px;stroke:var(--ink)}
+.dzImg{width:120px;height:120px;object-fit:cover;border-radius:12px;border:1px solid var(--line)}
+.ckDone{text-align:center;padding:38px 22px}.ckDone h2{font-size:24px;margin:14px 0 6px}.ckDone p{margin:0 auto;max-width:420px}
+.ckBig{width:64px;height:64px;border-radius:50%;background:var(--yellow);display:inline-grid;place-items:center;font:800 28px Manrope,system-ui,sans-serif}
+.ckBig svg{width:30px;height:30px;stroke:var(--ink);stroke-width:2.6}.ckBig.ok svg{stroke-width:3.2}.ckBig.bad{background:var(--bad-bg);color:#a52f2f}
+@media(max-width:900px){.ckGrid{grid-template-columns:minmax(0,1fr)}.ckSide{position:static}}
+@media(max-width:560px){.ckTiles,.ckBenGrid,.ckF2{grid-template-columns:1fr}.ckHero{padding:24px 20px}.ckHero h1{font-size:25px}.ckBody,.ckHead{padding-left:16px;padding-right:16px}.ckTiles{padding:16px 16px 0}.ckBen{padding:16px}.destNo{font-size:19px}.payAmt b{font-size:24px}}
+.ckGrp{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px}.ckGrp:first-child{margin-top:0}
+.ckLive{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);margin:2px 0 14px}.ckLive i{width:8px;height:8px;border-radius:50%;background:#2e9d5b;animation:ckp 1.4s infinite}@keyframes ckp{50%{opacity:.25}}
+.ckMi.logo{width:72px;height:42px;border-radius:10px;background:#fff;border:1px solid var(--line);padding:6px 8px}.ckM.on .ckMi.logo{background:#fff}.ckMi.logo img{max-width:100%;max-height:100%;object-fit:contain;display:block}
+.ckMore{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:12px;border:1.5px dashed #cfd5dd;border-radius:14px;background:#fff;font:700 14px inherit;color:var(--ink);margin-bottom:6px}.ckMore:hover{border-color:var(--ink)}.ckMore svg{width:16px;height:16px}
+.modal.mwide{width:min(900px,100%);padding:0;overflow:hidden;max-height:92vh;display:flex;flex-direction:column}
+.dmHead{display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--line)}.dmHead h3{margin:0;font-size:19px}
+.dmX{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font-size:22px;line-height:1;color:var(--muted)}.dmX:hover{background:var(--bg)}.dmX:focus{outline:none;box-shadow:none}.dmOpt .ckRadio{margin-left:auto}.dmOpt.on .ckRadio{border-color:var(--ink)}.dmOpt.on .ckRadio:after{content:"";position:absolute;top:4px;left:4px;right:4px;bottom:4px;border-radius:50%;background:var(--ink)}
+.dmBody{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);overflow:auto;flex:1}
+.dmL{background:var(--yellow-pale);padding:22px 24px;display:flex;flex-direction:column;gap:10px}.dmL .dmName{font:800 22px Manrope,system-ui,sans-serif;letter-spacing:-.03em;margin:0 0 6px}
+.dmFeat{background:#fff;border:1px solid #f0dc8a;border-radius:14px;padding:11px 14px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start}.dmFeat svg{width:16px;height:16px;flex:none;margin-top:2px;stroke:var(--ink);stroke-width:3}
+.dmR{padding:22px 24px}.dmR small.k{color:#0a8f5b;font-weight:800;font-size:13px}.dmR h2{margin:2px 0 6px;font-size:24px;letter-spacing:-.03em}.dmR p.sub{color:var(--muted);font-size:13.5px;margin:0 0 16px}
+.dmOpt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 16px;border:1.5px solid var(--line);border-radius:16px;background:#fff;margin-bottom:10px}.dmOpt:hover{border-color:var(--ink)}.dmOpt.on{border-color:var(--ink);background:var(--yellow-pale)}
+.dmOpt .tags{display:flex;gap:6px;align-items:center;margin-bottom:6px}.dmOpt .mo{font-size:12px;font-weight:800;background:var(--bg);border-radius:99px;padding:3px 10px}.dmOpt .rec{font-size:12px;font-weight:800;background:var(--ink);color:#fff;border-radius:99px;padding:3px 10px}
+.dmOpt b.nm{display:block;font-size:15px}.dmOpt .pr{font:800 22px Manrope,system-ui,sans-serif;letter-spacing:-.03em}.dmOpt .sv{font-size:13px;font-weight:700;color:#0a8f5b;margin-left:6px}
+.dmFoot{padding:16px 24px;border-top:1px solid var(--line)}
+@media(max-width:720px){.dmBody{grid-template-columns:1fr}.dmL{display:none}.dmHead,.dmR,.dmFoot{padding-left:16px;padding-right:16px}}
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script></head><body><div id="app"></div><noscript>Cognera membutuhkan JavaScript untuk berjalan.</noscript><script>
 /* ===== CONFIG ===== */
 const CONFIG = {
@@ -376,16 +471,7 @@ const CONFIG = {
   DEMO_MODE: true,          // true = data & login hanya tersimpan di browser (localStorage), pembayaran belum tersambung
   NERA_ENDPOINT: '',        // isi URL backend Nera AI, mis. '/api/nera' (POST {message, context} -> {reply})
   PAY: {
-    UNIQUE_CODE: true,      // tambah 3 digit kode unik ke nominal supaya transfer mudah dicocokkan dengan mutasi
-    QRIS_IMAGE: '',         // path/URL gambar QRIS toko kamu, mis. 'qris.png' (taruh filenya di folder yang sama)
-    // Isi nomor rekening / e-wallet kamu. Metode yang nomornya masih kosong tidak ditampilkan ke pembeli.
-    ACCOUNTS: {
-      dana:      {no:'', name:''},   // nomor DANA
-      gopay:     {no:'', name:''},   // nomor GoPay
-      shopeepay: {no:'', name:''},   // nomor ShopeePay
-      jago:      {no:'', name:''},   // no. rekening Bank Jago
-      bsi:       {no:'', name:''}    // no. rekening BSI
-    }
+    EXPIRE_MIN: 30          // cadangan timer; batas waktu sebenarnya dikirim server (orders.expires_at)
   }
 };
 const SB = (CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY && window.supabase) ? window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY,{auth:{flowType:'pkce',detectSessionInUrl:true,persistSession:true}}) : null;
@@ -867,16 +953,16 @@ const triesUsed = t=>DATA.attempts.filter(a=>a.tid===t.id).length;
 
 /* ===== UI PRIMITIVES ===== */
 let timers=[];
-function clearTimers(){ timers.forEach(clearInterval); timers=[]; }
+function clearTimers(){ timers.forEach(clearInterval); timers=[]; if(typeof payUnwatch==='function') payUnwatch(); }
 function toast(msg){
   const old=$('.toast'); if(old) old.remove();
   const t=document.createElement('div'); t.className='toast'; t.setAttribute('role','status'); t.textContent=msg; document.body.appendChild(t);
   setTimeout(()=>t.remove(),2600);
 }
-function openModal(html){
+function openModal(html,cls){
   closeModal();
   const o=document.createElement('div'); o.className='overlay'; o.id='overlay';
-  o.innerHTML=`<div class="modal" role="dialog" aria-modal="true">${html}</div>`;
+  o.innerHTML=`<div class="modal ${cls||''}" role="dialog" aria-modal="true">${html}</div>`;
   o.addEventListener('click',e=>{ if(e.target===o) closeModal(); });
   document.body.appendChild(o);
   const f=o.querySelector('input,textarea,button,select'); if(f) f.focus();
@@ -1399,30 +1485,40 @@ function viewPaket(){
     <div id="myOrders">${ordersBox()}</div>
     <div class="grid g3">${PACKAGES.map(p=>{const own=DATA.packages.includes(p.id);return `<article class="card pk ${own?'owned':''}" style="display:flex;flex-direction:column;gap:10px">
       <div class="row between">${p.tag?`<span class="chip dark">${p.tag}</span>`:'<span></span>'}${own?'<span class="chip ok">Aktif</span>':''}</div>
-      <h3>${p.name}</h3><div><span class="price">${rp(p.price)}</span><span class="strike">${rp(p.strike)}</span></div><div class="muted small">Akses 12 bulan</div>
+      <h3>${p.name}</h3><div><span class="price">${rp(p.price)}</span><span class="strike">${rp(p.strike)}</span></div><div class="muted small">Pilihan durasi 1 sampai 12 bulan</div>
       <ul style="margin:0;padding-left:18px;font-size:14px;line-height:1.7">${p.items.map(i=>`<li>${i}</li>`).join('')}</ul>
       <button class="btn ${own?'btn-ghost':'btn-yellow'} mt8" style="margin-top:auto" data-act="buy" data-v="${p.id}" ${own?'disabled':''}>${own?'Sudah aktif':'Pilih paket'}</button></article>`}).join('')}
       <article class="card" style="border-style:dashed"><span class="chip">Segera hadir</span><h3 class="mt12">SKD CPNS 2026</h3><p class="muted">Latihan TWK, TIU, dan TKP untuk seleksi CPNS. Harga tampil saat dibuka.</p></article></div>`));
   refreshPay();
 }
+/* Semua e-wallet diarahkan ke satu QRIS dinamis; bank memakai Virtual Account. Dikonfirmasi otomatis oleh webhook. */
 const PAYM=[
-  {id:'qris',g:'QRIS',n:'QRIS',d:'Scan dari e-wallet atau m-banking apa pun'},
-  {id:'dana',g:'E-Wallet',n:'DANA',d:'Kirim ke nomor DANA'},
-  {id:'gopay',g:'E-Wallet',n:'GoPay',d:'Kirim ke nomor GoPay'},
-  {id:'shopeepay',g:'E-Wallet',n:'ShopeePay',d:'Kirim ke nomor ShopeePay'},
-  {id:'jago',g:'Transfer bank',n:'Bank Jago',d:'Transfer ke rekening Bank Jago'},
-  {id:'bsi',g:'Transfer bank',n:'BSI',d:'Transfer ke rekening Bank Syariah Indonesia'}
+  {id:'qris',n:'QRIS',g:'ew',top:1,l:'qris',d:'Semua e-wallet & m-banking',tag:'Direkomendasikan'},
+  {id:'gopay',n:'GoPay',g:'ew',top:1,l:'gopay'},
+  {id:'shopeepay',n:'ShopeePay',g:'ew',top:1,l:'shopee-pay'},
+  {id:'dana',n:'DANA',g:'ew',l:'dana'},
+  {id:'bca',n:'BCA',g:'bank',l:'bca',d:'Virtual Account'},
+  {id:'bni',n:'BNI',g:'bank',l:'bni',d:'Virtual Account'},
+  {id:'bri',n:'BRI',g:'bank',l:'bri',d:'Virtual Account'},
+  {id:'permata',n:'Permata',g:'bank',l:'permata',d:'Virtual Account'}
 ];
-const payAvail=()=>PAYM.filter(m=>m.id==='qris'?!!CONFIG.PAY.QRIS_IMAGE:!!(CONFIG.PAY.ACCOUNTS[m.id]&&CONFIG.PAY.ACCOUNTS[m.id].no));
-let PAYSEL={pkg:null,method:null}, MYORD=[];
+let FEES={pct:0,flat:4000,vat_pct:11,round_to:1000};   // sama untuk semua metode; nilai asli dari tabel payment_fees
+function feeCalc(base){ const k=1+FEES.vat_pct/100, raw=Math.ceil((base+FEES.flat*k)/(1-(FEES.pct/100)*k)), r=FEES.round_to||1; return Math.max(0,Math.round(raw/r)*r-base); }
+async function loadFees(){ if(!SB) return; try{ const r=await SB.from('payment_fees').select('*').eq('type','all').maybeSingle(); if(!r.error&&r.data){ FEES={pct:Number(r.data.pct),flat:Number(r.data.flat),vat_pct:Number(r.data.vat_pct),round_to:Number(r.data.round_to)||1}; ckRender(); } }catch(_){} }
+let CK={pkg:null,method:null,open:false,draft:'',code:null,err:'',busy:false}, MYORD=[];
+const ckSvg=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+const I_QR=ckSvg('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v1M14 21h1M18 18h3v3"/>');
+const I_BANK=ckSvg('<path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>');
+const I_TAG=ckSvg('<path d="M3 9a2 2 0 0 0 0 6v3h18v-3a2 2 0 0 1 0-6V6H3z"/><path d="M13 6v2M13 11v2M13 16v2"/>');
+const I_BACK=ckSvg('<path d="M19 12H5M11 6l-6 6 6 6"/>');
+const I_UP=ckSvg('<path d="M12 16V5M7 10l5-5 5 5M5 19h14"/>');
+const payLogo=m=>`<span class="ckMi logo"><img src="pay-logos/${m.l}.svg" alt="${esc(m.n)}" loading="lazy"></span>`;
+/* ===== DURASI & HARGA ===== */
+const DURS=[12,6,3,1], DUR_R={12:1,6:.665,3:.565,1:.264}, DUR_PRICES={}; let DUR_LOADED=false;
+const r1k=n=>Math.max(1000,Math.round(n/1000)*1000);
+function durPrice(p,m){ const x=DUR_PRICES[p.id+':'+m]; if(x) return x; return m===12?{price:p.price,strike:p.strike||p.price}:{price:r1k(p.price*DUR_R[m]),strike:r1k((p.strike||p.price)*DUR_R[m])}; }
+async function loadDurPrices(){ if(DUR_LOADED||!SB) return; try{ const r=await SB.from('package_prices').select('*'); if(!r.error&&r.data){ r.data.forEach(x=>{ DUR_PRICES[x.package_id+':'+x.months]={price:x.price,strike:x.strike||x.price}; }); DUR_LOADED=true; } }catch(_){} }
 function pkgBox(p){ return `<h3>${p.name}</h3><div><span class="price">${rp(p.price)}</span><span class="strike">${rp(p.strike)}</span></div><p class="muted small">Akses 12 bulan</p>`; }
-function methodList(){
-  const L=payAvail(); if(!L.length) return '<div class="err">Metode pembayaran belum diatur. Hubungi admin lewat halaman Bantuan.</div>';
-  let g='',h='';
-  L.forEach(m=>{ if(m.g!==g){ g=m.g; h+=`<div class="small muted mt12 mb8" style="font-weight:800;letter-spacing:.04em;text-transform:uppercase">${g}</div>`; }
-    h+=`<button type="button" class="opt ${PAYSEL.method===m.id?'sel':''}" style="margin-bottom:8px" data-act="pay-method" data-v="${m.id}"><span class="k">${PAYSEL.method===m.id?'✓':''}</span><span><b>${m.n}</b><br><span class="muted small">${m.d}</span></span></button>`; });
-  return h;
-}
 function openBuy(id){
   const p=PACKAGES.find(x=>x.id===id);
   if(CONFIG.DEMO_MODE){
@@ -1430,33 +1526,194 @@ function openBuy(id){
       <div class="ok-note">Mode demo: pembayaran belum tersambung. Tombol di bawah mengaktifkan paket langsung untuk pengujian.</div>
       <div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-ink grow" data-act="confirm-buy" data-v="${p.id}">Aktifkan paket (demo)</button></div>`);
   }
-  PAYSEL={pkg:id,method:null};
-  openModal(`${pkgBox(p)}<div id="payList">${methodList()}</div><div id="payErr"></div>
-    <div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-yellow grow" data-act="pay-create" id="payGo" disabled>Pilih metode dulu</button></div>`);
+  DURSEL={id,m:12}; durModal(id); if(!DUR_LOADED) loadDurPrices().then(()=>{ if($('#overlay .dmR')) durModal(id); });
+}
+let DURSEL={id:null,m:12};
+function durModal(id){
+  if(DURSEL.id!==id) DURSEL={id,m:12};
+  const p=PACKAGES.find(x=>x.id===id); if(!p) return;
+  const feats=pkgFeatures(p,0).list.map(i=>`<div class="dmFeat">${ic('check')}<span>${esc(i)}</span></div>`).join('');
+  const opts=DURS.map(m=>{ const d=durPrice(p,m), sv=d.strike-d.price; return `<button type="button" class="dmOpt ${DURSEL.m===m?'on':''}" role="radio" aria-checked="${DURSEL.m===m}" data-act="dur-pick" data-v="${m}"><span class="grow"><span class="tags"><span class="mo">${m} bulan</span>${m===12?'<span class="rec">Rekomendasi</span>':''}</span><b class="nm">${esc(p.name)}</b><span class="pr">${rp(d.price)}</span>${sv>0?`<span class="sv">Hemat ${rp(sv)}</span>`:''}</span><span class="ckRadio"></span></button>`; }).join('');
+  const keep=$('#overlay .dmR'); const sc=keep?keep.scrollTop:0;
+  openModal(`<div class="dmHead"><h3>Pilih paket ${esc(p.name)}</h3><button type="button" class="dmX" data-act="close" aria-label="Tutup">&times;</button></div>
+    <div class="dmBody"><div class="dmL"><span class="chip" style="align-self:flex-start">Ujian PTN</span><h2 class="dmName">${esc(p.name)}</h2>${feats}</div>
+      <div class="dmR"><small class="k">Pilih durasi</small><h2>Pilih paket yang paling pas buat persiapanmu.</h2><p class="sub">Setelah memilih durasi, kamu bisa langsung lanjut ke pembayaran.</p><div role="radiogroup" aria-label="Durasi">${opts}</div></div></div>
+    <div class="dmFoot"><button type="button" class="btn btn-yellow btn-block" data-act="dur-go">Lanjutkan ke pembayaran</button></div>`,'mwide');
 }
 const copyTxt=async t=>{ try{ await navigator.clipboard.writeText(t); }catch(e){ const x=document.createElement('textarea'); x.value=t; document.body.appendChild(x); x.select(); try{document.execCommand('copy')}catch(_){ } x.remove(); } toast('Tersalin'); };
-function payStep(o){
-  const m=PAYM.find(x=>x.id===o.method)||{n:o.method}, p=PACKAGES.find(x=>x.id===o.package_id)||{name:o.package_id}, acc=CONFIG.PAY.ACCOUNTS[o.method];
-  const target=o.method==='qris'
-    ? `<div style="text-align:center"><img src="${esc(CONFIG.PAY.QRIS_IMAGE)}" alt="QRIS" style="width:min(260px,100%);border:1.5px solid var(--line);border-radius:12px;padding:8px;background:#fff"><p class="muted small mt8">Scan dengan e-wallet atau m-banking apa pun, lalu masukkan nominal <b>persis</b> seperti di atas.</p></div>`
-    : `<div class="card" style="padding:14px"><div class="muted small">${m.n}</div><div class="row between"><b style="font:800 20px Manrope,sans-serif;letter-spacing:-.02em">${esc(acc.no)}</b><button class="btn btn-ghost btn-sm" data-act="pay-copy" data-v="${esc(acc.no.replace(/\D/g,''))}">Salin</button></div>${acc.name?`<div class="muted small">a.n. ${esc(acc.name)}</div>`:''}</div>`;
-  openModal(`<h3>Bayar ${esc(p.name)}</h3>
-    <p class="muted small" style="margin:4px 0 12px">Transfer sesuai nominal di bawah, lalu unggah bukti pembayaran.</p>
-    <div class="card" style="background:var(--yellow-pale);border-color:#f0dc8a;padding:14px;margin-bottom:12px"><div class="muted small">Total yang harus dibayar</div>
-      <div class="row between"><b class="price">${rp(o.amount)}</b><button class="btn btn-ghost btn-sm" data-act="pay-copy" data-v="${o.amount}">Salin nominal</button></div>
-      ${CONFIG.PAY.UNIQUE_CODE?'<div class="muted small">Termasuk kode unik 3 digit terakhir. Jangan dibulatkan.</div>':''}</div>
-    ${target}
-    <label class="field"><span>Bukti pembayaran (foto atau screenshot, maks. 3 MB)</span><input class="input" type="file" accept="image/*" id="payFile" style="padding-top:10px"></label>
-    <div id="payErr"></div>
-    <div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Nanti saja</button><button class="btn btn-ink grow" data-act="pay-proof" data-id="${o.id}">Saya sudah bayar</button></div>
-    <p class="muted small mt12">Paket aktif setelah admin memverifikasi pembayaranmu. Statusnya bisa dicek di halaman Paket belajar.</p>`);
+/* ===== CHECKOUT ===== */
+function pkgFeatures(p,m){
+  const mt=m?m+' bulan':'sesuai durasi';
+  const prem=TRYOUTS.filter(t=>t.access==='premium'&&p.covers.includes(t.jalur)).length;
+  const tiles=[prem?{k:'Tryout premium',v:prem+' tryout terbuka'}:{k:'Tryout',v:p.items[0]},{k:'Latihan & pembahasan',v:'Aktif '+mt}];
+  const hasDrill=p.items.some(i=>/drill/i.test(i));
+  const extra=['Drill latihan soal per subtes','Skor estimasi per subtes di setiap tryout','Laporan belajar: tren skor dan subtes terlemah','Akses penuh '+mt+', aktif otomatis setelah pembayaran berhasil'].filter(i=>!(hasDrill&&/drill/i.test(i)));
+  const seen={}, list=[];
+  p.items.concat(extra).forEach(i=>{ const k=i.toLowerCase(); if(!seen[k]){ seen[k]=1; list.push(i); } });
+  return {tiles,list};
 }
-const payStatus={pending:['Menunggu verifikasi','y'],paid:['Lunas','ok'],rejected:['Ditolak','bad']};
+function ckPrice(p){
+  const dp=durPrice(p,CK.months||12), c=CK.code; let d=0;
+  if(c) d=Math.min(dp.price,(Number(c.discount_amt)||0)+Math.floor(dp.price*(Number(c.discount_pct)||0)/100));
+  const normal=dp.strike||dp.price, net=Math.max(dp.price-d,1000), fee=feeCalc(net);
+  return {normal,pkgDisc:normal-dp.price,base:dp.price,disc:d,fee,total:net+fee};
+}
+function ckSide(p){
+  const P=ckPrice(p), cur=PAYM.find(x=>x.id===CK.method);
+  const mBtn=m=>`<button type="button" class="ckM ${CK.method===m.id?'on':''}" role="radio" aria-checked="${CK.method===m.id}" data-act="ck-method" data-v="${m.id}">${payLogo(m)}<span class="grow"><b>${m.n}</b>${m.tag?`<em class="ckTag">${m.tag}</em>`:''}${m.d?`<small>${m.d}</small>`:''}</span><span class="ckRadio"></span></button>`;
+  // awal: hanya beberapa metode populer (+ metode yang sedang dipilih); sisanya lewat "Lihat semua opsi"
+  const open=!!CK.showAll;
+  const shown=open?null:PAYM.filter(m=>m.top||m.id===CK.method);
+  const list=g=>(shown||PAYM).filter(m=>m.g===g).map(mBtn).join('');
+  const methods=open
+    ?`<div class="ckGrp">E-Wallet</div>${list('ew')}<div class="ckGrp">Transfer Bank</div>${list('bank')}<button type="button" class="ckMore" data-act="ck-more">Sembunyikan</button>`
+    :`${list('ew')}${list('bank')}<button type="button" class="ckMore" data-act="ck-more">Lihat semua opsi ${ckSvg('<path d="M6 9l6 6 6-6"/>')}</button>`;
+  const code=CK.code
+    ?`<div class="ckCode ok"><span>${I_TAG}<b>${esc(CK.code.code)}</b> dipakai${CK.code.label?' · '+esc(CK.code.label):''}</span><button type="button" class="ckLink" data-act="ck-code-clear">Hapus</button></div>`
+    :CK.open
+    ?`<div class="ckCodeBox"><div class="row"><input class="input" id="ckCode" placeholder="Masukkan kode mitra" value="${esc(CK.draft)}" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="40"><button type="button" class="btn btn-ghost" data-act="ck-code-apply" ${CK.busy?'disabled':''}>${CK.busy?'Memeriksa…':'Terapkan'}</button></div>${CK.err?`<div class="ckErr">${esc(CK.err)}</div>`:''}</div>`
+    :`<button type="button" class="ckLink big" data-act="ck-code-open">${I_TAG}Punya kode mitra?</button>`;
+  return `<section class="ckPanel"><h3>Metode pembayaran</h3><div role="radiogroup" aria-label="Metode pembayaran">${methods}</div>
+    <div class="ckSep"></div>${code}</section>
+    <section class="ckPanel"><h3>Rincian pembayaran</h3>
+      <div class="ckRow"><span>Harga normal</span><b class="strk">${rp(P.normal)}</b></div>
+      ${P.pkgDisc>0?`<div class="ckRow ok"><span>Diskon paket</span><b>-${rp(P.pkgDisc)}</b></div>`:''}
+      ${P.disc>0?`<div class="ckRow ok"><span>Kode mitra</span><b>-${rp(P.disc)}</b></div>`:''}
+      <div class="ckRow"><span>Biaya layanan</span><b>+${rp(P.fee)}</b></div>
+      <div class="ckTotal"><span>Total bayar</span><b>${rp(P.total)}</b></div>
+      <p class="ckNote">Biaya layanan adalah biaya pemrosesan pembayaran, sama untuk semua metode. Pembayaran terkonfirmasi otomatis, paket langsung aktif tanpa perlu kirim bukti.</p>
+      <button type="button" class="btn btn-yellow btn-block ckGo" id="ckGo" data-act="ck-pay" ${CK.method?'':'disabled'}>${cur?'Bayar dengan '+cur.n:'Pilih metode dulu'}</button>
+    </section>`;
+}
+function ckRender(){ const p=PACKAGES.find(x=>x.id===CK.pkg), s=$('#ckSide'); if(p&&s) s.innerHTML=ckSide(p); }
+function viewCheckout(id,mo){
+  const months=DURS.includes(Number(mo))?Number(mo):12;
+  const p=PACKAGES.find(x=>x.id===id);
+  if(!p||U.guest||CONFIG.DEMO_MODE||DATA.packages.includes(id)) return go('/paket');
+  if(CK.pkg!==id||CK.months!==months) CK={pkg:id,months,showAll:false,method:null,open:false,draft:'',code:null,err:'',busy:false};
+  loadFees(); loadDurPrices().then(()=>ckRender());
+  const f=pkgFeatures(p,months), P=ckPrice(p);
+  mount(shell('paket',`<a class="ckBack" href="#/paket">${I_BACK}Kembali ke paket</a>
+    <div class="ckGrid"><div class="ckMain">
+      <section class="ckHero"><span class="chip">Akses ${months} bulan</span>${p.tag?` <span class="chip">${esc(p.tag)}</span>`:''}<h1>${esc(p.name)}</h1><p>Akses penuh Cognera untuk persiapan ${esc(p.name)} selama ${months} bulan.</p>
+        <div class="ckHeroPrice"><b class="price">${rp(P.base)}</b>${P.normal>P.base?`<span class="strike">${rp(P.normal)}</span>`:''}</div></section>
+      <section class="card ckCard"><div class="ckHead"><span class="ckIco">${ic('book')}</span><div><h3>Isi paket</h3><p>Yang kamu dapatkan</p></div></div>
+        <div class="ckTiles">${f.tiles.map(t=>`<div class="ckTile"><span class="ckIco">${ic('check')}</span><div><small>${esc(t.k)}</small><b>${esc(t.v)}</b></div></div>`).join('')}</div>
+        <div class="ckBen"><h4>Benefit paket</h4><div class="ckBenGrid">${f.list.map(i=>`<div class="ckBenItem"><span class="ckTick">${ic('check')}</span><span>${esc(i)}</span></div>`).join('')}</div></div></section>
+    </div><aside class="ckSide" id="ckSide">${ckSide(p)}</aside></div>`));
+}
+async function ckCreate(){
+  const p=PACKAGES.find(x=>x.id===CK.pkg), btn=$('#ckGo'), cur=PAYM.find(x=>x.id===CK.method)||{};
+  if(btn){ btn.disabled=true; btn.textContent='Membuat pesanan…'; }
+  const r=await SB.functions.invoke('create-payment',{body:{package_id:p.id,months:CK.months||12,method:CK.method,partner_code:CK.code?CK.code.code:null}});
+  let msg=r.error?'Gagal membuat pesanan. Coba lagi.':null;
+  if(r.error&&r.error.context&&r.error.context.json){ try{ const j=await r.error.context.json(); if(j&&j.error) msg=j.error; }catch(_){} }
+  const o=r.data&&r.data.order;
+  if(msg||!o){ if(btn){ btn.disabled=false; btn.textContent='Bayar dengan '+(cur.n||''); } return toast(msg||'Gagal membuat pesanan.'); }
+  const i=MYORD.findIndex(x=>x.id===o.id); if(i>=0) MYORD[i]=o; else MYORD.unshift(o);
+  CK={pkg:null,method:null,open:false,draft:'',code:null,err:'',busy:false}; go('/bayar/'+o.id);
+}
+
+/* ===== HALAMAN PEMBAYARAN ===== */
+const ordNo=o=>'#'+(o.order_no||String(o.id).slice(0,8).toUpperCase());
+const ckSteps=n=>`<ol class="ckSteps">${['Pilih metode','Bayar','Selesai'].map((s,i)=>`<li class="${i+1<n?'done':i+1===n?'on':''}"><span>${i+1<n?ic('check'):i+1}</span>${s}</li>`).join('')}</ol>`;
+document.addEventListener('keydown',e=>{ if(e.key==='Enter'&&e.target&&e.target.id==='ckCode'){ e.preventDefault(); ACT['ck-code-apply'](); } });
+const payExpired=o=>o.status==='expired'||o.status==='failed'||(o.status==='pending'&&o.expires_at&&new Date(o.expires_at).getTime()<=Date.now());
+function paySummary(o,p){
+  const disc=Number(o.discount)||0, st=payExpired(o)&&o.status==='pending'?payStatus.expired:(payStatus[o.status]||['','']);
+  return `<section class="ckPanel"><h3>Ringkasan pesanan</h3>
+    <div class="ckRow"><span>Produk</span><b>${esc(p.name)} · ${o.months||12} bulan</b></div>
+    <div class="ckRow"><span>Order ID</span><b>${ordNo(o)}</b></div>
+    <div class="ckRow"><span>Status</span><span class="chip ${st[1]}">${st[0]}</span></div>
+    <div class="ckSep"></div>
+    <div class="ckRow"><span>Harga paket</span><b>${rp(o.amount-(Number(o.fee)||0)+disc)}</b></div>
+    ${disc>0?`<div class="ckRow ok"><span>Kode mitra ${esc(o.partner_code||'')}</span><b>-${rp(disc)}</b></div>`:''}
+    ${Number(o.fee)>0?`<div class="ckRow"><span>Biaya layanan</span><b>+${rp(o.fee)}</b></div>`:''}
+    <div class="ckTotal"><span>Total bayar</span><b>${rp(o.amount)}</b></div></section>`;
+}
+const amtBox=o=>`<div class="payAmt"><small>Total yang harus dibayar</small><div class="row between"><b>${rp(o.amount)}</b><button type="button" class="btn btn-ghost btn-sm" data-act="pay-copy" data-v="${o.amount}">Salin nominal</button></div></div>`;
+const liveNote=`<div class="ckLive"><i></i>Menunggu pembayaran. Halaman ini otomatis berubah begitu pembayaranmu masuk.</div>`;
+function qrisCard(o,m){
+  const d=o.pay_data||{}, who=m.id==='qris'||!m.n?'e-wallet atau m-banking':m.n;
+  return `<section class="card ckCard"><div class="ckHead"><span class="ckIco">${I_QR}</span><div><h3>Scan QRIS</h3><p>Order ${ordNo(o)} · ${esc(m.n||'QRIS')}</p></div><span class="ckTimer" id="ckTimer">--:--</span></div>
+    <div class="ckBody">${amtBox(o)}
+      <div class="qrBox">${d.qr_url?`<img src="${esc(d.qr_url)}" alt="Kode QRIS order ${ordNo(o)}">`:'<div class="qrMiss">QRIS belum tersedia. Muat ulang halaman ini.</div>'}</div>
+      ${liveNote}
+      <div class="row wrapflex" style="gap:10px">${d.qr_url?`<button type="button" class="btn btn-ghost grow" data-act="pay-dl" data-v="${esc(d.qr_url)}" data-n="${o.order_no||''}">Download QRIS</button>`:''}<button type="button" class="btn btn-ghost grow" data-act="pay-check" data-id="${o.id}">Cek status</button></div>
+      <details class="ckHow" open><summary>Cara bayar</summary><ol><li>Buka aplikasi ${esc(who)} dan pilih Scan atau QRIS.</li><li>Scan kode di atas. Nominal akan terisi otomatis: ${rp(o.amount)}.</li><li>Konfirmasi pembayaran di aplikasimu.</li><li>Selesai. Paket aktif otomatis dalam hitungan detik, tidak perlu kirim bukti.</li></ol></details></div></section>`;
+}
+function vaCard(o,m){
+  const d=o.pay_data||{};
+  return `<section class="card ckCard"><div class="ckHead"><span class="ckIco">${I_BANK}</span><div><h3>Virtual Account ${esc((m.n||d.bank||'').toString())}</h3><p>Order ${ordNo(o)}</p></div><span class="ckTimer" id="ckTimer">--:--</span></div>
+    <div class="ckBody"><div class="dest"><div class="grow"><small>Nomor Virtual Account</small><b class="destNo">${esc(d.va_number||'-')}</b></div><button type="button" class="btn btn-ghost btn-sm" data-act="pay-copy" data-v="${esc(String(d.va_number||'').replace(/\D/g,''))}">Salin</button></div>
+      ${amtBox(o)}${liveNote}
+      <button type="button" class="btn btn-ghost btn-block" data-act="pay-check" data-id="${o.id}">Cek status</button>
+      <details class="ckHow" open><summary>Cara bayar</summary><ol><li>Buka m-banking, ATM, atau internet banking ${esc(m.n||'')}.</li><li>Pilih Transfer, lalu Virtual Account, dan masukkan nomor di atas.</li><li>Pastikan nominal ${rp(o.amount)}, lalu konfirmasi.</li><li>Selesai. Paket aktif otomatis begitu transfer masuk, tidak perlu kirim bukti.</li></ol></details></div></section>`;
+}
+function startTimer(o){
+  const end=o.expires_at?new Date(o.expires_at).getTime():new Date(o.created_at).getTime()+(CONFIG.PAY.EXPIRE_MIN||30)*60000;
+  let fired=false;
+  const tick=()=>{ const el=$('#ckTimer'); if(!el) return; const s=Math.max(0,Math.floor((end-Date.now())/1000));
+    const h=Math.floor(s/3600), mm=String(Math.floor(s%3600/60)).padStart(2,'0'), ss=String(s%60).padStart(2,'0');
+    el.textContent=s>0?(h?h+':':'')+mm+':'+ss:'Waktu habis'; el.classList.toggle('late',s===0);
+    if(s===0&&!fired){ fired=true; payRefresh(o); } };
+  tick(); timers.push(setInterval(tick,1000));
+}
+/* ----- konfirmasi otomatis: realtime + polling + cek langsung ke gateway ----- */
+let PAYCH=null;
+function payUnwatch(){ if(PAYCH&&SB){ try{ SB.removeChannel(PAYCH); }catch(_){} } PAYCH=null; }
+async function payApply(o,row){
+  if(!row||row.id!==o.id||row.status===o.status) return;
+  Object.assign(o,row);
+  const i=MYORD.findIndex(x=>x.id===o.id); if(i>=0) MYORD[i]=o;
+  if(o.status==='paid'){ await refreshPay(); toast('Pembayaran diterima. Paket aktif!'); }
+  if(location.hash.indexOf(o.id)>=0) renderBayar(o);
+}
+async function payRefresh(o){
+  try{ const r=await SB.functions.invoke('check-payment',{body:{order_id:o.id}});
+    if(r.data&&r.data.order){ if(r.data.order.status===o.status&&o.status==='pending'&&payExpired(o)){ o.status='expired'; renderBayar(o); } else await payApply(o,r.data.order); } }catch(_){}
+}
+function payWatch(o){
+  payUnwatch();
+  try{ PAYCH=SB.channel('order-'+o.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'orders',filter:'id=eq.'+o.id},pl=>payApply(o,pl.new)).subscribe(); }catch(_){}
+  let n=0;
+  timers.push(setInterval(async()=>{
+    if(document.hidden&&n%3) { n++; return; }
+    n++;
+    if(n%5===0) return payRefresh(o);                 // ~20 dtk: tanya Midtrans langsung (cadangan webhook)
+    const r=await SB.from('orders').select('*').eq('id',o.id).maybeSingle(); if(r.data) payApply(o,r.data);
+  },4000));
+}
+function renderBayar(o){
+  clearTimers();
+  const p=PACKAGES.find(x=>x.id===o.package_id)||{name:o.package_id,price:o.amount,id:o.package_id};
+  const m=PAYM.find(x=>x.id===o.method)||{n:o.method}, exp=payExpired(o), live=o.status==='pending'&&!exp;
+  const step=o.status==='paid'?4:2;
+  let main;
+  if(o.status==='paid') main=`<section class="card ckCard"><div class="ckBody ckDone"><span class="ckBig ok">${ic('check')}</span><h2>Pembayaran diterima</h2><p class="muted">Order ${ordNo(o)} lunas. Paket ${esc(p.name)} sudah aktif selama ${o.months||12} bulan. Selamat belajar!</p><div class="row mt16 wrapflex" style="justify-content:center"><a class="btn btn-yellow" href="#/tryout">Mulai tryout</a><a class="btn btn-ghost" href="#/paket">Lihat paket belajar</a></div></div></section>`;
+  else if(exp) main=`<section class="card ckCard"><div class="ckBody ckDone"><span class="ckBig bad">!</span><h2>${o.status==='failed'?'Pembayaran gagal':'Waktu pembayaran habis'}</h2><p class="muted">Order ${ordNo(o)} tidak bisa dibayar lagi. Sudah terlanjur bayar? Tunggu beberapa menit lalu tekan Cek status, atau hubungi admin dengan menyebut Order ID.</p><div class="row mt16 wrapflex" style="justify-content:center"><a class="btn btn-yellow" href="#/checkout/${esc(o.package_id)}">Buat pesanan baru</a><button type="button" class="btn btn-ghost" data-act="pay-check" data-id="${o.id}">Cek status</button><a class="btn btn-ghost" href="bantuan.html">Hubungi admin</a></div></div></section>`;
+  else main=(o.pay_type||(m.g==='bank'?'va':'qris'))==='va'?vaCard(o,m):qrisCard(o,m);
+  mount(shell('paket',`<a class="ckBack" href="#/paket">${I_BACK}Kembali ke paket</a>${ckSteps(step)}<div class="ckGrid"><div class="ckMain">${main}</div><aside class="ckSide">${paySummary(o,p)}</aside></div>`));
+  if(live){ startTimer(o); payWatch(o); }
+}
+async function viewBayar(id){
+  if(U.guest||CONFIG.DEMO_MODE||!id) return go('/paket');
+  let o=MYORD.find(x=>x.id===id);
+  if(!o){
+    mount(shell('paket','<div class="card">Memuat pesanan…</div>'));
+    const r=await SB.from('orders').select('*').eq('id',id).eq('user_id',U.id).maybeSingle();
+    if(location.hash.indexOf(id)<0) return;
+    o=r.data; if(o) MYORD.unshift(o);
+  }
+  if(!o){ toast('Pesanan tidak ditemukan'); return go('/paket'); }
+  renderBayar(o);
+}
+const payStatus={pending:['Menunggu pembayaran','y'],paid:['Lunas','ok'],rejected:['Ditolak','bad'],expired:['Kedaluwarsa','bad'],failed:['Gagal','bad']};
 function ordersBox(){
   if(!MYORD.length) return '';
   return `<section class="card mb16"><h3>Pesanan kamu</h3><div class="mt12" style="display:grid;gap:10px">${MYORD.slice(0,6).map(o=>{ const p=PACKAGES.find(x=>x.id===o.package_id), st=payStatus[o.status]||['',''], mm=(PAYM.find(x=>x.id===o.method)||{}).n||o.method;
-    return `<div class="row between wrapflex" style="gap:10px;padding:10px 0;border-top:1px solid var(--line)"><div class="grow"><b>${esc(p?p.name:o.package_id)}</b><div class="muted small">${rp(o.amount)} · ${esc(mm)} · ${new Date(o.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</div></div>
-      <span class="chip ${st[1]}">${st[0]}</span>${o.status==='pending'&&!o.proof_path?`<button class="btn btn-yellow btn-sm" data-act="pay-resume" data-id="${o.id}">Upload bukti</button>`:''}${o.status==='pending'&&o.proof_path?'<span class="muted small">Bukti sudah dikirim</span>':''}${o.status==='rejected'?'<span class="muted small">Hubungi admin jika ini keliru</span>':''}</div>`; }).join('')}</div></section>`;
+    return `<div class="row between wrapflex" style="gap:10px;padding:10px 0;border-top:1px solid var(--line)"><div class="grow"><b>${esc(p?p.name:o.package_id)}</b><div class="muted small">${ordNo(o)} · ${rp(o.amount)} · ${esc(mm)} · ${new Date(o.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</div></div>
+      <span class="chip ${payExpired(o)&&o.status==='pending'?'bad':st[1]}">${payExpired(o)&&o.status==='pending'?payStatus.expired[0]:st[0]}</span>${o.status==='pending'&&!payExpired(o)?`<button class="btn btn-yellow btn-sm" data-act="pay-resume" data-id="${o.id}">Lanjutkan bayar</button>`:''}${o.status==='rejected'?'<span class="muted small">Hubungi admin jika ini keliru</span>':''}</div>`; }).join('')}</div></section>`;
 }
 async function refreshPay(){
   if(!SB||U.guest) return;
@@ -1523,6 +1780,8 @@ function route(){
     case 'komunitas': return viewKomunitas();
     case 'nera': return viewNera(qs);
     case 'paket': return viewPaket();
+    case 'checkout': return viewCheckout(p[1],p[2]);
+    case 'bayar': return viewBayar(p[1]);
     case 'akun': return viewAkun();
     default: return go('/beranda');
   }
@@ -1651,29 +1910,43 @@ const ACT = {
     if(!url) url=out.toDataURL('image/jpeg',0.86);
     DATA.profile.avatar=url; save(); closeModal(); viewAkun(); toast('Foto profil diperbarui');
   },
-  'pay-method'(t){ PAYSEL.method=t.dataset.v; $('#payList').innerHTML=methodList(); const b=$('#payGo'); b.disabled=false; b.textContent='Lanjut ke pembayaran'; },
-  async 'pay-create'(t){
-    if(needLogin('Masuk dulu untuk membeli paket.')) return;
-    if(!PAYSEL.method||!PAYSEL.pkg) return;
-    const p=PACKAGES.find(x=>x.id===PAYSEL.pkg), amount=p.price+(CONFIG.PAY.UNIQUE_CODE?Math.floor(101+Math.random()*898):0);
-    t.disabled=true; t.textContent='Membuat pesanan…';
-    const {data,error}=await SB.from('orders').insert({user_id:U.id,package_id:p.id,amount,method:PAYSEL.method}).select().single();
-    if(error){ t.disabled=false; t.textContent='Lanjut ke pembayaran'; $('#payErr').innerHTML=`<div class="err">Gagal membuat pesanan: ${esc(error.message)}</div>`; return; }
-    MYORD.unshift(data); payStep(data);
+  'ck-more'(){ const el=$('#ckCode'); if(el) CK.draft=el.value; CK.showAll=!CK.showAll; ckRender(); },
+  'dur-pick'(t){ DURSEL.m=Number(t.dataset.v); durModal(DURSEL.id); },
+  'dur-go'(){ const id=DURSEL.id, m=DURSEL.m; closeModal(); go('/checkout/'+id+'/'+m); },
+  'ck-method'(t){ const el=$('#ckCode'); if(el) CK.draft=el.value; CK.method=t.dataset.v; ckRender(); },
+  'ck-code-open'(){ CK.open=true; CK.err=''; ckRender(); const el=$('#ckCode'); if(el) el.focus(); },
+  'ck-code-clear'(){ CK.code=null; CK.open=false; CK.draft=''; CK.err=''; ckRender(); },
+  async 'ck-code-apply'(){
+    const el=$('#ckCode'), v=((el&&el.value)||CK.draft||'').trim().toUpperCase().replace(/\s+/g,'');
+    CK.draft=v; if(!v){ CK.err='Masukkan kode mitra dulu.'; return ckRender(); }
+    CK.busy=true; CK.err=''; ckRender();
+    const {data,error}=await SB.rpc('check_partner_code',{p_code:v}); CK.busy=false;
+    const row=Array.isArray(data)?data[0]:data;
+    if(error){ console.warn('check_partner_code',error); CK.err='Kode mitra belum bisa diperiksa. Coba lagi nanti.'; }
+    else if(!row){ CK.err='Kode mitra tidak ditemukan atau sudah tidak aktif.'; }
+    else { CK.code=row; CK.open=false; toast('Kode mitra diterapkan'); }
+    ckRender();
   },
-  'pay-resume'(t){ const o=MYORD.find(x=>x.id===t.dataset.id); if(o) payStep(o); },
+  async 'ck-pay'(){
+    if(needLogin('Masuk dulu untuk membeli paket.')) return;
+    if(!CK.method||!CK.pkg) return;
+    return ckCreate();
+  },
+  'pay-resume'(t){ go('/bayar/'+t.dataset.id); },
   'pay-copy'(t){ copyTxt(t.dataset.v); },
-  async 'pay-proof'(t){
-    const f=($('#payFile')||{}).files&&$('#payFile').files[0], er=m=>{ $('#payErr').innerHTML=`<div class="err">${esc(m)}</div>`; };
-    if(!f) return er('Pilih foto bukti pembayaran dulu.');
-    if(f.size>3e6) return er('Ukuran gambar maksimal 3 MB.');
-    t.disabled=true; t.textContent='Mengirim…';
-    const ext=((f.name.split('.').pop()||'jpg').toLowerCase()).replace(/[^a-z0-9]/g,'')||'jpg', path=`${U.id}/${t.dataset.id}.${ext}`;
-    const up=await SB.storage.from('proofs').upload(path,f,{upsert:true});
-    if(up.error){ t.disabled=false; t.textContent='Saya sudah bayar'; return er('Gagal mengunggah: '+up.error.message); }
-    const u=await SB.from('orders').update({proof_path:path}).eq('id',t.dataset.id);
-    if(u.error){ t.disabled=false; t.textContent='Saya sudah bayar'; return er('Gagal menyimpan: '+u.error.message); }
-    closeModal(); toast('Bukti terkirim. Admin akan memverifikasi.'); viewPaket();
+  async 'pay-check'(t){
+    const old=t.textContent; t.disabled=true; t.textContent='Memeriksa…';
+    const o=MYORD.find(x=>x.id===t.dataset.id); let row=null;
+    try{ const r=await SB.functions.invoke('check-payment',{body:{order_id:t.dataset.id}}); row=r.data&&r.data.order; }catch(_){}
+    t.disabled=false; t.textContent=old;
+    if(!row) return toast('Belum bisa memeriksa status. Coba lagi.');
+    if(o&&row.status!==o.status){ await payApply(o,row); return; }
+    toast(row.status==='pending'?'Pembayaran belum terdeteksi. Halaman ini akan otomatis berubah begitu masuk.':'Status: '+((payStatus[row.status]||[row.status])[0]));
+  },
+  async 'pay-dl'(t){
+    const url=t.dataset.v, name='QRIS-Cognera-'+(t.dataset.n||'order')+'.png';
+    try{ const b=await (await fetch(url)).blob(), a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
+    catch(_){ window.open(url,'_blank','noopener'); toast('Tekan lama gambar QR untuk menyimpan'); }
   },
   'reset-progress'(){ openModal(`<h3>Reset progres belajar?</h3><p class="muted">XP, riwayat latihan, skor tryout, dan tanda materi selesai akan dihapus. Akun dan paketmu tetap ada.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-ink grow" data-act="reset-ok">Reset</button></div>`); },
   'reset-ok'(){ Object.assign(DATA,{xp:0,activity:{},sub:{},attempts:[],materiDone:[],inprogress:null,neraChat:[]}); save(); closeModal(); toast('Progres direset'); go('/beranda'); },

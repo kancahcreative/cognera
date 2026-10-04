@@ -1,0 +1,3 @@
+# Webhook dipanggil Midtrans (tanpa JWT user), keamanan lewat verifikasi signature.
+[functions.payment-webhook]
+verify_jwt = false
