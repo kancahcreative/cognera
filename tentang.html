@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#f4c62f">
+<title>Tentang Kami — Cognera</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--yellow:#f4c62f;--yellow-deep:#e5b419;--yellow-pale:#fff7d7;--ink:#191b20;--muted:#68717f;--line:#e5e8ed;--shadow:0 12px 32px rgba(21,38,62,.1)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:90px}body{margin:0;background:#fff;color:var(--ink);font-family:"DM Sans",sans-serif;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}button,input{font:inherit}button{cursor:pointer;border:0}.container{width:min(1200px,calc(100% - 48px));margin:0 auto}
+.nav{height:70px;position:sticky;top:0;z-index:30;background:#fff;box-shadow:0 2px 14px rgba(16,30,52,.08)}.navInner{height:100%;display:flex;align-items:center;gap:28px}.brand{display:flex;align-items:center;gap:9px;font:800 22px Manrope,sans-serif;letter-spacing:-1px;white-space:nowrap}.brandMark{width:30px;height:30px;border-radius:9px;background:var(--yellow);display:grid;place-items:center;color:#171717;font:800 17px Manrope,sans-serif}.navLinks{display:flex;align-items:center;justify-content:center;gap:25px;margin-left:auto;color:#414955;font-size:13px;font-weight:600}.navLinks a:hover{color:#111}.navAction{margin-left:18px;background:var(--yellow);border-radius:99px;padding:11px 20px;font-size:12px;font-weight:800;white-space:nowrap;box-shadow:0 4px 0 rgba(170,132,0,.18)}.navAction:hover{background:#ffd84b}.menuBtn{display:none;background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 11px;font-size:19px}
+@media(max-width:1000px){.navInner{gap:15px}.navLinks{gap:14px;font-size:11px}.navAction{margin-left:6px}}
+@media(max-width:760px){.container{width:calc(100% - 32px)}}
+@media(max-width:480px){.container{width:calc(100% - 24px)}.navInner{gap:8px}.brand{font-size:19px;gap:6px}.brandMark{width:27px;height:27px}}
+.nav{height:68px;box-shadow:0 2px 12px rgba(0,0,0,.08)}.navAction{background:#191b20;color:#fff;box-shadow:none}.navAction:hover{background:#363636;color:#fff}.brandMark{background:#f4c62f;color:#191b20}
+.navLinks a{position:relative;transition:color .2s}
+header.nav .navInner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px}
+header.nav .brand{justify-self:start}
+header.nav .navLinks{margin:0;justify-self:center}
+header.nav .navCta{justify-self:end;display:flex;align-items:center;gap:10px}
+header.nav .navCta .navAction{margin:0}
+header.nav .navLogin{border:0;background:transparent;color:#191b20;border-radius:99px;padding:11px 20px;font-size:12px;font-weight:800;white-space:nowrap;transition:background .2s}
+header.nav .navCta .navAction{background:#f4c62f;color:#191b20;box-shadow:none}
+header.nav .navCta .navAction:hover{background:#ffd84b;color:#191b20}
+header.nav .navLogin:hover{background:#fff3c4}
+header.nav .menuBtn,header.nav .navMob{display:none}
+@media(max-width:960px){
+header.nav .navInner{display:flex;justify-content:space-between;gap:12px}
+header.nav .navCta{display:none}
+header.nav .menuBtn{display:block;position:relative;width:46px;height:46px;padding:0;margin-left:auto;background:transparent;border:0;border-radius:14px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+header.nav .menuBtn span{position:absolute;left:50%;top:50%;width:20px;height:2px;margin:-1px 0 0 -10px;background:#191b20;border-radius:2px;transition:transform .25s,opacity .2s}
+header.nav .menuBtn span:nth-child(1){transform:translateY(-6px)}
+header.nav .menuBtn span:nth-child(3){transform:translateY(6px)}
+header.nav .menuBtn[aria-expanded="true"] span:nth-child(1){transform:rotate(45deg)}
+header.nav .menuBtn[aria-expanded="true"] span:nth-child(2){opacity:0}
+header.nav .menuBtn[aria-expanded="true"] span:nth-child(3){transform:rotate(-45deg)}
+header.nav .menuBtn:focus-visible{outline:3px solid #f4c62f66;outline-offset:2px}
+header.nav .navLinks{display:flex;flex-direction:column;align-items:stretch;gap:0;position:absolute;left:0;right:0;top:100%;justify-self:auto;margin:0;padding:8px 16px 20px;background:#fff;border:0;border-top:1px solid #eef0f3;border-radius:0 0 20px 20px;box-shadow:0 22px 36px rgba(16,30,52,.14);max-height:calc(100vh - 110px);overflow-y:auto;font-size:16px;font-weight:500;opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-8px);transition:opacity .2s,transform .2s,visibility 0s .2s}
+header.nav .navLinks.open{opacity:1;visibility:visible;pointer-events:auto;transform:none;transition:opacity .2s,transform .2s}
+header.nav .navLinks>a{display:block;padding:15px 14px;margin:0;color:#6b7280;font-size:16px;font-weight:500;border-radius:12px}
+header.nav .navLinks>a:hover{color:#191b20}
+header.nav .navMob{display:grid;gap:10px;margin-top:12px;padding:18px 0 0;border-top:1px solid #eef0f3}
+header.nav .navMob a{display:flex;align-items:center;justify-content:center;min-height:50px;border-radius:14px;font-size:15px;font-weight:800;color:#191b20}
+header.nav .navMobLogin{background:#f3f4f6;border:0}
+header.nav .navMobCta{background:#f4c62f}
+header.nav .navMobCta:active{background:#e5b419}
+}
+@media(max-width:480px){header.nav .menuBtn{width:42px;height:42px;border-radius:12px}}
+@media(prefers-reduced-motion:reduce){header.nav .navLinks,header.nav .menuBtn span{transition:none}}
+
+.sec{padding:72px 0}.sec.alt{background:#f7f7f7}
+.eyebrow{display:inline-block;font-size:12px;letter-spacing:.13em;font-weight:800;text-transform:uppercase;margin:0 0 14px;padding:7px 14px;border-radius:99px;background:#f4c62f;color:#191b20}
+h1,h2,h3{font-family:Manrope,sans-serif;margin:0}
+.hero{background:#fff;border-bottom:1px solid #edf0f3;overflow:hidden}
+.heroGrid{display:grid;grid-template-columns:1.05fr 1fr;gap:30px;align-items:center;padding:56px 0 48px}
+.hero h1{font-size:clamp(32px,4.6vw,52px);line-height:1.08;letter-spacing:-.025em;margin-bottom:18px}
+.hero h1 mark{background:linear-gradient(transparent 58%,#f4c62f 58%);color:inherit;padding:0 2px}
+.hero p.lead{font-size:17px;line-height:1.75;color:#3d4552;margin:0 0 14px;max-width:540px}
+.art svg{width:100%;height:auto;display:block}
+.two,.what{display:grid;grid-template-columns:.9fr 1.1fr;gap:48px;align-items:start}
+.sec h2{font-size:clamp(26px,3.4vw,36px);line-height:1.15;letter-spacing:-.02em}
+.what h2{margin-bottom:18px}
+.sec p{font-size:16.5px;line-height:1.8;color:#3d4552;margin:0 0 16px}
+.head{max-width:640px;margin-bottom:34px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.card{background:#fff;border:1px solid #e6ebf1;border-radius:18px;padding:24px;box-shadow:0 6px 18px rgba(28,54,83,.045)}
+.card .ic{width:46px;height:46px;border-radius:14px;background:var(--yellow);display:grid;place-items:center;margin-bottom:16px}
+.card .ic svg{width:24px;height:24px;stroke:#191b20;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.card h3{font-size:18px;margin-bottom:8px;letter-spacing:-.01em;color:#191b20}
+.sec .card p{font-size:15px;line-height:1.7;margin:0;color:#586476}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}.chips span{padding:9px 16px;border-radius:99px;background:#fff;border:1px solid #e0e5eb;font-size:14px;font-weight:700}
+.chips span.soon{background:transparent;border-style:dashed;color:#68717f;font-weight:600}
+.dark{background:#191b20;color:#fff}.dark h2{color:#fff}.dark p{color:#c9ced6}
+.finalCta{padding:44px 0 64px}
+.ctaBox{border-radius:28px;background:var(--yellow);padding:34px 48px;display:flex;align-items:center;justify-content:space-between;gap:32px;overflow:hidden}
+.ctaText{flex:1;max-width:560px}
+.ctaBox h2{font:800 clamp(26px,3.4vw,40px)/1.14 Manrope,sans-serif;letter-spacing:-.045em;margin:0 0 12px;color:#191b20;text-wrap:balance}
+.ctaBox p{font-size:15px;line-height:1.65;color:#3b3510;margin:0 0 24px}
+.primaryBtn{display:inline-flex;align-items:center;justify-content:center;border-radius:99px;font-weight:800;background:#191b20;color:#fff;white-space:nowrap;gap:10px;min-height:50px;padding:0 28px;font-size:14px;box-shadow:0 7px 17px rgba(43,39,19,.18);transition:.18s}
+.primaryBtn span{transition:transform .2s}.primaryBtn:hover{background:#000}.primaryBtn:hover span{transform:translateX(4px)}
+.ctaArtWrap{flex:none;width:min(430px,44%)}.ctaArt{display:block;width:100%;height:auto;margin:-4px 0}
+@media(max-width:900px){.heroGrid,.two,.what{grid-template-columns:1fr;gap:28px}.art{max-width:460px;margin:0 auto}.grid3{grid-template-columns:1fr}.sec{padding:52px 0}}
+@media(max-width:820px){.ctaBox{padding:26px 28px;gap:18px;border-radius:24px}.ctaArtWrap{width:44%}}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}.hero p.lead{font-size:16px}}
+@media(max-width:560px){.finalCta{padding:12px 0 44px}.ctaBox{padding:20px 16px 20px 18px;gap:6px;border-radius:20px}.ctaText{flex:1 1 56%;min-width:0}.ctaBox h2{font-size:19px;line-height:1.18;margin:0 0 8px}.ctaBox p{font-size:11.5px;line-height:1.5;margin:0 0 14px}.primaryBtn{min-height:38px;padding:0 14px;font-size:11.5px;gap:6px}.ctaArtWrap{flex:0 0 44%;width:44%}}
+
+.footer{padding:56px 0 24px;background:#fafafa;border-top:1px solid #edf0f3}
+.footer .footerGrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px}
+.footer .footerBrand p{max-width:300px;font-size:14px;line-height:1.7;color:#798392;margin:14px 0 0}
+.footer .footerCol h4{font:800 12px Manrope,sans-serif;letter-spacing:.12em;text-transform:uppercase;color:#191b20;margin:0 0 16px;padding-bottom:10px;position:relative}
+.footer .footerCol h4:after{content:"";position:absolute;left:0;bottom:0;width:22px;height:3px;border-radius:3px;background:#f4c62f}
+.footer .footerCol a{display:block;font-size:14px;color:#5b6573;margin:11px 0;transition:color .2s}
+.footer .footerCol a:hover{color:#191b20}
+.footer .footerBottom{display:block;border-top:1px solid #e8ebef;margin-top:40px;padding-top:20px;color:#87909d;font-size:13px}
+.footer .footerBottom .footerDev{color:#191b20;font-weight:800;border-bottom:2px solid #f4c62f}
+@media(max-width:960px){.footer .footerGrid{grid-template-columns:1fr 1fr;gap:30px 24px}.footer .footerBrand{grid-column:1/-1}}
+@media(max-width:480px){.footer{padding:40px 0 20px}.footer .footerGrid{gap:28px 16px}}
+</style>
+</head>
+<body>
+<header class="nav"><div class="container navInner"><a class="brand" href="index.html" aria-label="Cognera beranda"><span class="brandMark">C</span><span>cognera</span></a><nav class="navLinks" id="navLinks" aria-label="Navigasi utama"><a href="index.html#produk">Ekosistem</a><a href="index.html#subjects">Materi</a><a href="index.html#fitur">Cara kerja</a><a href="index.html#packages">Paket belajar</a><a href="index.html#testimonials">Testimoni</a><a href="index.html#faq">Bantuan</a><div class="navMob"><a class="navMobLogin" href="app.html">Login</a><a class="navMobCta" href="app.html">Mulai Latihan</a></div></nav><div class="navCta"><a class="navLogin" href="app.html">Login</a><a class="navAction" href="app.html">Mulai Latihan</a></div><button class="menuBtn" id="menuBtn" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button></div></header>
+
+<section class="hero"><div class="container heroGrid"><div><span class="eyebrow">Tentang Cognera</span>
+<h1>Kesempatan belajar yang <mark>setara</mark> untuk semua pejuang ujian</h1>
+<p class="lead">Banyak calon peserta ujian punya potensi besar, tetapi terhalang biaya, minim sumber belajar, atau tidak ada yang membimbing. Cognera dibuat supaya hambatan itu tidak lagi menentukan siapa yang berhasil.</p>
+<p class="lead">Lewat satu platform, kami membantu siapa pun menyiapkan diri dengan lebih terarah dan percaya diri.</p></div>
+<div class="art"><svg viewBox="0 0 520 440" role="img" aria-label="Ilustrasi dua orang saling membantu menaiki tangga menuju bendera tujuan">
+<circle cx="260" cy="215" r="190" fill="#ffdc62" opacity=".55"/><circle cx="410" cy="95" r="46" fill="#f4c62f" opacity=".5"/>
+<g stroke="#191b20" stroke-width="2" opacity=".55"><path d="M105 120L178 82M178 82L242 132M242 132L150 172M105 120L150 172"/></g>
+<g fill="#f4c62f" stroke="#191b20" stroke-width="2.5"><circle cx="105" cy="120" r="9"/><circle cx="178" cy="82" r="11"/><circle cx="242" cy="132" r="8"/><circle cx="150" cy="172" r="10"/></g>
+<g><rect x="338" y="62" width="104" height="52" rx="16" fill="#fff" stroke="#191b20" stroke-width="2.5"/><path d="M366 114l-4 18 20-18z" fill="#fff" stroke="#191b20" stroke-width="2.5" stroke-linejoin="round"/><circle cx="372" cy="88" r="5" fill="#191b20"/><circle cx="390" cy="88" r="5" fill="#191b20"/><circle cx="408" cy="88" r="5" fill="#f4c62f" stroke="#191b20" stroke-width="2"/></g>
+<rect x="40" y="378" width="440" height="10" rx="5" fill="#191b20"/>
+<g stroke="#191b20" stroke-width="2.5"><rect x="130" y="332" width="84" height="46" fill="#191b20"/><rect x="214" y="292" width="84" height="86" fill="#191b20"/><rect x="298" y="252" width="84" height="126" fill="#191b20"/><rect x="382" y="212" width="84" height="166" fill="#191b20"/></g>
+<g fill="#f4c62f"><rect x="130" y="332" width="84" height="9"/><rect x="214" y="292" width="84" height="9"/><rect x="298" y="252" width="84" height="9"/><rect x="382" y="212" width="84" height="9"/></g>
+<path d="M424 212V142" stroke="#191b20" stroke-width="4" stroke-linecap="round"/><path d="M424 142l46 16-46 16z" fill="#f4c62f" stroke="#191b20" stroke-width="3" stroke-linejoin="round"/>
+<g stroke="#191b20" stroke-width="3" stroke-linecap="round" fill="none"><path d="M248 290v-22M262 290v-22"/><path d="M332 250v-22M346 250v-22"/></g>
+<g stroke="#191b20" stroke-width="2.5"><rect x="238" y="228" width="34" height="42" rx="12" fill="#fff"/><rect x="322" y="188" width="34" height="42" rx="12" fill="#f4c62f"/><circle cx="255" cy="212" r="15" fill="#ffd9a8"/><circle cx="339" cy="172" r="15" fill="#ffd9a8"/></g>
+<path d="M240 196c4-14 26-14 30 0z" fill="#191b20"/><path d="M324 156c4-14 26-14 30 0z" fill="#191b20"/>
+<g stroke="#191b20" stroke-width="5" stroke-linecap="round" fill="none"><path d="M268 242l26 -6"/><path d="M326 204l-26 28"/></g>
+<circle cx="297" cy="234" r="6" fill="#ffd9a8" stroke="#191b20" stroke-width="2.5"/>
+<g stroke="#191b20" stroke-width="2.5"><rect x="52" y="354" width="78" height="14" rx="3" fill="#f4c62f"/><rect x="60" y="340" width="64" height="14" rx="3" fill="#fff"/><rect x="68" y="326" width="50" height="14" rx="3" fill="#191b20"/></g>
+<g stroke="#191b20" stroke-width="3" stroke-linecap="round"><path d="M470 250v14M463 257h14"/><path d="M60 240v14M53 247h14"/></g>
+</svg></div></div></section>
+
+<section class="sec alt"><div class="container"><div class="what"><div><span class="eyebrow">Apa itu Cognera</span><h2>Cognera adalah teman persiapan ujianmu</h2>
+<p>Cognera adalah platform tryout dan belajar online untuk siswa yang sedang mempersiapkan seleksi masuk perguruan tinggi dan sekolah kedinasan.</p>
+<p>Kami tidak berhenti di skor. Setelah tryout, kamu melihat bagian mana yang sudah kuat dan mana yang perlu dikejar, lalu berlatih tepat di bagian itu. Jadi belajarnya terarah, bukan sekadar mengejar angka.</p>
+<div class="chips"><span>UTBK-SNBT</span><span>Mandiri PTN</span><span>TKA SMA</span><span>Kedinasan</span><span class="soon">CPNS · segera hadir</span></div></div>
+<div class="grid2"><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4h6v3H9zM9 14l2 2 4-4"/></svg></div><h3>Tryout dengan Penskoran IRT</h3><p>Skor dihitung memakai Item Response Theory seperti pada UTBK-SNBT, dan hasilnya langsung tersedia setelah pengerjaan selesai.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h6"/></svg></div><h3>Latihan soal</h3><p>Dilengkapi pembahasan yang mudah dipahami, kapan saja.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/></svg></div><h3>Nera AI</h3><p>Asisten yang menjelaskan materi dan soal secara bertahap saat kamu buntu.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>Laporan belajar</h3><p>Pantau progres dan temukan materi prioritas berikutnya.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4z"/></svg></div><h3>Komunitas</h3><p>Diskusi soal, berbagi tips, dan saling menyemangati.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></div><h3>Satu akun, banyak jalur</h3><p>Semua persiapan ada di satu tempat.</p></div></div></div></div></section>
+
+<section class="sec"><div class="container two"><div><span class="eyebrow">Cerita kami</span><h2>Lahir dari pengalaman yang kami alami sendiri</h2></div>
+<div><p>Sebagian dari kami pernah berada di posisi yang sama: sulit menemukan materi belajar yang bagus, sementara persaingan seleksi terasa semakin ketat.</p>
+<p>Dari situ muncul keinginan membangun tempat belajar yang lebih dari sekadar kumpulan soal, yaitu pengalaman yang terstruktur, menyenangkan, dan ditemani komunitas yang saling mendukung.</p></div></div></section>
+
+<section class="sec alt"><div class="container"><div class="head"><span class="eyebrow">Misi kami</span><h2>Tiga misi yang kami emban</h2></div>
+<div class="grid3"><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h8l6 4v14"/><path d="M2 21h20M13 12v.01"/></svg></div><h3>Memperluas Jangkauan Pembelajaran</h3><p>Kami berupaya menyediakan sumber belajar yang dapat diakses oleh pelajar di berbagai daerah dengan biaya yang terjangkau.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z"/></svg></div><h3>Menumbuhkan Kebiasaan Belajar yang Konsisten</h3><p>Pemantauan progres dan fitur interaktif dirancang untuk menjaga motivasi pengguna agar latihan dapat dilakukan secara berkelanjutan.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/></svg></div><h3>Menerapkan Teknologi untuk Pemahaman Materi</h3><p>Nera AI memberikan penjelasan materi dan pembahasan soal secara bertahap sehingga konsep yang sulit menjadi lebih mudah dipahami.</p></div></div></div></section>
+
+<section class="sec"><div class="container"><div class="head"><span class="eyebrow">Nilai kami</span><h2>Nilai yang menjadi landasan kerja kami</h2></div>
+<div class="grid2"><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg></div><h3>Akurasi</h3><p>Soal, kunci jawaban, dan pembahasan disusun secara cermat agar dapat dijadikan acuan belajar yang dapat dipercaya.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div><h3>Transparansi</h3><p>Hasil tryout dan analisis capaian disajikan apa adanya sehingga pengguna memperoleh gambaran kemampuan yang objektif.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.5-4 3-6 6.5-6s6 2 6.5 6"/><path d="M16 5a3.5 3.5 0 0 1 0 7M18 14c2 .6 3.3 2.4 3.5 6"/></svg></div><h3>Kebersamaan</h3><p>Komunitas disediakan sebagai wadah untuk berdiskusi, bertukar pengalaman, dan saling memberikan dukungan.</p></div><div class="card"><div class="ic"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></div><h3>Inovasi</h3><p>Materi dan fitur dikembangkan secara berkala berdasarkan evaluasi serta masukan dari para pengguna.</p></div></div></div></section>
+
+<section class="sec dark"><div class="container two"><div><span class="eyebrow">Komitmen kami</span><h2>Pendamping yang bisa diandalkan</h2></div>
+<div><p>Target kami sederhana: menjadi rekan yang bisa kamu andalkan sepanjang persiapan seleksi, bukan hanya tempat berlatih soal.</p>
+<p>Kami memadukan teknologi, pengalaman tim, dan suara komunitas untuk terus menghadirkan solusi belajar yang efektif dan terbuka bagi semua.</p></div></div></section>
+
+<section class="finalCta"><div class="container"><div class="ctaBox"><div class="ctaText"><h2>Yuk, mulai dari sekarang</h2><p>Setiap orang berhak atas peluang yang sama untuk mengejar mimpinya. Baru mulai atau sedang mengejar skor lebih tinggi, Cognera siap menemani. Selamat belajar dan semoga sukses!</p><a class="primaryBtn" href="app.html">Mulai latihan gratis <span>→</span></a></div><div class="ctaArtWrap"><svg class="ctaArt" viewBox="0 30 860 620" role="img" aria-label="Siswa merayakan progres belajar yang naik" aria-hidden="false" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="ctaDots" width="13" height="13" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.4" fill="#191b20" opacity=".25"/></pattern></defs><path d="M106 139Q165 57 305 63L658 49Q771 54 797 167L821 489Q809 604 692 621L186 612Q79 598 73 479L65 247Q66 178 106 139Z" fill="#fff7d7"/><g transform="translate(860 0) scale(-1 1)"><path d="M584 58H776Q799 62 803 91V195L718 229 622 172Z" fill="#f4c62f"/><path d="M650 85H784V164H650Z" fill="url(#ctaDots)" opacity=".75"/><path d="m738 236 9 19 20 2-15 13 5 20-19-10-18 10 4-20-15-13 21-2z" fill="#191b20"/></g><ellipse cx="445" cy="612" rx="298" ry="23" fill="#191b20" opacity=".10"/><g transform="translate(-200 5)"><path d="M397 318q42-26 97 0l56 57-31 113H353l-18-85z" fill="#191b20" stroke="#191b20" stroke-width="6" stroke-linejoin="round"/><path d="M420 316v74l31 27 30-27v-74" fill="#fff" stroke="#191b20" stroke-width="5" stroke-linejoin="round"/><path d="M429 333h44m-44 17h44" stroke="#191b20" stroke-width="4" stroke-linecap="round"/><path d="M423 298h66v54q-12 28-33 28t-33-28z" fill="#fff" stroke="#191b20" stroke-width="5"/><ellipse cx="456" cy="245" rx="77" ry="91" fill="#fff" stroke="#191b20" stroke-width="6"/><path d="M379 240q-20-100 63-119 89-18 109 69 5 21-2 54-19-20-25-52-49 32-117 28-12 0-28 20z" fill="#191b20"/><path d="M389 226q-26 10-16 36 5 14 20 11m126-47q24 9 16 34-4 14-18 12" fill="#fff" stroke="#191b20" stroke-width="5"/><path d="M421 248q7-8 15 0m35 0q7-8 15 0" fill="none" stroke="#191b20" stroke-width="5" stroke-linecap="round"/><path d="M454 255l-5 18 10 2m-21 17q19 16 38 0" fill="none" stroke="#191b20" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/><path d="M399 205q17-13 31-4m45 0q15-9 29 4" fill="none" stroke="#191b20" stroke-width="5" stroke-linecap="round"/><path d="M395 372Q326 340 316 252" fill="none" stroke="#191b20" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/><path d="M395 372Q326 340 316 252" fill="none" stroke="#f4c62f" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/><circle cx="316" cy="244" r="19" fill="#fff" stroke="#191b20" stroke-width="6"/><path d="M520 372Q590 340 598 252" fill="none" stroke="#191b20" stroke-width="46" stroke-linecap="round" stroke-linejoin="round"/><path d="M520 372Q590 340 598 252" fill="none" stroke="#f4c62f" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/><circle cx="598" cy="244" r="19" fill="#fff" stroke="#191b20" stroke-width="6"/></g><path d="M123 482h636q14 0 14 14v20H109v-20q0-14 14-14z" fill="#191b20"/><path d="M135 489h612v12H135z" fill="#fff"/><path d="M164 516h20l-15 112h-22zm527 0h20l17 112h-23z" fill="#191b20"/><rect x="452" y="416" width="76" height="66" rx="8" fill="#f4c62f" stroke="#191b20" stroke-width="6"/><path d="M466 438h48" stroke="#191b20" stroke-width="5" stroke-linecap="round" opacity=".28"/><rect x="528" y="344" width="76" height="138" rx="8" fill="#f4c62f" stroke="#191b20" stroke-width="6"/><path d="M542 366h48" stroke="#191b20" stroke-width="5" stroke-linecap="round" opacity=".28"/><rect x="604" y="268" width="76" height="214" rx="8" fill="#f4c62f" stroke="#191b20" stroke-width="6"/><path d="M618 290h48" stroke="#191b20" stroke-width="5" stroke-linecap="round" opacity=".28"/><rect x="680" y="182" width="76" height="300" rx="8" fill="#f4c62f" stroke="#191b20" stroke-width="6"/><path d="M694 204h48" stroke="#191b20" stroke-width="5" stroke-linecap="round" opacity=".28"/><path d="M718 182V104" stroke="#191b20" stroke-width="7" stroke-linecap="round"/><path d="M718 104h58l-16 21 16 21h-58z" fill="#191b20" stroke="#191b20" stroke-width="5" stroke-linejoin="round"/><path d="M740 125l5 6 9-11" fill="none" stroke="#f4c62f" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" transform="translate(-2 4)"/><rect x="562" y="206" width="92" height="38" rx="19" fill="#fff" stroke="#191b20" stroke-width="5"/><text x="608" y="232" text-anchor="middle" font-family="Manrope,DM Sans,sans-serif" font-weight="800" font-size="20" fill="#191b20">+105</text><circle cx="330" cy="150" r="0" fill="none"/><g transform="translate(468 170)"><circle r="46" fill="#fff" stroke="#191b20" stroke-width="6"/><path d="M-22 -4a24 24 0 0 1 40 -14" fill="none" stroke="#191b20" stroke-width="7" stroke-linecap="round"/><path d="M22 4a24 24 0 0 1 -40 14" fill="none" stroke="#191b20" stroke-width="7" stroke-linecap="round"/><path d="M20 -34l2 18-18-3z" fill="#191b20"/><path d="M-20 34l-2 -18 18 3z" fill="#191b20"/></g><path d="m120 150 8.8 -16.8 8.8 16.8 16.8 8.8 -16.8 8.0 -8.8 17.6 -8.8 -17.6 -16.8 -8.0z" fill="#f4c62f" stroke="#191b20" stroke-width="4" stroke-linejoin="round"/></svg></div></div></div></section>
+
+<footer class="footer"><div class="container"><div class="footerGrid"><div class="footerBrand"><a class="brand" href="index.html"><span class="brandMark">C</span><span>cognera</span></a><p>Platform tryout dan belajar untuk membantu kamu memahami progres, bukan sekadar mengejar angka.</p></div><div class="footerCol"><h4>Informasi</h4><a href="tentang.html">Tentang Kami</a><a href="blog.html">Blog</a><a href="bantuan.html">Pusat Bantuan</a><a href="karir.html">Karir</a><a href="kontak.html">Hubungi Kami</a></div><div class="footerCol"><h4>Produk Kami</h4><a href="app.html">Tryout gratis</a><a href="index.html#subjects">Materi</a><a href="index.html#fitur">Cara kerja</a><a href="index.html#packages">Paket belajar</a></div><div class="footerCol"><h4>Ketentuan</h4><a href="privacy.html">Kebijakan Privasi</a><a href="terms.html">Syarat &amp; Ketentuan</a></div></div><div class="footerBottom"><span>Copyright © 2026 Cognera. Developed by <a class="footerDev" href="https://kancah.com/" target="_blank" rel="noopener">Kancah</a></span></div></div></footer>
+<script>
+(function(){var menu=document.getElementById('navLinks'),btn=document.getElementById('menuBtn');if(!btn||!menu)return;
+var setMenu=function(o){menu.classList.toggle('open',o);btn.setAttribute('aria-expanded',o?'true':'false');btn.setAttribute('aria-label',o?'Tutup menu':'Buka menu')};
+btn.addEventListener('click',function(){setMenu(!menu.classList.contains('open'))});
+addEventListener('keydown',function(e){if(e.key==='Escape')setMenu(false)});
+document.addEventListener('click',function(e){if(!e.target.closest('.nav'))setMenu(false)});
+addEventListener('resize',function(){if(innerWidth>960)setMenu(false)});
+menu.addEventListener('click',function(e){if(e.target.closest('a'))setMenu(false)});})();
+</script>
+</body>
+</html>
