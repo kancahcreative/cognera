@@ -47,6 +47,9 @@ const R={
   f:[{k:'id',l:'ID (huruf kecil, tanpa spasi; tidak bisa diubah)',t:'txt',req:1,lock:1},{k:'title',l:'Judul',t:'txt',req:1},{k:'jalur',l:'Jalur',t:'sel',o:JAL},
    {k:'access',l:'Akses',t:'sel',o:{free:'Gratis',premium:'Premium'}},{k:'subs',l:'Kode subtes (satu per baris, mis. pu, pk, lbi)',t:'lines'},
    {k:'tries',l:'Batas percobaan (kosong = tanpa batas)',t:'num'},{k:'image_url',l:'Gambar kartu',t:'img'},{k:'active',l:'Aktif',t:'bool',d:true}]},
+ posts:{t:'Komunitas',pk:['id'],order:'created_at',noAdd:1,
+  cols:[['avatar','Foto','a'],['author','Penulis'],['tag','Subtes','s'],['text','Isi','t'],['likes','Suka','n'],['replies','Balasan','n'],['created_at','Waktu','d']],
+  f:[{k:'text',l:'Isi postingan',t:'ta',req:1}]},
  profiles:{t:'Pengguna',pk:['id'],noAdd:1,noDel:1,
   cols:[['avatar','Foto','a'],['email','Email'],['name','Nama'],['pkgs','Paket','p'],['jalur','Jalur'],['sekolah','Sekolah'],['xp','XP']],
   f:[{k:'name',l:'Nama',t:'txt',req:1},{k:'jalur',l:'Jalur',t:'sel',o:JAL},{k:'tahun',l:'Tahun target',t:'num'},{k:'goal',l:'Target',t:'num'},{k:'sekolah',l:'Sekolah',t:'txt'},{k:'xp',l:'XP',t:'num'},{k:'onboarded',l:'Sudah onboarding',t:'bool'}],
@@ -56,7 +59,7 @@ const R={
   f:[{k:'user_id',l:'User ID',t:'txt',req:1},{k:'package_id',l:'ID paket (mis. utbk27)',t:'txt',req:1},{k:'ends_at',l:'Berakhir (kosong = selamanya)',t:'date'}]}
 };
 const pkOf=(r,x)=>Object.fromEntries(r.pk.map(k=>[k,x[k]]));
-function cell(v,k){if(k==='a')return v?`<img src="${esc(v)}" alt="" referrerpolicy="no-referrer" style="border-radius:50%">`:'<span class="mut">–</span>';if(k==='p'){const n=Date.now();return v&&v.length?v.map(z=>`<span class="chip" style="${!z.ends_at||new Date(z.ends_at)>n?'background:#fff7d7':'opacity:.55'}">${esc(z.package_id)}${!z.ends_at||new Date(z.ends_at)>n?'':' (habis)'}</span>`).join(''):'<span class="mut">Gratis</span>'}if(k==='i')return v?`<img src="${esc(v)}" alt="">`:'';if(k==='b')return v?'✓':'–';if(k==='t')return esc(String(v||'').slice(0,70));if(k==='d')return v?esc(fmt(v)):'∞';if(k==='s')return esc(SUBS[v]||v);return esc(v)}
+function cell(v,k){if(k==='n')return Array.isArray(v)?v.length:0;if(k==='a')return v?`<img src="${esc(v)}" alt="" referrerpolicy="no-referrer" style="border-radius:50%">`:'<span class="mut">–</span>';if(k==='p'){const n=Date.now();return v&&v.length?v.map(z=>`<span class="chip" style="${!z.ends_at||new Date(z.ends_at)>n?'background:#fff7d7':'opacity:.55'}">${esc(z.package_id)}${!z.ends_at||new Date(z.ends_at)>n?'':' (habis)'}</span>`).join(''):'<span class="mut">Gratis</span>'}if(k==='i')return v?`<img src="${esc(v)}" alt="">`:'';if(k==='b')return v?'✓':'–';if(k==='t')return esc(String(v||'').slice(0,70));if(k==='d')return v?esc(fmt(v)):'∞';if(k==='s')return esc(SUBS[v]||v);return esc(v)}
 async function load(n,filter){
  let q=SB.from(n).select('*').limit(1000);if(filter)q=q.match(filter);if(R[n].order)q=q.order(R[n].order,{ascending:false});
  const {data,error}=await q;if(error)throw error;
@@ -140,7 +143,7 @@ async function dash(){
  }catch(e){main.innerHTML=`<div class="err">${esc(e.message)}<br>Pastikan admin-schema.sql sudah dijalankan.</div>`}}
 
 /* ===== Shell, login ===== */
-let main;const TABS=[['dash','Dasbor'],['questions','Soal'],['tryouts','Tryout'],['profiles','Pengguna'],['results','Hasil'],['entitlements','Akses paket']];
+let main;const TABS=[['dash','Dasbor'],['questions','Soal'],['tryouts','Tryout'],['profiles','Pengguna'],['results','Hasil'],['posts','Komunitas'],['entitlements','Akses paket']];
 function go(t){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));t==='dash'?dash():t==='results'?results():crud(t)}
 function shell(){$('#app').innerHTML=`<header class="top"><span class="brand"><b>C</b>Admin</span>${TABS.map(t=>`<button class="tab" data-t="${t[0]}">${t[1]}</button>`).join('')}<span class="sp"></span><button class="btn s" id="out">Keluar</button></header><main id="main"></main>`;main=$('#main');
  $('.top').onclick=e=>{const b=e.target.closest('.tab');if(b)go(b.dataset.t)};$('#out').onclick=async()=>{await SB.auth.signOut();login()};go('dash')}
