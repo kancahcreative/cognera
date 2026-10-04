@@ -355,6 +355,7 @@ details.rv .inner{padding:0 16px 16px}
 .authSide .ill{width:min(270px,42%)!important;right:-14px!important}
 @media(max-height:780px){.authSide .ill{display:none}}
 [data-act=google]{margin-top:18px}
+.gbtn{margin-top:18px;display:flex;justify-content:center;min-height:44px}
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script></head><body><div id="app"></div><noscript>Cognera membutuhkan JavaScript untuk berjalan.</noscript><script>
 /* ===== CONFIG ===== */
 const CONFIG = {
@@ -711,21 +712,30 @@ function loadGIS(){
     document.head.appendChild(s);
   });
 }
-function googleProfile(){
-  return loadGIS().then(()=>new Promise((res,rej)=>{
-    const tc=google.accounts.oauth2.initTokenClient({
-      client_id:CONFIG.GOOGLE_CLIENT_ID, scope:'openid email profile', prompt:'select_account',
-      callback:async r=>{
-        if(r.error) return rej(new Error(r.error==='access_denied'?'Login Google dibatalkan.':'Login Google gagal ('+r.error+').'));
-        try{
-          const x=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+r.access_token}});
-          const p=await x.json(); if(!p.email) throw new Error('x'); res(p);
-        }catch(e){ rej(new Error('Gagal mengambil profil Google. Coba lagi.')); }
-      },
-      error_callback:e=>rej(new Error(e&&e.type==='popup_closed'?'Login Google dibatalkan.':'Popup Google diblokir atau gagal dibuka. Izinkan popup lalu coba lagi.'))
+async function newNonce(){
+  const raw=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));
+  const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));
+  return {raw,hashed:Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')};
+}
+function jwtPayload(t){
+  const b=t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+  return JSON.parse(decodeURIComponent(atob(b).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join('')));
+}
+/* Tombol resmi Google (ID token). Hasilnya diserahkan ke Supabase atau disimpan lokal. */
+async function initGoogleBtn(){
+  const box=document.getElementById('gbtn'); if(!box||!CONFIG.GOOGLE_CLIENT_ID) return;
+  try{
+    await loadGIS();
+    const n=await newNonce();
+    google.accounts.id.initialize({
+      client_id:CONFIG.GOOGLE_CLIENT_ID, nonce:n.hashed, ux_mode:'popup', auto_select:false, use_fedcm_for_prompt:true,
+      callback:async resp=>{
+        try{ await Auth.googleToken({credential:resp.credential,nonce:n.raw}); go('/beranda'); }
+        catch(e){ toast(e.message||'Login Google gagal.'); }
+      }
     });
-    tc.requestAccessToken();
-  }));
+    google.accounts.id.renderButton(box,{type:'standard',theme:'outline',size:'large',shape:'pill',text:'continue_with',logo_alignment:'left',locale:'id',width:Math.max(200,Math.min(400,box.offsetWidth||320))});
+  }catch(e){ box.innerHTML='<div class="muted small">Tombol Google gagal dimuat. Periksa koneksi internet lalu muat ulang halaman.</div>'; }
 }
 
 /* Auth API — ganti isi fungsi ini dengan panggilan ke backend Anda (Supabase/Firebase/REST) */
@@ -770,9 +780,14 @@ const Auth = {
     const users=LS.get('users',[]); const u=users.find(x=>x.id===U.id);
     u.salt=uid(); u.hash=await hashPw(next,u.salt); LS.set('users',users); loadSession();
   },
-  async google(){
-    if(!CONFIG.GOOGLE_CLIENT_ID) throw new Error('Login Google belum dihubungkan. Isi GOOGLE_CLIENT_ID (atau Supabase) di CONFIG.');
-    const p=await googleProfile(), email=String(p.email).toLowerCase();
+  async googleToken({credential,nonce}){
+    if(SB){
+      const {data,error}=await SB.auth.signInWithIdToken({provider:'google',token:credential,nonce});
+      if(error) throw new Error(error.message);
+      const us=data.user; await pullRemote(us.id,(us.user_metadata&&(us.user_metadata.name||us.user_metadata.full_name))||us.email.split('@')[0],us.email); return U;
+    }
+    const p=jwtPayload(credential), email=String(p.email||'').toLowerCase();
+    if(!email) throw new Error('Gagal membaca akun Google.');
     const users=LS.get('users',[]); let u=users.find(x=>x.email===email);
     if(!u){
       u={id:uid(), name:(p.given_name||p.name||email.split('@')[0]).slice(0,40), email, google:p.sub, picture:p.picture||'', createdAt:Date.now()};
@@ -925,7 +940,6 @@ const go = h=>{ if(location.hash==='#'+h) route(); else location.hash=h; };
 function viewAuth(mode){
   const reg = mode==='daftar';
   const fl=LS.get('flash',null); if(fl) LS.del('flash');
-  if(!SB&&CONFIG.GOOGLE_CLIENT_ID) loadGIS().catch(()=>{});
   mount(`<div class="auth">
     <section class="authSide" aria-label="Tentang Cognera">
       <a href="index.html" class="brand" aria-label="Cognera, ke situs utama"><span class="brandMark" style="background:#191b20;color:#f4c62f">C</span>cognera</a>
@@ -943,7 +957,7 @@ function viewAuth(mode){
     <section class="authForm"><div class="authBox">
       <h2>${reg?'Buat akun Cognera':'Masuk ke Cognera'}</h2>
       <p class="muted" style="margin:0">${reg?'Gratis. Skor dan progres belajarmu tersimpan di akun ini.':'Lanjutkan latihan dan lihat progresmu.'}</p>
-      <button type="button" class="btn btn-ghost btn-block" data-act="google"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 010-9.4l-7.9-6.1a24 24 0 000 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Lanjutkan dengan Google</button><div class="orLine"><span>atau pakai email</span></div>
+      ${CONFIG.GOOGLE_CLIENT_ID?'<div id="gbtn" class="gbtn"></div>':`<button type="button" class="btn btn-ghost btn-block" data-act="google"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 010-9.4l-7.9-6.1a24 24 0 000 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Lanjutkan dengan Google</button>`}<div class="orLine"><span>atau pakai email</span></div>
       <form data-form="${reg?'register':'login'}" novalidate>
         ${reg?`<label class="field"><span>Nama panggilan</span><input class="input" name="name" autocomplete="name" required maxlength="40" placeholder="Contoh: Rani"></label>`:''}
         <label class="field"><span>Email</span><input class="input" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="nama@email.com" value="${fl?esc(fl.email):''}"></label>
@@ -957,6 +971,7 @@ function viewAuth(mode){
       <p class="mt24" style="text-align:center"><a class="btn btn-ghost btn-sm" href="#/beranda">Jelajahi sebagai tamu dulu</a></p>
     </div></section>
   </div>`);
+  initGoogleBtn();
 }
 function authErr(m){ const e=$('#authErr'); if(e) e.innerHTML=m?`<div class="err">${esc(m)}</div>`:''; }
 const validEmail = e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
@@ -1430,14 +1445,10 @@ window.addEventListener('hashchange',route);
 /* ===== ACTIONS (click) ===== */
 const ACT = {
   async google(t){
+    if(!SB) return toast('Login Google belum dihubungkan. Isi GOOGLE_CLIENT_ID di CONFIG.');
     if(t) t.disabled=true;
-    try{
-      if(SB){
-        const {error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}});
-        if(error) throw error;
-      } else { await Auth.google(); go('/beranda'); }
-    }catch(e){ toast(e.message||'Login Google gagal.'); }
-    finally{ if(t) t.disabled=false; }
+    const {error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}});
+    if(error){ toast(error.message); if(t) t.disabled=false; }
   },
   menu(t){ const m=document.getElementById(t.dataset.v), was=m.classList.contains('open'); document.querySelectorAll('.menu.open').forEach(x=>x.classList.remove('open')); if(!was) m.classList.add('open'); },
   'jalur-set'(t){ DATA.profile.jalur=t.dataset.v; save(); route(); },
