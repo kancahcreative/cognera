@@ -351,15 +351,20 @@ details.rv .inner{padding:0 16px 16px}
   .gIco svg{width:34px;height:34px}
 }
 @media(max-width:900px){.dash{grid-template-columns:minmax(0,1fr)}.mHome,.bnrWrap{min-width:0;max-width:100%}.stack>*{min-width:0}}
+.orLine{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--muted);font-size:13px}.orLine:before,.orLine:after{content:"";flex:1;height:1px;background:var(--line)}[data-act=google] svg{margin-right:2px}
+.authSide .ill{width:min(270px,42%)!important;right:-14px!important}
+@media(max-height:780px){.authSide .ill{display:none}}
+[data-act=google]{margin-top:18px}
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script></head><body><div id="app"></div><noscript>Cognera membutuhkan JavaScript untuk berjalan.</noscript><script>
 /* ===== CONFIG ===== */
 const CONFIG = {
-  SUPABASE_URL: 'https://azjseobcambbbllqlqxx.supabase.co',         // isi dari Supabase > Project Settings > API > Project URL
-  SUPABASE_ANON_KEY: 'sb_publishable_UEdszg_wDa9z9VNiRxkx2A_TjAgiLbM',    // isi dengan anon public key (aman dipakai di browser berkat RLS)
+  SUPABASE_URL: '',         // isi dari Supabase > Project Settings > API > Project URL
+  SUPABASE_ANON_KEY: '',    // isi dengan anon public key (aman dipakai di browser berkat RLS)
+  GOOGLE_CLIENT_ID: '',     // isi Client ID dari Google Cloud Console > APIs & Services > Credentials (OAuth client ID, tipe Web). Dipakai saat Supabase belum diisi.
   DEMO_MODE: true,          // true = data & login hanya tersimpan di browser (localStorage), pembayaran belum tersambung
   NERA_ENDPOINT: ''         // isi URL backend Nera AI, mis. '/api/nera' (POST {message, context} -> {reply})
 };
-const SB = (CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY && window.supabase) ? window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY) : null;
+const SB = (CONFIG.SUPABASE_URL && CONFIG.SUPABASE_ANON_KEY && window.supabase) ? window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY,{auth:{flowType:'pkce',detectSessionInUrl:true,persistSession:true}}) : null;
 if(SB) CONFIG.DEMO_MODE=false;
 
 /* ===== JALUR & SUBTES ===== */
@@ -696,6 +701,33 @@ async function hashPw(pw,salt){
   let h=5381; const s=salt+':'+pw; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))>>>0; return 'x'+h.toString(16);
 }
 
+/* Google Identity Services (dipakai saat mode tanpa Supabase) */
+function loadGIS(){
+  return new Promise((res,rej)=>{
+    if(window.google&&google.accounts&&google.accounts.oauth2) return res();
+    const old=document.getElementById('gis'); if(old) old.remove();
+    const s=document.createElement('script'); s.id='gis'; s.src='https://accounts.google.com/gsi/client'; s.async=true;
+    s.onload=()=>res(); s.onerror=()=>rej(new Error('Gagal memuat Google. Periksa koneksi internetmu.'));
+    document.head.appendChild(s);
+  });
+}
+function googleProfile(){
+  return loadGIS().then(()=>new Promise((res,rej)=>{
+    const tc=google.accounts.oauth2.initTokenClient({
+      client_id:CONFIG.GOOGLE_CLIENT_ID, scope:'openid email profile', prompt:'select_account',
+      callback:async r=>{
+        if(r.error) return rej(new Error(r.error==='access_denied'?'Login Google dibatalkan.':'Login Google gagal ('+r.error+').'));
+        try{
+          const x=await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+r.access_token}});
+          const p=await x.json(); if(!p.email) throw new Error('x'); res(p);
+        }catch(e){ rej(new Error('Gagal mengambil profil Google. Coba lagi.')); }
+      },
+      error_callback:e=>rej(new Error(e&&e.type==='popup_closed'?'Login Google dibatalkan.':'Popup Google diblokir atau gagal dibuka. Izinkan popup lalu coba lagi.'))
+    });
+    tc.requestAccessToken();
+  }));
+}
+
 /* Auth API — ganti isi fungsi ini dengan panggilan ke backend Anda (Supabase/Firebase/REST) */
 const Auth = {
   async register({name,email,password}){
@@ -720,7 +752,7 @@ const Auth = {
     if(SB){
       const {data,error}=await SB.auth.signInWithPassword({email,password});
       if(error) throw new Error(/confirm/i.test(error.message)?'Email belum dikonfirmasi. Cek kotak masukmu.':'Email atau kata sandi tidak cocok. Periksa lagi dan coba kembali.');
-      const us=data.user; await pullRemote(us.id,(us.user_metadata&&us.user_metadata.name)||email.split('@')[0],email); return U;
+      const us=data.user; await pullRemote(us.id,(us.user_metadata&&(us.user_metadata.name||us.user_metadata.full_name))||email.split('@')[0],email); return U;
     }
     const u=LS.get('users',[]).find(x=>x.email===email);
     if(!u || u.hash!==await hashPw(password,u.salt)) throw new Error('Email atau kata sandi tidak cocok. Periksa lagi dan coba kembali.');
@@ -737,6 +769,21 @@ const Auth = {
     if(U.hash!==await hashPw(current,U.salt)) throw new Error('Kata sandi saat ini tidak cocok.');
     const users=LS.get('users',[]); const u=users.find(x=>x.id===U.id);
     u.salt=uid(); u.hash=await hashPw(next,u.salt); LS.set('users',users); loadSession();
+  },
+  async google(){
+    if(!CONFIG.GOOGLE_CLIENT_ID) throw new Error('Login Google belum dihubungkan. Isi GOOGLE_CLIENT_ID (atau Supabase) di CONFIG.');
+    const p=await googleProfile(), email=String(p.email).toLowerCase();
+    const users=LS.get('users',[]); let u=users.find(x=>x.email===email);
+    if(!u){
+      u={id:uid(), name:(p.given_name||p.name||email.split('@')[0]).slice(0,40), email, google:p.sub, picture:p.picture||'', createdAt:Date.now()};
+      users.push(u); LS.set('users',users);
+      const g=LS.get('data:guest',null);
+      if(g && (Object.keys(g.activity||{}).length || (g.attempts||[]).length)){
+        const d=Object.assign(defaultData(u),g,{onboarded:false,packages:[]}); d.profile=Object.assign({},g.profile,{name:u.name});
+        LS.set('data:'+u.id,d); LS.del('data:guest');
+      }
+    } else if(!u.google){ u.google=p.sub; LS.set('users',users); }
+    LS.set('session',u.id); loadSession(); return u;
   },
   logout(){ if(SB) SB.auth.signOut(); LS.del('session'); loadSession(); }
 };
@@ -878,6 +925,7 @@ const go = h=>{ if(location.hash==='#'+h) route(); else location.hash=h; };
 function viewAuth(mode){
   const reg = mode==='daftar';
   const fl=LS.get('flash',null); if(fl) LS.del('flash');
+  if(!SB&&CONFIG.GOOGLE_CLIENT_ID) loadGIS().catch(()=>{});
   mount(`<div class="auth">
     <section class="authSide" aria-label="Tentang Cognera">
       <a href="index.html" class="brand" aria-label="Cognera, ke situs utama"><span class="brandMark" style="background:#191b20;color:#f4c62f">C</span>cognera</a>
@@ -895,6 +943,7 @@ function viewAuth(mode){
     <section class="authForm"><div class="authBox">
       <h2>${reg?'Buat akun Cognera':'Masuk ke Cognera'}</h2>
       <p class="muted" style="margin:0">${reg?'Gratis. Skor dan progres belajarmu tersimpan di akun ini.':'Lanjutkan latihan dan lihat progresmu.'}</p>
+      <button type="button" class="btn btn-ghost btn-block" data-act="google"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 010-9.4l-7.9-6.1a24 24 0 000 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Lanjutkan dengan Google</button><div class="orLine"><span>atau pakai email</span></div>
       <form data-form="${reg?'register':'login'}" novalidate>
         ${reg?`<label class="field"><span>Nama panggilan</span><input class="input" name="name" autocomplete="name" required maxlength="40" placeholder="Contoh: Rani"></label>`:''}
         <label class="field"><span>Email</span><input class="input" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="nama@email.com" value="${fl?esc(fl.email):''}"></label>
@@ -1380,6 +1429,16 @@ window.addEventListener('hashchange',route);
 
 /* ===== ACTIONS (click) ===== */
 const ACT = {
+  async google(t){
+    if(t) t.disabled=true;
+    try{
+      if(SB){
+        const {error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}});
+        if(error) throw error;
+      } else { await Auth.google(); go('/beranda'); }
+    }catch(e){ toast(e.message||'Login Google gagal.'); }
+    finally{ if(t) t.disabled=false; }
+  },
   menu(t){ const m=document.getElementById(t.dataset.v), was=m.classList.contains('open'); document.querySelectorAll('.menu.open').forEach(x=>x.classList.remove('open')); if(!was) m.classList.add('open'); },
   'jalur-set'(t){ DATA.profile.jalur=t.dataset.v; save(); route(); },
   'side-toggle'(){ const r=$('#appRoot'); if(window.matchMedia('(max-width:900px)').matches) r.classList.toggle('open'); else r.classList.toggle('noside'); },
@@ -1499,10 +1558,11 @@ document.addEventListener('submit',async e=>{
     try{
       const {data}=await SB.auth.getSession();
       const sess=data&&data.session, local=LS.get('session',null);
-      if(sess){ if(local!==sess.user.id){ const us=sess.user; await pullRemote(us.id,(us.user_metadata&&us.user_metadata.name)||'',us.email); } }
+      if(sess){ if(local!==sess.user.id){ const us=sess.user; await pullRemote(us.id,(us.user_metadata&&(us.user_metadata.name||us.user_metadata.full_name))||'',us.email); } }
       else if(local) LS.del('session');
     }catch(e){ console.warn(e); }
   }
+  if(/[?&]code=/.test(location.search)||/[?&]error=/.test(location.search)) history.replaceState(null,'',location.pathname+(location.hash||''));
   route();
 })();
 </script></body></html>
