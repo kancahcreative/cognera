@@ -419,10 +419,28 @@ a.pa:hover{opacity:.85}
 .cgRepActions .pbtn{font-size:12px;gap:4px;padding:3px 2px}
 .cgRepActions .pbtn svg{width:16px;height:16px}
 .cgRepActions .pbtn.pl{color:#e0245e}.cgRepActions .pbtn.ps{color:var(--ink)}
-.cgRepChildren{position:relative;margin:9px 0 0 3px;padding-left:15px;border-left:2px solid #f0e6c6}
+.cgRepRoot{position:relative}
+/* Direct replies to the main post stay at the exact same left edge as the main reply list. */
+.cgRepRoot>.cgRep{padding-left:18px}
+.cgRepDescendants{margin:0;padding:0}
+/* A reply-to-a-reply gets exactly ONE indentation level. No repeated staircase. */
+.cgRepChildren{position:relative;margin:0 0 0 44px;padding:0;border:0}
 .cgRepChildren:empty{display:none}
+.cgRepNestedBranch{position:relative}
+.cgRepNestedBranch>.cgRep{position:relative}
+/* Curved connector: starts from the parent avatar area and lands beside the child avatar. */
+.cgRepChildren>.cgRepNestedBranch>.cgRep:before{
+  content:"";position:absolute;left:-30px;top:-19px;width:28px;height:37px;
+  border-left:2px solid #d7d9de;border-bottom:2px solid #d7d9de;
+  border-bottom-left-radius:22px;
+  pointer-events:none;
+}
+.cgRepChildren>.cgRepNestedBranch:first-child>.cgRep:before{top:-24px;height:42px}
+.cgRepliesToggle{display:block}
+.cgRepliesToggleRoot{margin-left:18px;margin-right:18px;margin-bottom:0;padding:7px 0;color:var(--muted);font-size:12px;font-weight:700;background:none;border:0;cursor:pointer;text-align:left}
+.cgRepliesToggleRoot:hover{color:var(--ink)}
 .cgReplyInline{display:flex;align-items:center;gap:8px;margin-top:9px;padding:9px;background:#faf9f5;border:1px solid #efede6;border-radius:13px}
-.cgReplyInline .pa{width:30px;height:30px}
+.cgReplyInline .pa{width:30px;height:30px;grid-area:av}.cgReplyInline .input{grid-area:input}
 .cgReplyInline .input{min-width:0;min-height:38px;padding:0 11px;font-size:13px}
 .cgReplyInline .btn{min-height:36px;padding:0 12px}
 .cgFollowedList{display:grid;gap:3px}
@@ -444,7 +462,11 @@ a.pa:hover{opacity:.85}
  .cgComp .cb{gap:8px}.cgComp .cnt{margin-left:auto}
  .cgImagePreview{margin-left:0;width:min(100%,300px)}
  .cgRep{grid-template-columns:32px minmax(0,1fr);gap:8px;padding:13px 12px}
- .cgRep .pa{width:32px;height:32px}.cgRepChildren{padding-left:10px;margin-left:0}
+ .cgRep .pa{width:32px;height:32px}
+ .cgRepRoot>.cgRep{padding-left:12px}
+ .cgRepChildren{margin-left:40px}
+ .cgRepChildren>.cgRepNestedBranch>.cgRep:before{left:-27px;top:-17px;width:25px;height:34px;border-bottom-left-radius:19px}
+ .cgRepChildren>.cgRepNestedBranch:first-child>.cgRep:before{top:-21px;height:38px}
  .cgEmptySaved{margin:10px;padding:20px 17px}
 }
 
@@ -671,6 +693,567 @@ a.pa:hover{opacity:.85}
 @media(max-width:1000px){.cgWrap{width:100%}.cgInitialTopics{width:100%}}
 @media(max-width:640px){.cgWrap{width:100%}.cgInitialTopics{width:100%;margin-top:20px}}
 </style>
+
+<style id="cg-comments-final-reference-hierarchy">
+/* =========================================================
+   COGIT — REFERENCE COMMENT HIERARCHY
+   Level 0  = original post
+   Level 1  = direct reply, same left edge as the post
+   Level 2+ = reply to a reply, one indentation per level
+   No repeated card borders, no fake tree rails, no staircase drift.
+   ========================================================= */
+
+.cgDet{
+  width:calc(100% - 32px)!important;
+  max-width:760px!important;
+  margin-left:auto!important;
+  margin-right:auto!important;
+  min-width:0!important;
+}
+
+.cgDet .cgBox{
+  width:100%!important;
+  overflow:hidden!important;
+  border-radius:16px!important;
+}
+
+/* Original post */
+.cgDet .cgBox>.post{
+  margin:0!important;
+  padding:22px 24px 18px!important;
+  border-bottom:1px solid var(--line)!important;
+  min-width:0!important;
+}
+
+.cgDet .cgBox>.post .pRow{
+  min-width:0!important;
+}
+
+/* Main reply composer */
+.cgDet .cgReply{
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr) 36px auto!important;
+  align-items:center!important;
+  gap:9px!important;
+  padding:12px 24px!important;
+  border-bottom:1px solid var(--line)!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.cgDet .cgReply>.pa{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+}
+.cgDet .cgReply .input{
+  width:100%!important;
+  min-width:0!important;
+  height:40px!important;
+}
+.cgDet .cgReply .pbtn{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+}
+.cgDet .cgReply .btn{
+  height:36px!important;
+  min-width:56px!important;
+  padding:0 12px!important;
+}
+
+/* Reply area */
+.cgDet .cgReplies{
+  width:100%!important;
+  min-width:0!important;
+  overflow:visible!important;
+}
+.cgDet .cgReplyEmpty{
+  padding:18px 24px!important;
+}
+
+/* Level 1: DIRECT reply — NO indentation.
+   Its avatar starts exactly where the original post avatar starts. */
+.cgDet .cgRepRoot{
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  min-width:0!important;
+}
+.cgDet .cgRepRoot>.cgRep[data-depth="1"]{
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr)!important;
+  gap:10px!important;
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  padding:15px 24px 5px!important;
+  border:0!important;
+  box-sizing:border-box!important;
+  min-width:0!important;
+}
+.cgDet .cgRepRoot>.cgRep[data-depth="1"]>.pa{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+}
+.cgDet .cgRepBody{
+  min-width:0!important;
+  max-width:100%!important;
+}
+.cgDet .cgRepMeta{
+  display:flex!important;
+  align-items:center!important;
+  gap:6px!important;
+  width:100%!important;
+  min-width:0!important;
+}
+.cgDet .cgRepIdentity{
+  display:flex!important;
+  align-items:baseline!important;
+  flex-wrap:wrap!important;
+  gap:3px 6px!important;
+  min-width:0!important;
+  flex:1 1 auto!important;
+}
+.cgDet .cgRepMeta .cgMore{
+  flex:0 0 28px!important;
+  width:28px!important;
+  min-width:28px!important;
+  height:28px!important;
+  margin-left:auto!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+}
+.cgDet .cgReplyUsername{
+  font-weight:700!important;
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.cgDet .cgRepText{
+  margin:7px 0 0!important;
+  font-size:15px!important;
+  line-height:1.55!important;
+  overflow-wrap:anywhere!important;
+  word-break:break-word!important;
+}
+.cgDet .cgRepActions{
+  display:flex!important;
+  align-items:center!important;
+  gap:17px!important;
+  margin-top:7px!important;
+  min-width:0!important;
+  flex-wrap:wrap!important;
+}
+.cgDet .cgRepActions .pbtn{
+  display:inline-flex!important;
+  align-items:center!important;
+  gap:5px!important;
+  padding:2px 0!important;
+  font-size:12.5px!important;
+  white-space:nowrap!important;
+}
+.cgDet .cgRepActions .pbtn svg{
+  width:17px!important;
+  height:17px!important;
+  flex:none!important;
+}
+.cgDet .cgReplyAction{
+  color:var(--muted)!important;
+}
+
+/* "Lihat semua balasan" belongs below the direct reply and follows
+   the same content column, not the card edge. */
+.cgDet .cgRepliesToggleRoot{
+  display:block!important;
+  width:calc(100% - 72px)!important;
+  max-width:none!important;
+  margin:0 24px 0 70px!important;
+  padding:4px 0 8px!important;
+  color:#7b828c!important;
+  font-size:12.5px!important;
+  font-weight:600!important;
+  line-height:1.35!important;
+  text-align:left!important;
+  box-sizing:border-box!important;
+}
+
+/* Level 2+: nested replies.
+   Every depth adds exactly one 44px indentation on desktop. */
+.cgDet .cgRepDescendants{
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  min-width:0!important;
+  box-sizing:border-box!important;
+}
+.cgDet .cgRepNestedBranch{
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  position:relative!important;
+}
+.cgDet .cgRepNestedBranch>.cgRep{
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr)!important;
+  gap:10px!important;
+  width:calc(100% - 44px)!important;
+  max-width:none!important;
+  margin:0 0 0 44px!important;
+  padding:11px 24px 5px 0!important;
+  border:0!important;
+  box-sizing:border-box!important;
+  min-width:0!important;
+}
+.cgDet .cgRepNestedBranch>.cgRep>.pa{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+}
+
+/* Deeper levels recurse visually: +44px per level. */
+.cgDet .cgRepNestedBranch .cgRepChildren{
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  min-width:0!important;
+}
+.cgDet .cgRepNestedBranch .cgRepChildren .cgRepNestedBranch>.cgRep{
+  width:calc(100% - 88px)!important;
+  margin-left:88px!important;
+}
+.cgDet .cgRepNestedBranch .cgRepChildren .cgRepChildren .cgRepNestedBranch>.cgRep{
+  width:calc(100% - 132px)!important;
+  margin-left:132px!important;
+}
+.cgDet .cgRepNestedBranch .cgRepChildren .cgRepChildren .cgRepChildren .cgRepNestedBranch>.cgRep{
+  width:calc(100% - 176px)!important;
+  margin-left:176px!important;
+}
+
+/* No tree lines. Hierarchy is communicated by alignment/indentation,
+   like the supplied reference. */
+.cgDet .cgRepNestedBranch:before,
+.cgDet .cgRepNestedBranch:after,
+.cgDet .cgRepChildren:before,
+.cgDet .cgRepChildren:after{
+  display:none!important;
+  content:none!important;
+}
+
+/* Inline reply form stays attached to the reply being answered. */
+.cgDet .cgReplyInline{
+  display:grid!important;
+  grid-template-columns:30px minmax(0,1fr) 30px auto!important;
+  align-items:center!important;
+  gap:7px!important;
+  width:100%!important;
+  margin:9px 0 3px!important;
+  padding:7px!important;
+  box-sizing:border-box!important;
+}
+.cgDet .cgReplyInline>.pa{
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+}
+.cgDet .cgReplyInline .input{
+  width:100%!important;
+  min-width:0!important;
+  height:36px!important;
+}
+.cgDet .cgReplyInline .pbtn{
+  width:30px!important;
+  height:30px!important;
+  min-width:30px!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+}
+.cgDet .cgReplyInline .btn{
+  height:32px!important;
+  min-width:52px!important;
+  padding:0 10px!important;
+}
+.cgDet .cgReplyPreview{
+  margin:7px 0 3px 37px!important;
+  width:min(220px,calc(100% - 37px))!important;
+}
+
+/* Mobile: preserve the same hierarchy without making the text column
+   unusably narrow. Direct replies remain level 1; nested replies +30px. */
+@media(max-width:640px){
+  .cgDet{
+    width:calc(100% - 16px)!important;
+    max-width:none!important;
+  }
+  .cgDet .cgBox{
+    border-radius:14px!important;
+  }
+  .cgDet .cgBox>.post{
+    padding:15px 14px 13px!important;
+  }
+
+  .cgDet .cgReply{
+    grid-template-columns:30px minmax(0,1fr) 30px 45px!important;
+    gap:5px!important;
+    padding:9px 10px!important;
+  }
+  .cgDet .cgReply>.pa{
+    width:30px!important;
+    height:30px!important;
+    min-width:30px!important;
+  }
+  .cgDet .cgReply .input{
+    height:36px!important;
+    font-size:12px!important;
+    padding:0 9px!important;
+  }
+  .cgDet .cgReply .pbtn{
+    width:30px!important;
+    height:30px!important;
+    min-width:30px!important;
+  }
+  .cgDet .cgReply .btn{
+    width:45px!important;
+    min-width:45px!important;
+    height:32px!important;
+    padding:0!important;
+    font-size:11px!important;
+  }
+
+  .cgDet .cgRepRoot>.cgRep[data-depth="1"]{
+    grid-template-columns:32px minmax(0,1fr)!important;
+    gap:8px!important;
+    width:100%!important;
+    margin:0!important;
+    padding:13px 12px 5px!important;
+  }
+  .cgDet .cgRepRoot>.cgRep[data-depth="1"]>.pa{
+    width:32px!important;
+    height:32px!important;
+    min-width:32px!important;
+  }
+  .cgDet .cgRepText{
+    font-size:13.5px!important;
+    line-height:1.5!important;
+    margin-top:6px!important;
+  }
+  .cgDet .cgRepMeta .cgMore{
+    width:27px!important;
+    min-width:27px!important;
+    height:27px!important;
+  }
+  .cgDet .cgRepActions{
+    gap:13px!important;
+    margin-top:7px!important;
+  }
+  .cgDet .cgRepActions .pbtn{
+    font-size:11.5px!important;
+  }
+  .cgDet .cgRepActions .pbtn svg{
+    width:16px!important;
+    height:16px!important;
+  }
+
+  .cgDet .cgRepliesToggleRoot{
+    width:calc(100% - 52px)!important;
+    margin-left:52px!important;
+    margin-right:0!important;
+    padding-top:3px!important;
+    padding-bottom:7px!important;
+    font-size:11.5px!important;
+  }
+
+  .cgDet .cgRepNestedBranch>.cgRep{
+    grid-template-columns:32px minmax(0,1fr)!important;
+    gap:8px!important;
+    width:calc(100% - 30px)!important;
+    margin-left:30px!important;
+    padding:11px 12px 5px 0!important;
+  }
+  .cgDet .cgRepNestedBranch>.cgRep>.pa{
+    width:32px!important;
+    height:32px!important;
+    min-width:32px!important;
+  }
+  .cgDet .cgRepNestedBranch .cgRepChildren .cgRepNestedBranch>.cgRep{
+    width:calc(100% - 60px)!important;
+    margin-left:60px!important;
+  }
+  .cgDet .cgRepNestedBranch .cgRepChildren .cgRepChildren .cgRepNestedBranch>.cgRep{
+    width:calc(100% - 90px)!important;
+    margin-left:90px!important;
+  }
+  .cgDet .cgRepNestedBranch .cgRepChildren .cgRepChildren .cgRepChildren .cgRepNestedBranch>.cgRep{
+    width:calc(100% - 120px)!important;
+    margin-left:120px!important;
+  }
+
+  .cgDet .cgReplyInline{
+    grid-template-columns:28px minmax(0,1fr) 28px 45px!important;
+    gap:5px!important;
+    padding:6px!important;
+  }
+  .cgDet .cgReplyInline>.pa{
+    width:28px!important;
+    height:28px!important;
+    min-width:28px!important;
+  }
+  .cgDet .cgReplyInline .input{
+    height:34px!important;
+    font-size:11.5px!important;
+  }
+  .cgDet .cgReplyInline .pbtn{
+    width:28px!important;
+    height:28px!important;
+    min-width:28px!important;
+  }
+  .cgDet .cgReplyInline .btn{
+    width:45px!important;
+    min-width:45px!important;
+    height:31px!important;
+    padding:0!important;
+    font-size:10.5px!important;
+  }
+  .cgDet .cgReplyPreview{
+    margin-left:33px!important;
+    width:min(210px,calc(100% - 33px))!important;
+  }
+}
+
+@media(max-width:380px){
+  .cgDet{
+    width:calc(100% - 10px)!important;
+  }
+  .cgDet .cgBox>.post{
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  .cgDet .cgReply{
+    grid-template-columns:28px minmax(0,1fr) 28px 42px!important;
+    gap:4px!important;
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  .cgDet .cgReply>.pa{
+    width:28px!important;
+    height:28px!important;
+    min-width:28px!important;
+  }
+  .cgDet .cgReply .pbtn{
+    width:28px!important;
+    height:28px!important;
+    min-width:28px!important;
+  }
+  .cgDet .cgReply .btn{
+    width:42px!important;
+    min-width:42px!important;
+    font-size:10px!important;
+  }
+
+  .cgDet .cgRepRoot>.cgRep[data-depth="1"]{
+    grid-template-columns:30px minmax(0,1fr)!important;
+    gap:7px!important;
+    padding-left:9px!important;
+    padding-right:9px!important;
+  }
+  .cgDet .cgRepRoot>.cgRep[data-depth="1"]>.pa{
+    width:30px!important;
+    height:30px!important;
+    min-width:30px!important;
+  }
+  .cgDet .cgRepNestedBranch>.cgRep{
+    grid-template-columns:30px minmax(0,1fr)!important;
+    gap:7px!important;
+    width:calc(100% - 24px)!important;
+    margin-left:24px!important;
+    padding-right:9px!important;
+  }
+  .cgDet .cgRepNestedBranch .cgRepChildren .cgRepNestedBranch>.cgRep{
+    width:calc(100% - 48px)!important;
+    margin-left:48px!important;
+  }
+  .cgDet .cgRepliesToggleRoot{
+    width:calc(100% - 42px)!important;
+    margin-left:42px!important;
+    font-size:11px!important;
+  }
+}
+</style>
+
+<style id="cg-comments-hierarchy-v3">
+/* COGIT V3 — hierarchy exactly follows: COMMENT > REPLY > REPLY TO REPLY */
+.cgDet .cgReplies{width:100%!important;overflow:visible!important}
+.cgDet .cgRepRoot{display:block!important;width:100%!important;margin:0!important;padding:0!important;border-top:1px solid var(--line)!important;border-bottom:1px solid var(--line)!important;box-sizing:border-box!important}
+.cgDet .cgRepRoot + .cgRepRoot{border-top:0!important}
+.cgDet .cgRepRoot>.cgRepDepth[data-depth="1"]{display:grid!important;grid-template-columns:36px minmax(0,1fr)!important;gap:10px!important;width:100%!important;margin:0!important;padding:15px 24px 13px!important;border:0!important;box-sizing:border-box!important}
+.cgDet .cgRepRoot>.cgRepDepth[data-depth="1"]>.pa{width:36px!important;height:36px!important;min-width:36px!important}
+.cgDet .cgRepBody{min-width:0!important;width:100%!important}
+.cgDet .cgRepMeta{display:flex!important;align-items:center!important;gap:7px!important;width:100%!important;min-width:0!important}
+.cgDet .cgRepIdentity{display:flex!important;align-items:baseline!important;gap:6px!important;min-width:0!important;flex:1 1 auto!important}
+.cgDet .cgReplyUsername{font-weight:700!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;max-width:100%!important}
+.cgDet .cgRepMeta .cgMore{width:28px!important;height:28px!important;min-width:28px!important;padding:0!important;margin-left:auto!important;display:grid!important;place-items:center!important}
+.cgDet .cgRepText{margin:6px 0 0!important;font-size:15px!important;line-height:1.52!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+.cgDet .cgRepActions{display:flex!important;align-items:center!important;gap:17px!important;margin-top:7px!important;flex-wrap:wrap!important}
+.cgDet .cgRepActions .pbtn{font-size:12.5px!important;padding:2px 0!important;display:inline-flex!important;align-items:center!important;gap:5px!important}
+.cgDet .cgRepActions .pbtn svg{width:17px!important;height:17px!important;flex:none!important}
+/* The show-replies control MUST sit directly under Like/Reply actions. */
+.cgDet .cgRepliesToggleIn{display:block!important;margin:5px 0 0 0!important;padding:2px 0!important;color:#777e89!important;font-size:12.5px!important;font-weight:600!important;line-height:1.35!important;text-align:left!important;background:none!important;border:0!important;cursor:pointer!important}
+.cgDet .cgRepliesToggleIn:hover{color:var(--ink)!important}
+/* Nested replies: each reply level moves exactly one indentation to the right. */
+.cgDet .cgRepDescendants{width:100%!important;margin:0!important;padding:0!important;border:0!important;overflow:visible!important}
+.cgDet .cgRepNestedBranch{width:100%!important;margin:0!important;padding:0!important;border:0!important;box-sizing:border-box!important}
+.cgDet .cgRepNestedBranch>.cgRepDepth[data-depth="2"]{display:grid!important;grid-template-columns:36px minmax(0,1fr)!important;gap:10px!important;width:calc(100% - 44px)!important;margin:0 0 0 44px!important;padding:11px 24px 11px 0!important;border:0!important;box-sizing:border-box!important}
+.cgDet .cgRepNestedBranch>.cgRepDepth[data-depth="2"]>.pa{width:36px!important;height:36px!important;min-width:36px!important}
+.cgDet .cgRepNestedBranch .cgRepNestedBranch>.cgRepDepth[data-depth="3"]{width:calc(100% - 88px)!important;margin-left:88px!important}
+.cgDet .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch>.cgRepDepth[data-depth="4"]{width:calc(100% - 132px)!important;margin-left:132px!important}
+.cgDet .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch>.cgRepDepth[data-depth="5"]{width:calc(100% - 176px)!important;margin-left:176px!important}
+/* Nested separator is subtle; root comments get the strong separator above/below. */
+.cgDet .cgRepNestedBranch>.cgRepDepth{border-top:0!important;border-bottom:0!important}
+/* Inline reply form belongs to the comment it answers. */
+.cgDet .cgReplyInline{display:grid!important;grid-template-columns:30px minmax(0,1fr) 30px auto!important;align-items:center!important;gap:7px!important;width:100%!important;margin:9px 0 2px!important;padding:7px!important;box-sizing:border-box!important}
+.cgDet .cgReplyInline>.pa{width:30px!important;height:30px!important;min-width:30px!important}
+.cgDet .cgReplyInline .input{min-width:0!important;width:100%!important;height:36px!important}
+.cgDet .cgReplyInline .pbtn{width:30px!important;height:30px!important;min-width:30px!important;padding:0!important;display:grid!important;place-items:center!important}
+.cgDet .cgReplyInline .btn{height:32px!important;min-width:52px!important;padding:0 10px!important}
+@media(max-width:640px){
+  .cgDet .cgRepRoot>.cgRepDepth[data-depth="1"]{grid-template-columns:32px minmax(0,1fr)!important;gap:8px!important;padding:13px 12px 11px!important}
+  .cgDet .cgRepRoot>.cgRepDepth[data-depth="1"]>.pa{width:32px!important;height:32px!important;min-width:32px!important}
+  .cgDet .cgRepText{font-size:13.5px!important;line-height:1.5!important}
+  .cgDet .cgRepActions{gap:14px!important}
+  .cgDet .cgRepActions .pbtn{font-size:11.5px!important}
+  .cgDet .cgRepActions .pbtn svg{width:16px!important;height:16px!important}
+  .cgDet .cgRepliesToggleIn{font-size:11.5px!important;margin-top:4px!important}
+  .cgDet .cgRepNestedBranch>.cgRepDepth[data-depth="2"]{grid-template-columns:32px minmax(0,1fr)!important;gap:8px!important;width:calc(100% - 30px)!important;margin-left:30px!important;padding:10px 12px 10px 0!important}
+  .cgDet .cgRepNestedBranch>.cgRepDepth[data-depth="2"]>.pa{width:32px!important;height:32px!important;min-width:32px!important}
+  .cgDet .cgRepNestedBranch .cgRepNestedBranch>.cgRepDepth[data-depth="3"]{width:calc(100% - 60px)!important;margin-left:60px!important}
+  .cgDet .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch>.cgRepDepth[data-depth="4"]{width:calc(100% - 90px)!important;margin-left:90px!important}
+  .cgDet .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch>.cgRepDepth[data-depth="5"]{width:calc(100% - 120px)!important;margin-left:120px!important}
+  .cgDet .cgReplyInline{grid-template-columns:28px minmax(0,1fr) 28px 45px!important;gap:5px!important;padding:6px!important}
+  .cgDet .cgReplyInline>.pa{width:28px!important;height:28px!important;min-width:28px!important}
+  .cgDet .cgReplyInline .input{height:34px!important;font-size:11.5px!important}
+  .cgDet .cgReplyInline .pbtn{width:28px!important;height:28px!important;min-width:28px!important}
+  .cgDet .cgReplyInline .btn{width:45px!important;min-width:45px!important;height:31px!important;padding:0!important;font-size:10.5px!important}
+}
+@media(max-width:380px){
+  .cgDet .cgRepRoot>.cgRepDepth[data-depth="1"]{grid-template-columns:30px minmax(0,1fr)!important;gap:7px!important;padding-left:9px!important;padding-right:9px!important}
+  .cgDet .cgRepRoot>.cgRepDepth[data-depth="1"]>.pa{width:30px!important;height:30px!important;min-width:30px!important}
+  .cgDet .cgRepNestedBranch>.cgRepDepth[data-depth="2"]{grid-template-columns:30px minmax(0,1fr)!important;gap:7px!important;width:calc(100% - 24px)!important;margin-left:24px!important;padding-right:9px!important}
+  .cgDet .cgRepNestedBranch>.cgRepDepth[data-depth="2"]>.pa{width:30px!important;height:30px!important;min-width:30px!important}
+  .cgDet .cgRepNestedBranch .cgRepNestedBranch>.cgRepDepth[data-depth="3"]{width:calc(100% - 48px)!important;margin-left:48px!important}
+  .cgDet .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch>.cgRepDepth[data-depth="4"]{width:calc(100% - 72px)!important;margin-left:72px!important}
+}
+</style>
 </head><body><div id="app"></div><noscript>Cognera membutuhkan JavaScript untuk berjalan.</noscript><script>
 /* ===== CONFIG ===== */
 const CONFIG = {
@@ -809,9 +1392,9 @@ const QBY = Object.fromEntries(BANK.map(q=>[q.id,q]));
 /* ===== TRYOUT ===== */
 const UTBK_SUBS = ['pu','ppu','pbm','pk','lbi','lbe','pm'];
 const TRYOUTS = [
-  {id:'snbt-gratis-1', title:'Tryout SNBT 2027 Gratis (Part 1)', jalur:'utbk', access:'free', subs:UTBK_SUBS, tries:3},
-  {id:'skd-gratis-1',  title:'Simulasi SKD Kedinasan (Part 1)', jalur:'kedinasan', access:'free', subs:['twk','tiu','tkp'], tries:3},
-  {id:'tpa-gratis-1',  title:'Tryout TPA Mandiri PTN (Part 1)', jalur:'mandiri', access:'free', subs:['tpav','tpan'], tries:3},
+  {id:'snbt-gratis-1', title:'Tryout SNBT 2027 Gratis (Part 1)', jalur:'utbk', access:'free', subs:UTBK_SUBS, tries:3, openAt:'2026-10-01T00:00:00+07:00', closeAt:'2026-10-12T23:59:59+07:00'},
+  {id:'skd-gratis-1',  title:'Simulasi SKD Kedinasan (Part 1)', jalur:'kedinasan', access:'free', subs:['twk','tiu','tkp'], tries:3, openAt:'2026-10-06T00:00:00+07:00', closeAt:'2026-10-19T23:59:59+07:00'},
+  {id:'tpa-gratis-1',  title:'Tryout TPA Mandiri PTN (Part 1)', jalur:'mandiri', access:'free', subs:['tpav','tpan'], tries:3, openAt:'2026-10-13T00:00:00+07:00', closeAt:'2026-10-26T23:59:59+07:00'},
   {id:'snbt-premium-1',title:'Tryout Premium UTBK SNBT 2027 #1', jalur:'utbk', access:'premium', subs:UTBK_SUBS, seed:7},
   {id:'snbt-premium-2',title:'Tryout Premium UTBK SNBT 2027 #2', jalur:'utbk', access:'premium', subs:UTBK_SUBS, seed:19},
   {id:'skd-premium-1', title:'Tryout Premium SKD Kedinasan 2026 #1', jalur:'kedinasan', access:'premium', subs:['twk','tiu','tkp'], seed:5}
@@ -980,7 +1563,7 @@ const ic = n=>`<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]
 /* ===== STATE: users, session, per-user data ===== */
 let U=null, DATA=null;
 function defaultData(u){
-  return {profile:{name:u.name,jalur:'utbk',tahun:2027,goal:3,sekolah:''}, onboarded:false, xp:0, activity:{}, activities:[], sub:{}, attempts:[], materiDone:[], packages:[], inprogress:null, neraChat:[], tried:{}};
+  return {profile:{name:u.name,username:u.username||'',phone:u.phone||'',jalur:'utbk',tahun:2027,goal:3,sekolah:'',kelas:u.kelas||''}, onboarded:false, xp:0, activity:{}, activities:[], sub:{}, attempts:[], materiDone:[], packages:[], inprogress:null, neraChat:[], tried:{}};
 }
 const GUEST={id:'guest',name:'Tamu',email:'',guest:true};
 function loadSession(){
@@ -996,20 +1579,20 @@ async function pushRemote(){
   const d=Object.assign({},DATA); delete d.packages;
   try{
     await SB.from('user_data').upsert({user_id:U.id,data:d,updated_at:new Date().toISOString()});
-    await SB.from('profiles').update({name:DATA.profile.name,jalur:DATA.profile.jalur,tahun:DATA.profile.tahun,goal:DATA.profile.goal,sekolah:DATA.profile.sekolah||'',avatar:DATA.profile.avatar||DATA.profile.gpic||null,xp:DATA.xp||0,onboarded:!!DATA.onboarded}).eq('id',U.id);
+    await SB.from('profiles').update({name:DATA.profile.name,username:DATA.profile.username||null,phone:DATA.profile.phone||null,jalur:DATA.profile.jalur,tahun:DATA.profile.tahun,goal:DATA.profile.goal,sekolah:DATA.profile.sekolah||'',kelas:DATA.profile.kelas||'',avatar:DATA.profile.avatar||DATA.profile.gpic||null,xp:DATA.xp||0,onboarded:!!DATA.onboarded}).eq('id',U.id);
   }catch(e){ console.warn('sync gagal',e); }
 }
 const gpicOf=us=>(us&&us.user_metadata&&(us.user_metadata.avatar_url||us.user_metadata.picture))||'';
-async function pullRemote(uid,name,email,pic){
+async function pullRemote(uid,name,email,pic,meta={}){
   const [d,e]=await Promise.all([SB.from('user_data').select('data').eq('user_id',uid).maybeSingle(),
     SB.from('entitlements').select('package_id,ends_at').eq('user_id',uid)]);
   const now=Date.now();
   const pk=(e.data||[]).filter(x=>!x.ends_at||new Date(x.ends_at).getTime()>now).map(x=>x.package_id);
-  const u={id:uid,name,email}; const users=LS.get('users',[]).filter(x=>x.id!==uid); users.push(u); LS.set('users',users);
+  const u={id:uid,name,email,username:meta.username||'',phone:meta.phone||'',sekolah:meta.sekolah||'',kelas:meta.kelas||''}; const users=LS.get('users',[]).filter(x=>x.id!==uid); users.push(u); LS.set('users',users);
   const base=defaultData(u), remote=(d.data&&d.data.data)||{};
   const local=LS.get('data:'+uid,null)||(LS.get('data:guest',null));
   const merged=Object.assign(base, remote.profile?remote:(local||{}), {packages:pk});
-  merged.profile=Object.assign({},base.profile,merged.profile,{name:merged.profile&&merged.profile.name||name}); if(pic) merged.profile.gpic=pic;
+  merged.profile=Object.assign({},base.profile,merged.profile,{name:merged.profile&&merged.profile.name||name,username:merged.profile&&merged.profile.username||meta.username||'',phone:merged.profile&&merged.profile.phone||meta.phone||'',sekolah:merged.profile&&merged.profile.sekolah||meta.sekolah||'',kelas:merged.profile&&merged.profile.kelas||meta.kelas||''}); if(pic) merged.profile.gpic=pic;
   LS.set('data:'+uid,merged); LS.del('data:guest'); LS.set('session',uid); loadSession();
 }
 
@@ -1061,20 +1644,20 @@ async function initGoogleBtn(){
 
 /* Auth API — ganti isi fungsi ini dengan panggilan ke backend Anda (Supabase/Firebase/REST) */
 const Auth = {
-  async register({name,email,password}){
+  async register({name,username,phone,sekolah,kelas,email,password}){
     if(SB){
-      const {error}=await SB.auth.signUp({email,password,options:{data:{name}}});
+      const {error}=await SB.auth.signUp({email,password,options:{data:{name,username,phone,sekolah,kelas}}});
       if(error) throw new Error(/already|registered/i.test(error.message)?'Email ini sudah terdaftar. Silakan masuk.':error.message);
       return {u:{email,name},migrated:false};
     }
     const users=LS.get('users',[]);
     if(users.some(u=>u.email===email)) throw new Error('Email ini sudah terdaftar. Silakan masuk.');
-    const salt=uid(); const u={id:uid(), name, email, salt, hash:await hashPw(password,salt), createdAt:Date.now()};
+    const salt=uid(); const u={id:uid(), name, username, phone, sekolah, kelas, email, salt, hash:await hashPw(password,salt), createdAt:Date.now()};
     users.push(u); LS.set('users',users);
     // pindahkan progres tamu (jika ada) ke akun baru. Pengguna tetap harus masuk dulu.
     let migrated=false; const g=LS.get('data:guest',null);
     if(g && (Object.keys(g.activity||{}).length || (g.attempts||[]).length)){
-      const d=Object.assign(defaultData(u),g,{onboarded:false,packages:[]}); d.profile=Object.assign({},g.profile,{name});
+      const d=Object.assign(defaultData(u),g,{onboarded:false,packages:[]}); d.profile=Object.assign({},g.profile,{name,username,phone,sekolah,kelas});
       LS.set('data:'+u.id,d); LS.del('data:guest'); migrated=true;
     }
     return {u,migrated};
@@ -1083,7 +1666,7 @@ const Auth = {
     if(SB){
       const {data,error}=await SB.auth.signInWithPassword({email,password});
       if(error) throw new Error(/confirm/i.test(error.message)?'Email belum dikonfirmasi. Cek kotak masukmu.':'Email atau kata sandi tidak cocok. Periksa lagi dan coba kembali.');
-      const us=data.user; await pullRemote(us.id,(us.user_metadata&&(us.user_metadata.name||us.user_metadata.full_name))||email.split('@')[0],email,gpicOf(us)); return U;
+      const us=data.user; await pullRemote(us.id,(us.user_metadata&&(us.user_metadata.name||us.user_metadata.full_name))||email.split('@')[0],email,gpicOf(us),{username:us.user_metadata?.username||'',phone:us.user_metadata?.phone||'',sekolah:us.user_metadata?.sekolah||'',kelas:us.user_metadata?.kelas||''}); return U;
     }
     const u=LS.get('users',[]).find(x=>x.email===email);
     if(!u || u.hash!==await hashPw(password,u.salt)) throw new Error('Email atau kata sandi tidak cocok. Periksa lagi dan coba kembali.');
@@ -1149,9 +1732,28 @@ function weakest(){
   const list=Object.entries(DATA.sub).filter(([,r])=>r.a>=3).map(([s,r])=>({s,acc:r.c/r.a,a:r.a})).sort((x,y)=>x.acc-y.acc);
   return list[0]||null;
 }
+function hasSubscriptionAccess(t){
+  return !U.guest && DATA.packages.some(pid=>{ const p=PACKAGES.find(x=>x.id===pid); return p&&p.covers.includes(t.jalur); });
+}
+function inTryoutTimeline(t){
+  if(!t.openAt || !t.closeAt) return true;
+  const now=Date.now(), open=Date.parse(t.openAt), close=Date.parse(t.closeAt);
+  return now>=open && now<=close;
+}
+function timelineLabel(t){
+  if(!t.openAt || !t.closeAt) return 'Terbuka dengan paket';
+  const f=new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'short'});
+  return `${f.format(new Date(t.openAt))}–${f.format(new Date(t.closeAt))}`;
+}
 function hasAccess(t){
-  if(t.access==='free') return true;
-  return DATA.packages.some(pid=>{ const p=PACKAGES.find(x=>x.id===pid); return p&&p.covers.includes(t.jalur); });
+  if(hasSubscriptionAccess(t)) return true;
+  return t.access==='free' && inTryoutTimeline(t);
+}
+function accessReason(t){
+  if(hasSubscriptionAccess(t)) return 'subscription';
+  if(t.access==='free' && inTryoutTimeline(t)) return 'timeline';
+  if(t.access==='free') return 'outside-timeline';
+  return 'premium';
 }
 function tryoutQids(t){
   let ids=[];
@@ -1238,7 +1840,7 @@ const GI={
  bantuan:`<svg viewBox="0 0 48 48" ${G_}><path d="M7 10h34v24H22l-9 8v-8H7z" fill="#fff"/><path d="M18 20q0-5 6-5t6 4q0 3-6 5M24 29v1" /><circle cx="24" cy="30" r="1" fill="#191b20"/></svg>`,
  blog:`<svg viewBox="0 0 48 48" ${G_}><rect x="8" y="6" width="26" height="36" rx="4" fill="#fff"/><path d="M14 16h14M14 24h14M14 32h8"/><path d="M42 20L28 34l-2 6 6-2 14-14z" fill="#f4c62f"/></svg>`
 };
-const GRID=[['tryout','Tryout','#/tryout'],['latihan','Latihan','#/latihan'],['materi','Materi','#/materi'],['laporan','Laporan belajar','#/laporan'],['komunitas','Cogit','#/komunitas'],['paket','Beli paket','#/paket'],['bantuan','Bantuan','bantuan.html'],['blog','Blog','blog.html']];
+const GRID=[['tryout','Tryout','#/tryout'],['latihan','Latihan','#/latihan'],['materi','Materi','#/materi'],['laporan','Laporan belajar','#/laporan'],['komunitas','Cogit','#/komunitas'],['paket','Beli paket','#/paket'],['bantuan','Bantuan','bantuan.html'],['blog','Blog','#/blog']];
 ILL.nera=`<svg class="ill" viewBox="0 0 160 140" aria-hidden="true"><ellipse cx="80" cy="130" rx="56" ry="7" fill="#fff" opacity=".12"/><path d="M24 20h112q10 0 10 10v56q0 10-10 10H70l-30 24V96H24q-10 0-10-10V30q0-10 10-10z" fill="#fff" stroke="#f4c62f" stroke-width="6" stroke-linejoin="round"/><path d="M80 38l8 18 18 8-18 8-8 18-8-18-18-8 18-8z" fill="#f4c62f" stroke="#191b20" stroke-width="4" stroke-linejoin="round"/></svg>`;
 const mobHome=()=>`<div class="mHome"><div class="bnrWrap"><div class="bnr" id="bnr">
  <div class="bs y"><div><h3>Tryout gratis dengan pembahasan</h3><p>Lihat skor dan penjelasan tiap jawaban.</p><a class="btn btn-ink btn-sm" href="#/tryout">Coba tryout</a></div>${ILL.target}</div>
@@ -1280,7 +1882,7 @@ function viewAuth(mode){
       <p class="muted" style="margin:0">${reg?'Gratis. Skor dan progres belajarmu tersimpan di akun ini.':'Lanjutkan latihan dan lihat progresmu.'}</p>
       ${CONFIG.GOOGLE_CLIENT_ID?'<div id="gbtn" class="gbtn"></div>':`<button type="button" class="btn btn-ghost btn-block" data-act="google"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 010-9.4l-7.9-6.1a24 24 0 000 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Lanjutkan dengan Google</button>`}<div class="orLine"><span>atau pakai email</span></div>
       <form data-form="${reg?'register':'login'}" novalidate>
-        ${reg?`<label class="field"><span>Nama panggilan</span><input class="input" name="name" autocomplete="name" required maxlength="40" placeholder="Contoh: Rani"></label>`:''}
+        ${reg?`<label class="field"><span>Nama panggilan</span><input class="input" name="name" autocomplete="name" required maxlength="40" placeholder="Contoh: Rani"></label><label class="field"><span>Username</span><input class="input" name="username" autocomplete="username" required maxlength="20" pattern="[a-z0-9._-]{3,20}" placeholder="Contoh: rani.123"><small class="muted">3–20 karakter. Huruf kecil, angka, titik, _ atau -. Tampil di leaderboard.</small></label><label class="field"><span>No. HP</span><input class="input" name="phone" autocomplete="tel" required inputmode="tel" maxlength="15" placeholder="08xxxxxxxxxx atau +628xxxxxxxxxx"></label><label class="field"><span>Asal sekolah</span><input class="input" name="sekolah" autocomplete="organization" required maxlength="80" placeholder="Contoh: SMAN 1 Klaten"></label><label class="field"><span>Kelas</span><input class="input" name="kelas" autocomplete="organization-title" required maxlength="30" placeholder="Contoh: XII DKV 1"></label>`:''}
         <label class="field"><span>Email</span><input class="input" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="nama@email.com" value="${fl?esc(fl.email):''}"></label>
         <label class="field"><span>Kata sandi</span><div class="pw"><input class="input" name="password" type="password" autocomplete="${reg?'new-password':'current-password'}" required ${reg?'minlength="8"':''} placeholder="${reg?'Minimal 8 karakter':'Kata sandi kamu'}"><button type="button" data-act="togglepw" aria-label="Tampilkan kata sandi">Tampilkan</button></div></label>
         ${reg?'':`<div class="optRow"><label class="check"><input type="checkbox" name="remember" checked><span>Ingat saya</span></label><button type="button" class="link small" data-act="forgot">Lupa kata sandi?</button></div>`}
@@ -1297,6 +1899,7 @@ function viewAuth(mode){
 }
 function authErr(m){ const e=$('#authErr'); if(e) e.innerHTML=m?`<div class="err">${esc(m)}</div>`:''; }
 const validEmail = e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
+const normalizeUsername = v=>String(v||'').trim().replace(/^@/,'').toLowerCase();
 
 /* ===== VIEW: ONBOARDING ===== */
 let OB={step:1,jalur:'utbk',goal:3};
@@ -1412,8 +2015,8 @@ function viewBeranda(){
         <ul class="steps">${steps.map(([l,d,h])=>`<li class="${d?'done':''}"><span class="dot">${d?ic('check'):''}</span>${d?l:`<a class="grow" href="${h}">${l}</a>`}</li>`).join('')}</ul></section>`:''}
       ${wk0?`<section class="card row between wrapflex"><div class="grow"><h3>Materi yang perlu dikejar</h3><p class="muted" style="margin:4px 0 0">Akurasimu di <b>${SUB[wk0.s].n}</b> baru ${Math.round(wk0.acc*100)}%. Latihan singkat bisa membantu.</p></div><a class="btn btn-yellow btn-sm" href="#/latihan/${wk0.s}">Latih sekarang</a></section>`:''}
       <div><div class="row between mb16"><h3>Tryout untuk ${JALUR[p.jalur].name}</h3><a class="link small" href="#/tryout">Lihat semua</a></div><div class="grid g2">${myTO.map(tryoutCard).join('')}</div></div>
-      <div><div class="row between mb16"><h3>Tips dari blog Cognera</h3><a class="link small" href="blog.html">Buka blog</a></div>
-      <div class="grid g3">${[['Membaca Hasil Tryout agar Evaluasi Belajar Lebih Terarah','Strategi UTBK'],['Menyusun Jadwal Belajar yang Konsisten Menjelang Ujian','Tips Belajar'],['Memanfaatkan Pembahasan Soal untuk Memperdalam Konsep','Tips Belajar']].map(([t,c])=>`<a class="card" href="blog.html"><span class="chip y">${c}</span><h3 class="mt12" style="font-size:15px">${t}</h3></a>`).join('')}</div></div>
+      <div><div class="row between mb16"><h3>Tips dari blog Cognera</h3><a class="link small" href="#/blog">Buka blog</a></div>
+      <div class="grid g3">${[['Membaca Hasil Tryout agar Evaluasi Belajar Lebih Terarah','Strategi UTBK'],['Menyusun Jadwal Belajar yang Konsisten Menjelang Ujian','Tips Belajar'],['Memanfaatkan Pembahasan Soal untuk Memperdalam Konsep','Tips Belajar']].map(([t,c])=>`<a class="card" href="#/blog"><span class="chip y">${c}</span><h3 class="mt12" style="font-size:15px">${t}</h3></a>`).join('')}</div></div>
     </div>
     <aside class="rail" aria-label="Ringkasan">${upgradeCard()}
       <section class="card row"><span class="railIco">${ic('tryout')}</span><div class="grow"><b>${open} Tryout Premium</b><div class="muted small">${open?'terbuka dengan paketmu':'butuh paket belajar'}</div></div><a class="btn btn-ghost btn-sm" href="#/paket">Lihat paket</a></section>
@@ -1438,11 +2041,16 @@ function tryoutCard(t){
   const n=tryoutQids(t).length, ok=hasAccess(t), used=triesUsed(t), prem=t.access==='premium';
   const left=prem?'tanpa batas':Math.max(0,t.tries-used)+' dari '+t.tries+' percobaan';
   const prog=DATA.inprogress&&DATA.inprogress.tid===t.id;
-  return `<article class="tcard ${prem?'prem':''}"><div class="art"><span class="chip ${prem?'':'y'}" style="${prem?'background:#f4c62f;color:#191b20;border:0':''}">${prem?'Premium':'Gratis'}</span>${ok?'':ic('lock')}</div>
+  const reason=accessReason(t);
+  const outside=reason==='outside-timeline';
+  const badge=prem?'Premium':outside?'Berlangganan':'Gratis';
+  const action=ok?`<a class="btn btn-ink btn-sm grow" href="#/tryout/${t.id}">${prog?'Lanjutkan':'Lihat detail'}</a>`:`<a class="btn btn-yellow btn-sm grow" href="#/paket">${outside?'Berlangganan untuk mengerjakan':'Buka dengan paket'}</a>`;
+  return `<article class="tcard ${prem?'prem':''}"><div class="art"><span class="chip ${prem||outside?'':'y'}" style="${prem||outside?'background:#f4c62f;color:#191b20;border:0':''}">${badge}</span>${ok?'':ic('lock')}</div>
     <div class="body"><h3>${esc(tryoutDisplayTitle(t))}</h3>
     <div class="meta"><span>${n} soal</span><span>${tryoutMinutes(t)} menit</span><span>${JALUR[t.jalur].name}</span></div>
-    <div class="small muted">${ok?`Sisa: ${left}`:'Butuh paket belajar'}</div>
-    <div class="foot">${ok?`<a class="btn btn-ink btn-sm grow" href="#/tryout/${t.id}">${prog?'Lanjutkan':'Lihat detail'}</a>`:`<a class="btn btn-yellow btn-sm grow" href="#/paket">Buka dengan paket</a>`}</div></div></article>`;
+    <div class="small muted">${ok?`Sisa: ${left}`:outside?'Timeline sudah berakhir · akses dengan langganan':'Butuh paket belajar'}</div>
+    ${t.openAt?`<div class="small muted mt8">Timeline: ${timelineLabel(t)}</div>`:''}
+    <div class="foot">${action}</div></div></article>`;
 }
 
 /* ===== VIEW: TRYOUT LIST + INTRO ===== */
@@ -1473,6 +2081,7 @@ function viewTryoutList(){
     <div class="pageHead"><h1>Tryout</h1><p>Simulasi dengan timer dan navigasi soal seperti ujian sungguhan. Skor dan pembahasan langsung tersedia setelah selesai.</p></div>
     ${DATA.inprogress?`<div class="card row between wrapflex mb16" ><div><b>Ada tryout yang belum selesai</b><div class="muted small">${esc(TRYOUTS.find(x=>x.id===DATA.inprogress.tid).title)}</div></div><a class="btn btn-yellow btn-sm" href="#/tryout/${DATA.inprogress.tid}/kerjakan">Lanjutkan</a></div>`:''}
     <div class="seg mb16" role="tablist">${[['all','Semua'],['free','Gratis'],['utbk','UTBK-SNBT'],['mandiri','Mandiri PTN'],['kedinasan','Kedinasan']].map(([k,l])=>`<button role="tab" class="${TF===k?'on':''}" data-act="tf" data-v="${k}">${l}</button>`).join('')}</div>
+    <section class="card mb16"><div class="row between wrapflex"><div><h3>Timeline tryout</h3><p class="muted small" style="margin:4px 0 0">Tryout gratis bisa dikerjakan selama timeline terbuka. Setelah timeline berakhir, akses tetap tersedia untuk pelanggan paket.</p></div><span class="chip y">Akses di luar timeline = Premium</span></div><div class="grid g3 mt16">${TRYOUTS.filter(t=>t.access==='free').map(t=>`<div style="border-left:3px solid var(--yellow);padding-left:12px"><b>${esc(tryoutDisplayTitle(t))}</b><div class="muted small mt8">${timelineLabel(t)}</div><div class="small mt8">${inTryoutTimeline(t)?'<span class="chip ok">Sedang dibuka</span>':'<span class="chip">Timeline selesai</span>'}</div></div>`).join('')}</div></section>
     ${list.length?`<div class="grid g3">${list.map(tryoutCard).join('')}</div>`:'<div class="empty">Belum ada tryout untuk filter ini.</div>'}`));
 }
 function viewTryoutIntro(id){
@@ -1494,9 +2103,11 @@ function viewTryoutIntro(id){
     ${hist.length?`<h3 class="mt24 mb16">Riwayat percobaan</h3>${hist.map(a=>`<a class="card row between mb8" style="display:flex" href="#/hasil/${a.id}"><span>${new Date(a.at).toLocaleString('id-ID',{dateStyle:'medium',timeStyle:'short'})}</span><b>Skor ${a.total}</b></a>`).join('')}`:''}`));
 }
 function viewLocked(t){
+  const outside=accessReason(t)==='outside-timeline';
   mount(shell('tryout',`<div class="card" style="max-width:560px;margin:30px auto;text-align:center"><div class="avatar" style="margin:0 auto 12px;width:48px;height:48px">${ic('lock')}</div>
-    <h2>${esc(t.title)}</h2><p class="muted">Tryout premium ini terbuka dengan paket belajar ${JALUR[t.jalur].name}.</p>
-    <div class="row mt16" style="justify-content:center"><a class="btn btn-ghost" href="#/tryout">Kembali</a><a class="btn btn-yellow" href="#/paket">Lihat paket</a></div></div>`));
+    <h2>${esc(t.title)}</h2><p class="muted">${outside?'Timeline tryout ini sudah berakhir. Kamu tetap bisa mengerjakannya dengan berlangganan paket belajar.':`Tryout premium ini terbuka dengan paket belajar ${JALUR[t.jalur].name}.`}</p>
+    ${outside&&t.openAt?`<div class="chip y mt12">Timeline: ${timelineLabel(t)}</div>`:''}
+    <div class="row mt16" style="justify-content:center"><a class="btn btn-ghost" href="#/tryout">Kembali</a><a class="btn btn-yellow" href="#/paket">${outside?'Berlangganan':'Lihat paket'}</a></div></div>`));
 }
 /* ===== TRYOUT RUNNER ===== */
 function startTryout(tid){
@@ -1693,8 +2304,9 @@ function viewLaporan(){
 let CF='all',CT='terbaru',CV='feed';
 let CACHE_POSTS=[],_pl=0,CG_IMAGE_BLOB=null,CG_IMAGE_PREVIEW='',REPLY_IMAGE_BLOB=null,REPLY_IMAGE_PREVIEW='',REPLY_TO=null,REPLY_EXPANDED=new Set(),TOPIC_EXPANDED=false;
 let REPLY_SAVED=new Set(LS.get('cogit_reply_saved',[]));
-const mapPost=x=>({id:x.id,uid:x.uid,author:x.author,avatar:x.avatar,topic:x.topic||'umum',text:x.text,image_url:x.image_url||x.imageUrl||'',t:new Date(x.created_at).getTime(),likes:x.likes||[],replies:Array.isArray(x.replies)?x.replies:[]});
-const mapUser=x=>({uid:x.uid,name:x.name||'Pengguna',avatar:x.avatar||'',jalur:x.jalur,tahun:x.tahun,followers:Number(x.followers||0)});
+let REPLY_USERS=new Map();
+const mapPost=x=>({id:x.id,uid:x.uid,author:x.author,username:x.username||'',avatar:x.avatar,topic:x.topic||'umum',text:x.text,image_url:x.image_url||x.imageUrl||'',t:new Date(x.created_at).getTime(),likes:x.likes||[],replies:Array.isArray(x.replies)?x.replies:[]});
+const mapUser=x=>({uid:x.uid,name:x.name||'Pengguna',username:x.username||'',avatar:x.avatar||'',jalur:x.jalur,tahun:x.tahun,followers:Number(x.followers||0)});
 let UFOL=new Set(),PSUG=[],PROF=null,PTAB='cogit',USQ='',USRES=null,_ust=null;
 async function loadPosts(){
   if(!SB) return;
@@ -1708,7 +2320,7 @@ async function loadPosts(){
     me?SB.from('user_follows').select('followee').eq('follower',U.id):none,
     SB.rpc('suggest_users'),
     me?SB.from('community_reply_saves').select('post_id,reply_id').eq('user_id',U.id):none]);
-  if(p.error) console.warn('posts',p.error); else CACHE_POSTS=p.data.map(mapPost);
+  if(p.error) console.warn('posts',p.error); else { CACHE_POSTS=p.data.map(mapPost); await hydrateReplyUsers(CACHE_POSTS); }
   if(!t.error&&t.data&&t.data.length){
     // Merge the live DB catalog with the full Cognera catalog so a missing/unmigrated
     // topic never disappears from the initial topic chooser. DB values win on name/sort.
@@ -1721,7 +2333,7 @@ async function loadPosts(){
   UFOL=new Set((uf.data||[]).map(x=>x.followee)); PSUG=su&&!su.error?(su.data||[]).map(mapUser):[];
   REPLY_SAVED=new Set((rs&&!rs.error?rs.data||[]:[]).map(x=>x.post_id+':'+x.reply_id));
   const miss=[...SAVED].filter(id=>!CACHE_POSTS.some(x=>x.id===id));
-  if(miss.length){ const r=await SB.from('community_posts').select('*').in('id',miss); if(!r.error) CACHE_POSTS=CACHE_POSTS.concat(r.data.map(mapPost)); }
+  if(miss.length){ const r=await SB.from('community_posts').select('*').in('id',miss); if(!r.error){ CACHE_POSTS=CACHE_POSTS.concat(r.data.map(mapPost)); await hydrateReplyUsers(CACHE_POSTS); } }
 }
 function getPosts(){
   if(SB) return CACHE_POSTS;
@@ -1762,26 +2374,47 @@ const DEF_TOPICS=[
 const topicMeta=x=>Object.assign({},x,{logo:x.logo||TOPIC_LOGOS[x.id]||''});
 let TOPICS=DEF_TOPICS,FOLLOWS=new Set(),TCOUNT={},SAVED=new Set(),OPEN=new Set();
 const isFol=id=>id==='umum'||FOLLOWS.has(id), topicName=id=>(TOPICS.find(x=>x.id===(id||'umum'))||{name:id}).name;
-let OPENPOST=null,_fy=0,CGS=Object.assign({ff:'std',fs:15,lh:1.55,j:false},LS.get('cgset',{}));
+let OPENPOST=null,_fy=0,_cgOpeningPost=false,_cgReplyScrollY=null,CGS=Object.assign({ff:'std',fs:15,lh:1.55,j:false},LS.get('cgset',{}));
 const cgIc=(d,f)=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="${f?'currentColor':'none'}" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const CG_GEAR='<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>';
 const cScore=p=>p.likes.length*2+p.replies.length*3;
-const handleOf=n=>'@'+(String(n||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'').slice(0,20)||'pengguna');
+const handleOf=n=>{ if(n&&typeof n==='object') n=n.username||n.name; return '@'+(String(n||'').replace(/^@/,'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9_]+/g,'').slice(0,20)||'pengguna'); };
+function peopleByHandle(handle){
+  const h=normalizeUsername(handle);
+  if(!h) return null;
+  if(!U.guest && normalizeUsername(DATA.profile.username||'')===h) return {uid:U.id,username:DATA.profile.username,name:DATA.profile.name,avatar:DATA.profile.avatar||DATA.profile.gpic||''};
+  return localPeople().find(u=>normalizeUsername(u.username||u.name)===h)||null;
+}
+function mentionHtml(text){
+  const raw=String(text||'');
+  let out='', last=0, re=/@([a-zA-Z0-9._-]{3,20})/g, m;
+  while((m=re.exec(raw))){
+    out+=esc(raw.slice(last,m.index));
+    const person=peopleByHandle(m[1]);
+    if(person&&person.uid) out+=`<a class="cgMention" href="#/profil/${esc(person.uid)}">${esc('@'+normalizeUsername(person.username||m[1]))}</a>`;
+    else out+=esc(m[0]);
+    last=re.lastIndex;
+  }
+  return out+esc(raw.slice(last));
+}
+function mentionPickerHtml(items){
+  return items.slice(0,6).map(u=>`<button type="button" class="cgMentionPick" data-mention="${esc(normalizeUsername(u.username||u.name))}"><span class="cgMentionAvatar">${u.avatar?`<img src="${esc(u.avatar)}" alt="" referrerpolicy="no-referrer">`:esc((u.name||'?').trim().charAt(0).toUpperCase())}</span><span><b>${esc(u.name||u.username)}</b><small>@${esc(normalizeUsername(u.username||u.name))}</small></span></button>`).join('');
+}
 const avLink=(id,src,name,cls='pa')=>{ const inner=src?`<img src="${esc(src)}" alt="" referrerpolicy="no-referrer">`:esc((name||'?').trim().charAt(0).toUpperCase());
   return id?`<a class="${cls}" href="#/profil/${esc(id)}" aria-label="Profil ${esc(name)}">${inner}</a>`:`<span class="${cls}">${inner}</span>`; };
 
 /* ---- orang: pencarian, rekomendasi, baris pengguna ---- */
 function localPeople(){
   const m=new Map();
-  getPosts().forEach(p=>{ if(p.uid&&!m.has(p.uid)) m.set(p.uid,{uid:p.uid,name:p.author,avatar:p.avatar||'',followers:0}); });
-  if(!SB) LS.get('users',[]).forEach(u=>{ if(!m.has(u.id)) m.set(u.id,{uid:u.id,name:u.name,avatar:'',followers:0}); });
+  getPosts().forEach(p=>{ if(p.uid&&!m.has(p.uid)) m.set(p.uid,{uid:p.uid,name:p.author,username:p.username||'',avatar:p.avatar||'',followers:0}); });
+  if(!SB) LS.get('users',[]).forEach(u=>{ if(!m.has(u.id)) m.set(u.id,{uid:u.id,name:u.name,username:u.username||'',avatar:'',followers:0}); });
   if(!U.guest) m.delete(U.id);
   return [...m.values()];
 }
-const filterPeople=ql=>localPeople().filter(u=>(u.name||'').toLowerCase().includes(ql)||handleOf(u.name).includes(ql));
+const filterPeople=ql=>localPeople().filter(u=>(u.name||'').toLowerCase().includes(ql)||handleOf(u.username||u.name).includes(ql));
 function userRow(u){
   const me=!U.guest&&u.uid===U.id, fol=UFOL.has(u.uid), jn=u.jalur&&JALUR[u.jalur]?JALUR[u.jalur].name:'';
-  return `<div class="uRow">${avLink(u.uid,u.avatar,u.name)}<a class="grow uMeta" href="#/profil/${esc(u.uid)}"><b>${esc(u.name)}</b><span class="muted small">${esc(handleOf(u.name))}${jn?' · '+esc(jn):''}</span></a>${me?'':`<button class="btn btn-sm ${fol?'btn-ghost':'btn-ink'}" data-act="ufol" data-id="${esc(u.uid)}">${fol?'Diikuti':'Ikuti'}</button>`}</div>`;
+  return `<div class="uRow">${avLink(u.uid,u.avatar,u.name)}<a class="grow uMeta" href="#/profil/${esc(u.uid)}"><b>${esc(u.name)}</b><span class="muted small">${esc(handleOf(u.username||u.name))}${jn?' · '+esc(jn):''}</span></a>${me?'':`<button class="btn btn-sm ${fol?'btn-ghost':'btn-ink'}" data-act="ufol" data-id="${esc(u.uid)}">${fol?'Diikuti':'Ikuti'}</button>`}</div>`;
 }
 function renderUsrRes(){
   const b=$('#usrRes'); if(!b) return;
@@ -1868,6 +2501,38 @@ async function uploadReplyImage(){
   if(up.error) throw up.error;
   return SB.storage.from('community-media').getPublicUrl(path).data.publicUrl;
 }
+async function hydrateReplyUsers(posts){
+  if(!SB) return;
+  const ids=[...new Set((posts||[]).flatMap(p=>[p&&p.uid,...((p&&p.replies)||[]).map(r=>r&&r.uid)]).filter(Boolean).map(String))];
+  const missing=ids.filter(id=>!REPLY_USERS.has(id));
+  if(!missing.length) return;
+  try{
+    const {data,error}=await SB.from('profiles').select('id,username,name,avatar').in('id',missing);
+    if(!error && Array.isArray(data)) data.forEach(u=>REPLY_USERS.set(String(u.id),u));
+  }catch(e){ console.warn('reply profile hydrate',e); }
+}
+function replyUsername(r){
+  const direct=normalizeUsername(r&&r.username||'');
+  if(direct) return direct;
+  const uid=String(r&&r.uid||'');
+  if(!U.guest&&uid===String(U.id)) return normalizeUsername(DATA.profile.username||'pengguna');
+  const person=REPLY_USERS.get(uid)
+    || localPeople().find(x=>String(x.uid||'')===uid)
+    || (Array.isArray(PSUG)?PSUG.find(x=>String(x.uid||'')===uid):null);
+  return normalizeUsername(person&&person.username) || normalizeUsername(r&&r.author||'') || 'pengguna';
+}
+function postUsername(p){
+  if(p&&p.uid&&!U.guest&&String(p.uid)===String(U.id)) return normalizeUsername(DATA.profile.username||p.username||p.author||'pengguna');
+  const direct=normalizeUsername(p&&p.username||'');
+  if(direct) return direct;
+  const uid=String(p&&p.uid||'');
+  const person=REPLY_USERS.get(uid)
+    || localPeople().find(x=>String(x.uid||'')===uid)
+    || (Array.isArray(PSUG)?PSUG.find(x=>String(x.uid||'')===uid):null);
+  return normalizeUsername(person&&person.username) || normalizeUsername(p&&p.author||'') || 'pengguna';
+}
+function replyProfileHref(r){ return r&&r.uid ? `#/profil/${esc(r.uid)}` : ''; }
+
 function replyRecord(postId,replyId){ const p=getPosts().find(x=>String(x.id)===String(postId)); return p&&(p.replies||[]).find((r,i)=>String(r.id||('legacy-'+p.id+'-'+i))===String(replyId)); }
 async function shareReply(postId,replyId){
  const p=getPosts().find(x=>String(x.id)===String(postId)), r=replyRecord(postId,replyId); if(!p||!r) return;
@@ -1904,7 +2569,21 @@ function viewKomunitas(){
   if(!SB){ FOLLOWS=new Set(LS.get('tfol',[])); SAVED=new Set(LS.get('csaved',[])); UFOL=new Set(LS.get('ufol',[])); REPLY_SAVED=new Set(LS.get('cogit_reply_saved',[])); }
   if(SB&&Date.now()-_pl>8000){ _pl=Date.now(); loadPosts().then(()=>{ if((location.hash||'').indexOf('komunitas')>-1) viewKomunitas(); }); }
   const op=OPENPOST&&getPosts().find(x=>x.id===OPENPOST); if(OPENPOST&&!op) OPENPOST=null;
-  if(op){ mount(shell('komunitas',`<div class="cgDet" id="cgScope">${cgDetail(op)}</div>`)); cgApply(); window.scrollTo(0,0); return; }
+  if(op){
+    const preserveY=_cgReplyScrollY;
+    const opening=_cgOpeningPost;
+    _cgOpeningPost=false;
+    mount(shell('komunitas',`<div class="cgDet" id="cgScope">${cgDetail(op)}</div>`)); cgApply();
+    if(preserveY!==null){
+      const restore=()=>window.scrollTo({top:preserveY,left:window.scrollX,behavior:'auto'});
+      requestAnimationFrame(restore);
+      setTimeout(restore,0);
+      setTimeout(()=>{ if(_cgReplyScrollY===preserveY) _cgReplyScrollY=null; },600);
+    }else if(opening){
+      window.scrollTo({top:0,left:0,behavior:'auto'});
+    }
+    return;
+  }
   if(CF!=='all'&&!TOPICS.some(x=>x.id===CF)) CF='all';
   const _y=window.scrollY, mineT=TOPICS.filter(x=>isFol(x.id)), allTopicOptions=TOPICS, locked=CF!=='all'&&!isFol(CF), G=U.guest;
   const folBtn=x=>x.id==='umum'?'':`<button class="btn btn-sm ${isFol(x.id)?'btn-ghost':'btn-yellow'}" data-act="tfol" data-id="${x.id}">${isFol(x.id)?'Diikuti':'Ikuti'}</button>`;
@@ -1928,7 +2607,7 @@ function viewKomunitas(){
 
   const topicHead=(CF!=='all'&&!locked)?`<div class="card cgTopicHead"><div class="grow"><h3>${esc(topicName(CF))}</h3><div class="muted small">${cnt(TOPICS.find(x=>x.id===CF)||{id:CF})}</div></div>${folBtn({id:CF})}</div>`:'';
   const lock=`<div class="card empty" style="padding:34px 20px"><b style="color:var(--ink);font-size:18px">${esc(topicName(CF))}</b><p style="margin:8px 0 16px">Ikuti topik ini untuk melihat dan ikut dalam percakapannya.</p><button class="btn btn-yellow" data-act="tfol" data-id="${esc(CF)}">Ikuti ${esc(topicName(CF))}</button></div>`;
-  const feed=locked?lock:`${topicHead}<section class="card cgBox">${CT==='simpan'?'':composer}${tabs}<div id="cList">${listHtml()}</div></section>`;
+  const feed=locked?lock:`${topicHead}<section class="card cgBox">${composer}${tabs}<div id="cList">${listHtml()}</div></section>`;
 
   const sug=TOPICS.filter(x=>!isFol(x.id)).slice(0,3), ppl=suggestPeople(), followed=TOPICS.filter(x=>isFol(x.id));
   const pop=getPosts().filter(p=>isFol(p.topic||'umum')&&cScore(p)>0).sort((a,b)=>cScore(b)-cScore(a)||b.t-a.t).slice(0,3);
@@ -1969,32 +2648,98 @@ function replyCount(p){ return Array.isArray(p.replies)?p.replies.length:0; }
 function replySavedKey(postId,replyId){ return String(postId)+':'+String(replyId); }
 function replyTreeHtml(p){
   const rows=Array.isArray(p.replies)?p.replies:[], index=new Map(), children=new Map();
-  rows.forEach((r,i)=>{ const id=String(r.id||('legacy-'+p.id+'-'+i)); index.set(id,{...r,id}); });
-  rows.forEach((r,i)=>{ const id=String(r.id||('legacy-'+p.id+'-'+i)), parent=String(r.parent_id||r.parentId||''); if(!children.has(parent)) children.set(parent,[]); children.get(parent).push(index.get(id)); });
-  const render=(parent='',depth=0,seen=new Set())=>(children.get(parent)||[]).map(r=>{
-    if(seen.has(r.id)) return ''; const chain=new Set(seen); chain.add(r.id);
-    const t=Number(r.t)||new Date(r.created_at||Date.now()).getTime(), likes=Array.isArray(r.likes)?r.likes.map(String):[], liked=!U.guest&&likes.includes(String(U.id)), saved=REPLY_SAVED.has(replySavedKey(p.id,r.id));
-    const src=r.avatar||(r.uid===U.id&&(DATA.profile.avatar||DATA.profile.gpic))||'', author=r.author||'Pengguna';
-    const childRows=children.get(r.id)||[], childHtml=REPLY_EXPANDED.has(r.id)?render(r.id,depth+1,chain):'';
-    const replyForm=REPLY_TO===r.id&&!U.guest?`<form class="cgReplyInline" data-form="reply" data-id="${esc(p.id)}" data-parent="${esc(r.id)}">${avLink(U.id,DATA.profile.avatar||DATA.profile.gpic||'',DATA.profile.name)}<input class="input" name="text" maxlength="200" placeholder="Balas ke ${esc(author)}" aria-label="Balas ke ${esc(author)}"><input type="file" data-reply-image-input="1" accept="image/*" hidden><button class="pbtn" type="button" data-act="reply-image-pick" aria-label="Tambah foto balasan">${cgIc('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/>')}</button><button class="btn btn-yellow btn-sm" type="submit">Kirim</button></form>${REPLY_IMAGE_PREVIEW?`<div class="cgReplyPreview"><img src="${esc(REPLY_IMAGE_PREVIEW)}" alt="Pratinjau foto balasan"><button type="button" data-act="reply-image-remove" aria-label="Hapus foto balasan">×</button></div>`:''}`:'';
-    const replyToHandle = r.reply_to_username || r.replyToUsername || handleOf(author);
-    const childToggle=childRows.length?`<button class="cgRepliesToggle" data-act="reply-toggle" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-expanded="${REPLY_EXPANDED.has(r.id)}">${REPLY_EXPANDED.has(r.id)?'Sembunyikan balasan':'Lihat '+childRows.length+' balasan'}</button>`:'';
+  rows.forEach((r,i)=>{
+    const id=String(r.id||('legacy-'+p.id+'-'+i));
+    index.set(id,{...r,id});
+  });
+  rows.forEach((r,i)=>{
+    const id=String(r.id||('legacy-'+p.id+'-'+i));
+    const parent=String(r.parent_id||r.parentId||'');
+    if(!children.has(parent)) children.set(parent,[]);
+    children.get(parent).push(index.get(id));
+  });
+
+  const countDesc=(id,seen=new Set())=>{
+    const key=String(id);
+    if(seen.has(key)) return 0;
+    seen.add(key);
+    let n=0;
+    (children.get(key)||[]).forEach(r=>{ n++; n+=countDesc(r.id,seen); });
+    return n;
+  };
+
+  /*
+   * IMPORTANT VISUAL RULE:
+   * - depth 1 = comment utama, no indent.
+   * - depth 2+ = SATU shared visual reply level.
+   *
+   * The data can still be arbitrarily deep. We deliberately flatten the
+   * rendered DOM into ONE reply column so a reply-to-reply never creates
+   * a third visual indentation level.
+   */
+  const replyContent=(r,visualDepth=1)=>{
+    const t=Number(r.t)||new Date(r.created_at||Date.now()).getTime();
+    const likes=Array.isArray(r.likes)?r.likes.map(String):[];
+    const liked=!U.guest&&likes.includes(String(U.id));
+    const src=r.avatar||(r.uid===U.id&&(DATA.profile.avatar||DATA.profile.gpic))||'';
+    const username=replyUsername(r);
+    const usernameHtml=r.uid&&username
+      ?`<a class="cgReplyUsername" href="#/profil/${esc(r.uid)}">${esc(username)}</a>`
+      :`<span class="cgReplyUsername">${esc(username||'pengguna')}</span>`;
+    const replyToHandle=r.reply_to_username||r.replyToUsername||'';
+    const replyTo=replyToHandle?mentionHtml(replyToHandle):'';
     const image=r.image_url||r.imageUrl||'';
-    return `<div class="cgRep" data-reply-id="${esc(r.id)}">${avLink(r.uid,src,author)}<div class="cgRepBody"><div class="cgRepMeta">${r.uid?`<a class="pName" href="#/profil/${esc(r.uid)}">${esc(author)}</a>`:`<b>${esc(author)}</b>`}<span class="muted small">${esc(handleOf(author))} · ${timeAgo(t)}</span><button class="pbtn cgMore" data-act="reply-menu" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-label="Opsi balasan">${cgIc('<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',1)}</button></div><p class="cgText cgRepText"><span class="cgReplyTo">${esc(replyToHandle)}</span>${r.text?` ${esc(r.text)}`:''}</p>${image?`<img class="cgReplyImage" src="${esc(image)}" alt="Foto dalam balasan" loading="lazy">`:''}<div class="cgRepActions"><button class="pbtn ${liked?'pl':''}" data-act="reply-like" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-pressed="${liked}" aria-label="Sukai balasan">${cgIc('<path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.3 12C19 16.4 12 21 12 21z"/>',liked)}<span>${likes.length}</span></button><button class="pbtn" data-act="reply-open" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-label="Balas komentar">${cgIc('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}</button><button class="pbtn" data-act="reply-share" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-label="Bagikan balasan">${cgIc('<path d="M12 16V4M7 9l5-5 5 5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>')}</button><button class="pbtn ${saved?'ps':''}" data-act="reply-save" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-pressed="${saved}" aria-label="Simpan balasan">${cgIc('<path d="M6 4h12v17l-6-4-6 4z"/>',saved)}</button></div>${childToggle}${replyForm}${childHtml?`<div class="cgRepChildren">${childHtml}</div>`:''}</div></div>`;
-  }).join('');
-  return render();
+    const replyForm=REPLY_TO===r.id&&!U.guest?`<form class="cgReplyInline" data-form="reply" data-id="${esc(p.id)}" data-parent="${esc(r.id)}">${avLink(U.id,DATA.profile.avatar||DATA.profile.gpic||'',DATA.profile.name)}<input class="input cgMentionInput" name="text" maxlength="200" placeholder="Balas ke ${esc(username||'pengguna')}" aria-label="Balas ke ${esc(username||'pengguna')}" autocomplete="off"><div class="cgMentionMenu" hidden></div><input type="file" data-reply-image-input="1" accept="image/*" hidden><button class="pbtn" type="button" data-act="reply-image-pick" aria-label="Tambah foto balasan">${cgIc('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/>')}</button><button class="btn btn-yellow btn-sm" type="submit">Balas</button></form>${REPLY_IMAGE_PREVIEW?`<div class="cgReplyPreview"><img src="${esc(REPLY_IMAGE_PREVIEW)}" alt="Pratinjau foto balasan"><button type="button" data-act="reply-image-remove" aria-label="Hapus foto balasan">×</button></div>`:''}`:'';
+
+    return `<div class="cgRep cgRepDepth cgVisualDepth${visualDepth===1?'Root':'Reply'}" data-reply-id="${esc(r.id)}" data-depth="${visualDepth}" style="--cg-depth:${visualDepth-1}">${avLink(r.uid,src,username||'pengguna')}<div class="cgRepBody"><div class="cgRepMeta"><div class="cgRepIdentity">${usernameHtml}<span class="muted small">· ${timeAgo(t)}</span></div><button class="pbtn cgMore" data-act="reply-menu" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-label="Opsi balasan">${cgIc('<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',1)}</button></div><p class="cgText cgRepText">${replyTo?`<span class="cgReplyTo">${replyTo}</span> `:''}${mentionHtml(r.text||'')}</p>${image?`<img class="cgReplyImage" src="${esc(image)}" alt="Foto dalam balasan" loading="lazy">`:''}<div class="cgRepActions"><button class="pbtn ${liked?'pl':''}" data-act="reply-like" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-pressed="${liked}" aria-label="Sukai balasan">${cgIc('<path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.3 12C19 16.4 12 21 12 21z"/>',liked)}<span>${likes.length}</span></button><button class="pbtn cgReplyAction" data-act="reply-open" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-label="Balas komentar">${cgIc('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}<span>Balas</span></button></div>${replyForm}</div></div>`;
+  };
+
+  /* Flatten every visible descendant into the root reply container.
+     This is the critical fix: no descendant is rendered inside the
+     previous reply's .cgRepBody, so CSS nesting can never create level 3. */
+  const flatVisible=(roots)=>{
+    const renderThread=(root)=>{
+      const out=[];
+      const walk=(r,depth)=>{
+        out.push(replyContent(r,depth===1?1:2));
+        if(REPLY_EXPANDED.has(String(r.id))){
+          (children.get(String(r.id))||[]).forEach(child=>walk(child,depth+1));
+        }
+      };
+      walk(root,1);
+      const total=countDesc(root.id);
+      if(total){
+        const allIds=[];
+        const collect=(rid)=>{
+          const key=String(rid);
+          if(allIds.includes(key)) return;
+          allIds.push(key);
+          (children.get(key)||[]).forEach(ch=>collect(ch.id));
+        };
+        collect(root.id);
+        const expanded=allIds.length>1 && allIds.every(rid=>REPLY_EXPANDED.has(rid));
+        out.push(`<button class="cgRepliesToggle cgThreadToggle" data-act="reply-toggle" data-id="${esc(p.id)}" data-reply="${esc(root.id)}" aria-expanded="${expanded}">${expanded?'Sembunyikan balasan':'Lihat semua '+total+' balasan'}</button>`);
+      }
+      return out.join('');
+    };
+    return roots.map(renderThread).join('');
+  };
+
+  const roots=children.get('')||[];
+  return roots.length?`<div class="cgFlatReplyThread">${flatVisible(roots)}</div>`:'';
 }
+
 function cgDetail(p){
   const reps=replyTreeHtml(p), av=avLink(U.id,DATA.profile.avatar||DATA.profile.gpic||'',DATA.profile.name);
-  const form=U.guest?'<div class="muted small" style="padding:15px 18px">Masuk untuk ikut membalas Cogit ini.</div>':`<form class="cgReply" data-form="reply" data-id="${esc(p.id)}" data-parent="">${av}<input class="input" name="text" maxlength="200" placeholder="Tulis balasan untuk ${esc(p.author)}" aria-label="Balasan Cogit"><input type="file" data-reply-image-input="1" accept="image/*" hidden><button class="pbtn" type="button" data-act="reply-image-pick" aria-label="Tambah foto balasan">${cgIc('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/>')}</button><button class="btn btn-yellow btn-sm" type="submit">Balas</button></form>${REPLY_IMAGE_PREVIEW?`<div class="cgReplyPreview"><img src="${esc(REPLY_IMAGE_PREVIEW)}" alt="Pratinjau foto balasan"><button type="button" data-act="reply-image-remove" aria-label="Hapus foto balasan">×</button></div>`:''}`;
+  const form=U.guest?'<div class="muted small" style="padding:15px 18px">Masuk untuk ikut membalas Cogit ini.</div>':`<form class="cgReply" data-form="reply" data-id="${esc(p.id)}" data-parent="">${av}<input class="input cgMentionInput" name="text" maxlength="200" placeholder="Tulis balasan untuk ${esc(p.author)}" aria-label="Balasan Cogit" autocomplete="off"><div class="cgMentionMenu" hidden></div><input type="file" data-reply-image-input="1" accept="image/*" hidden><button class="pbtn" type="button" data-act="reply-image-pick" aria-label="Tambah foto balasan">${cgIc('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/>')}</button><button class="btn btn-yellow btn-sm" type="submit">Balas</button></form>${REPLY_IMAGE_PREVIEW?`<div class="cgReplyPreview"><img src="${esc(REPLY_IMAGE_PREVIEW)}" alt="Pratinjau foto balasan"><button type="button" data-act="reply-image-remove" aria-label="Hapus foto balasan">×</button></div>`:''}`;
   return `<div class="cgHead"><button class="pbtn" data-act="cg-back" aria-label="Kembali">${cgIc('<path d="M19 12H5M12 19l-7-7 7-7"/>')}</button><b>Cogit</b><button class="pbtn" data-act="cg-set" aria-label="Pengaturan tampilan">${cgIc(CG_GEAR)}</button></div><div class="card cgBox">${postHtml(p,true)}${form}<div class="cgReplies">${reps||'<div class="cgReplyEmpty">Mulai percakapan dengan satu balasan yang membantu.</div>'}</div></div>`;
 }
 function postHtml(p,det,showTopic){
   const mine=!U.guest&&p.uid===U.id, liked=p.likes.includes(U.id), saved=SAVED.has(p.id), I=cgIc;
-  const src=p.avatar||(mine&&(DATA.profile.avatar||DATA.profile.gpic))||'', st=det||showTopic||CF==='all'||CT==='simpan';
+  const src=p.avatar||(mine&&(DATA.profile.avatar||DATA.profile.gpic))||'', st=det||showTopic||CF==='all'||CT==='simpan', whoHandle=handleOf(postUsername(p)), displayUsername=postUsername(p);
   return `<article class="post${det?'':' clk'}" ${det?'':`data-act="cg-open" data-id="${p.id}"`}><div class="pRow">${avLink(p.uid,src,p.author)}<div class="grow">
-    <div class="pHead"><div class="pWho">${p.uid?`<a class="pName" href="#/profil/${esc(p.uid)}">${esc(p.author)}</a>`:`<b class="pName">${esc(p.author)}</b>`}<span class="muted small">${esc(handleOf(p.author))} · ${timeAgo(p.t)}</span>${st?`<button class="pTopic" data-act="cf" data-v="${esc(p.topic||'umum')}">${esc(topicName(p.topic))}</button>`:''}</div><button class="pbtn" data-act="post-menu" data-id="${p.id}" aria-label="Opsi">${I('<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',1)}</button></div>
-    ${p.text?`<p class="cgText">${esc(p.text)}</p>`:''}${p.image_url?`<img class="cgImage" src="${esc(p.image_url)}" alt="Gambar yang dibagikan dalam Cogit" loading="lazy">`:''}
+    <div class="pHead"><div class="pWho">${p.uid?`<a class="pName" href="#/profil/${esc(p.uid)}">${esc(displayUsername)}</a>`:`<b class="pName">${esc(displayUsername)}</b>`}<span class="muted small">· ${timeAgo(p.t)}</span>${st?`<button class="pTopic" data-act="cf" data-v="${esc(p.topic||'umum')}">${esc(topicName(p.topic))}</button>`:''}</div><button class="pbtn" data-act="post-menu" data-id="${p.id}" aria-label="Opsi">${I('<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',1)}</button></div>
+    ${p.text?`<p class="cgText">${mentionHtml(p.text)}</p>`:''}${p.image_url?`<img class="cgImage" src="${esc(p.image_url)}" alt="Gambar yang dibagikan dalam Cogit" loading="lazy">`:''}
     <div class="pact">
       <button class="pbtn ${liked?'pl':''}" data-act="like" data-id="${p.id}" aria-pressed="${liked}" aria-label="Suka">${I('<path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.3 12C19 16.4 12 21 12 21z"/>',liked)}<span>${p.likes.length}</span></button>
       <button class="pbtn" data-act="cg-open" data-id="${p.id}" aria-label="Komentar">${I('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}<span>${replyCount(p)}</span></button>
@@ -2011,13 +2756,13 @@ function statsFrom(d){
 }
 async function loadProfile(id){
   const mine=!U.guest&&id===U.id, pr=DATA.profile;
-  const own=()=>({uid:id,name:pr.name,avatar:pr.avatar||pr.gpic||'',jalur:pr.jalur,tahun:pr.tahun,sekolah:pr.sekolah||'',show:pr.showStats!==false,followers:0,following:UFOL.size,posts:0,packages:(DATA.packages||[]).slice(),stats:statsFrom(DATA)});
+  const own=()=>({uid:id,name:pr.name,username:pr.username||'',phone:pr.phone||'',avatar:pr.avatar||pr.gpic||'',jalur:pr.jalur,tahun:pr.tahun,sekolah:pr.sekolah||'',kelas:pr.kelas||'',show:pr.showStats!==false,followers:0,following:UFOL.size,posts:0,packages:(DATA.packages||[]).slice(),stats:statsFrom(DATA)});
   if(SB){
     try{
       const [r,pp]=await Promise.all([SB.rpc('public_profile',{p_uid:id}),SB.from('community_posts').select('*').eq('uid',id).order('created_at',{ascending:false}).limit(50)]);
       if(!pp.error&&pp.data){ const have=new Set(CACHE_POSTS.map(x=>x.id)); pp.data.forEach(x=>{ if(!have.has(x.id)) CACHE_POSTS.push(mapPost(x)); }); }
       if(!r.error&&r.data){
-        const x=r.data, postAvatar=(pp.data||[]).map(v=>v.avatar).find(v=>v&&/^https?:/i.test(v))||'', fallbackAvatar=mine?(pr.avatar||pr.gpic||''):postAvatar, P={uid:x.uid,name:x.name,avatar:x.avatar||fallbackAvatar,jalur:x.jalur,tahun:x.tahun,sekolah:x.sekolah||'',show:x.show_stats!==false,followers:+x.followers||0,following:+x.following||0,posts:+x.posts||0,packages:x.packages||[],stats:null};
+        const x=r.data, postAvatar=(pp.data||[]).map(v=>v.avatar).find(v=>v&&/^https?:/i.test(v))||'', fallbackAvatar=mine?(pr.avatar||pr.gpic||''):postAvatar, P={uid:x.uid,name:x.name,username:x.username||'',phone:x.phone||'',avatar:x.avatar||fallbackAvatar,jalur:x.jalur,tahun:x.tahun,sekolah:x.sekolah||'',kelas:x.kelas||'',show:x.show_stats!==false,followers:+x.followers||0,following:+x.following||0,posts:+x.posts||0,packages:x.packages||[],stats:null};
         if(x.stats){ const s=x.stats; P.stats={best:+s.best||0,tryouts:+s.tryouts||0,answered:+s.answered||0,acc:+s.answered?pct(+s.correct,+s.answered):0,attempts:s.attempts||[],sub:s.sub||{}}; }
         if(mine) Object.assign(P,own(),{followers:P.followers,posts:P.posts});
         return P;
@@ -2031,7 +2776,7 @@ async function loadProfile(id){
   if(mine) return own();
   if(id==='cognera') return {uid:id,name:'Tim Cognera',avatar:'',official:true,show:false,followers:UFOL.has(id)?1:0,following:0,posts:0,packages:[],stats:null};
   const d=LS.get('data:'+id,null), q=getPosts().find(p=>p.uid===id), u=LS.get('users',[]).find(x=>x.id===id);
-  if(d&&d.profile) return {uid:id,name:d.profile.name,avatar:d.profile.avatar||'',jalur:d.profile.jalur,tahun:d.profile.tahun,sekolah:d.profile.sekolah||'',show:d.profile.showStats!==false,followers:UFOL.has(id)?1:0,following:0,posts:0,packages:d.packages||[],stats:statsFrom(d)};
+  if(d&&d.profile) return {uid:id,name:d.profile.name,username:d.profile.username||'',phone:d.profile.phone||'',avatar:d.profile.avatar||'',jalur:d.profile.jalur,tahun:d.profile.tahun,sekolah:d.profile.sekolah||'',kelas:d.profile.kelas||'',show:d.profile.showStats!==false,followers:UFOL.has(id)?1:0,following:0,posts:0,packages:d.packages||[],stats:statsFrom(d)};
   if(q||u) return {uid:id,name:(q&&q.author)||u.name,avatar:(q&&q.avatar)||'',show:false,limited:true,followers:UFOL.has(id)?1:0,following:0,posts:0,packages:[],stats:null};
   return null;
 }
@@ -2056,7 +2801,7 @@ function profInner(P){
     <section class="card pfHead"><div class="pfCover"></div><div class="pfBody">
       <div class="pfTop"><span class="pfAv">${P.avatar?`<img src="${esc(P.avatar)}" alt="" referrerpolicy="no-referrer">`:esc((P.name||'?').trim().charAt(0).toUpperCase())}</span><div class="row pfAct">${act}<button class="pbtn" data-act="pf-share" aria-label="Bagikan profil">${I('<path d="M12 16V4M7 9l5-5 5 5M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/>')}</button></div></div>
       <h2 class="pfName">${esc(P.name)}${P.official?'<span class="chip dark">Akun resmi</span>':''}</h2>
-      <div class="muted">${esc(handleOf(P.name))}${meta?' · '+esc(meta):''}</div>
+      <div class="muted">${esc(handleOf(P.username||P.name))}${meta?' · '+esc(meta):''}</div>
       <div class="pfStats"><div><b>${nPosts}</b>Cogit</div><button data-act="pf-list" data-v="followers"><b>${P.followers}</b>Pengikut</button><button data-act="pf-list" data-v="following"><b>${P.following}</b>Mengikuti</button></div>
       ${P.official?'':`<div class="pfPk">${pkHtml}</div>`}
     </div></section>`;
@@ -2430,7 +3175,7 @@ function viewAkun(){
         <div class="row mt12 wrapflex"><button type="button" class="btn btn-ink btn-sm" data-act="av-menu">${p.avatar?'Ganti foto':'Tambah foto'}</button>${p.avatar?'<button type="button" class="btn btn-ghost btn-sm avDanger" data-act="av-remove">Hapus foto</button>':''}</div></div></section>
     <div class="grid g2"><form class="card" data-form="profile"><h3>Profil dan target</h3>
       <label class="field"><span>Nama panggilan</span><input class="input" name="name" value="${esc(p.name)}" required maxlength="40"></label>
-      <label class="field"><span>Sekolah (opsional)</span><input class="input" name="sekolah" value="${esc(p.sekolah)}" maxlength="60"></label>
+      <label class="field"><span>Username</span><input class="input" name="username" value="${esc(p.username||'')}" required maxlength="20" pattern="[a-z0-9._-]{3,20}" ${p.username?'readonly':''}><small class="muted">3–20 karakter. Huruf kecil, angka, titik, _ atau -. Tampil di leaderboard.</small></label><label class="field"><span>No. HP</span><input class="input" name="phone" value="${esc(p.phone||'')}" required inputmode="tel" maxlength="15" placeholder="08xxxxxxxxxx atau +628xxxxxxxxxx"><small class="muted">Wajib diawali 08 atau +62.</small></label><label class="field"><span>Asal sekolah</span><input class="input" name="sekolah" value="${esc(p.sekolah||'')}" required maxlength="80"><small class="muted">Wajib diisi.</small></label><label class="field"><span>Kelas</span><input class="input" name="kelas" value="${esc(p.kelas||'')}" required maxlength="30" placeholder="Contoh: XII DKV 1"><small class="muted">Wajib diisi.</small></label>
       <label class="field"><span>Jalur ujian</span><select class="input" name="jalur">${Object.entries(JALUR).map(([k,v])=>`<option value="${k}" ${p.jalur===k?'selected':''}>${v.name}</option>`).join('')}</select></label>
       <label class="field"><span>Tahun target</span><select class="input" name="tahun">${[2026,2027,2028].map(y=>`<option ${p.tahun===y?'selected':''}>${y}</option>`).join('')}</select></label>
       <label class="field"><span>Target harian (jawaban benar)</span><select class="input" name="goal">${[3,5,10].map(n=>`<option ${p.goal===n?'selected':''}>${n}</option>`).join('')}</select></label>
@@ -2441,6 +3186,35 @@ function viewAkun(){
       <div id="pwMsg"></div><button class="btn btn-ink mt16" type="submit">Ubah kata sandi</button></form>
       <section class="card mt16"><h3>Data dan sesi</h3><div class="row mt12 wrapflex"><button class="btn btn-ghost btn-sm" data-act="logout">Keluar</button><button class="btn btn-ghost btn-sm" data-act="reset-progress">Reset progres belajar</button><button class="btn btn-ghost btn-sm" style="color:#a52f2f" data-act="delete-account">Hapus akun</button></div></section></div></div>`));
 }
+/* ===== BLOG (IN-APP) ===== */
+const BLOG_FALLBACK=[
+ {id:'local-1',cat:'Strategi UTBK',title:'Membaca Hasil Tryout agar Evaluasi Belajar Lebih Terarah',desc:'Skor total hanyalah titik awal. Pelajari capaian per subtes untuk menentukan materi yang perlu diprioritaskan.',content:'Skor total bukan satu-satunya hal yang perlu diperhatikan setelah tryout. Lihat hasil tiap subtes, tandai bagian yang paling sering salah, lalu gunakan hasil tersebut untuk menentukan prioritas belajar berikutnya.\n\nSetelah menemukan bagian yang lemah, ulangi konsep dasarnya dan kerjakan beberapa soal sejenis. Dengan begitu, tryout tidak berhenti sebagai angka, tetapi menjadi bahan evaluasi untuk belajar lebih terarah.',image_url:'',published:true},
+ {id:'local-2',cat:'Strategi UTBK',title:'Mengenal Sistem Penskoran IRT pada UTBK-SNBT',desc:'Penjelasan ringkas mengenai Item Response Theory dan pengaruhnya terhadap strategi mengerjakan soal.',content:'IRT digunakan untuk memperhitungkan karakteristik soal dalam proses penskoran. Karena itu, strategi belajar sebaiknya tidak hanya mengejar jumlah soal yang benar, tetapi juga membangun pemahaman konsep dan konsistensi.',image_url:'',published:true},
+ {id:'local-3',cat:'Mandiri PTN',title:'Gambaran Seleksi Mandiri PTN dan Hal yang Perlu Disiapkan',desc:'Kenali perbedaan pola seleksi antarkampus dan susun persiapan lebih awal.',content:'Setiap kampus dapat memiliki pola seleksi mandiri yang berbeda. Mulailah dengan mengecek jalur yang tersedia, materi yang diujikan, jadwal, dan dokumen yang dibutuhkan.',image_url:'',published:true},
+ {id:'local-4',cat:'Kedinasan',title:'Memahami Struktur SKD: TWK, TIU, dan TKP',desc:'Kenali komponen SKD dan pendekatan belajar untuk masing-masing bagian.',content:'SKD terdiri dari TWK, TIU, dan TKP. Masing-masing membutuhkan pendekatan yang berbeda sehingga latihan sebaiknya dilakukan secara terukur dan rutin.',image_url:'',published:true},
+ {id:'local-5',cat:'Tips Belajar',title:'Menyusun Jadwal Belajar yang Konsisten Menjelang Ujian',desc:'Cara membuat jadwal yang realistis supaya latihan tetap berjalan tanpa membuat belajar terasa berat.',content:'Jadwal yang baik bukan jadwal yang paling padat. Tentukan waktu belajar yang realistis, pilih target kecil setiap sesi, dan sisakan ruang untuk evaluasi.',image_url:'',published:true},
+ {id:'local-6',cat:'Tips Belajar',title:'Memanfaatkan Pembahasan Soal untuk Memperdalam Konsep',desc:'Gunakan pembahasan untuk memahami alasan jawaban, bukan sekadar mencocokkan kunci.',content:'Saat melihat pembahasan, jangan langsung pindah ke soal berikutnya. Pahami mengapa jawaban benar dan mengapa pilihan lain salah. Kebiasaan ini membantu membangun pola berpikir.',image_url:'',published:true},
+ {id:'local-7',cat:'Info Cognera',title:'Memanfaatkan Laporan Belajar dan Cogit Cognera',desc:'Padukan laporan progres dengan diskusi di Cogit untuk memperdalam pemahaman.',content:'Gunakan laporan belajar untuk melihat perkembangan dan Cogit untuk bertanya atau berdiskusi. Keduanya dapat dipakai bersama agar proses belajar lebih terarah.',image_url:'',published:true}
+];
+let BLOG_POSTS=BLOG_FALLBACK.slice(),BLOG_FILTER='Semua',BLOG_LOADING=false;
+async function loadBlogPosts(){
+ if(!SB||BLOG_LOADING)return; BLOG_LOADING=true;
+ try{const {data,error}=await SB.from('blog_posts').select('*').eq('published',true).order('published_at',{ascending:false}).order('created_at',{ascending:false});
+   if(!error&&Array.isArray(data)&&data.length) BLOG_POSTS=data.map(x=>({id:x.id,cat:x.category||'Info Cognera',title:x.title,desc:x.excerpt||'',content:x.content||'',image_url:x.image_url||'',published:x.published!==false,published_at:x.published_at}));
+ }catch(e){console.warn('blog load',e)} finally{BLOG_LOADING=false; if(location.hash.replace(/^#/,'').split('/')[1]==='blog')viewBlog(false);}
+}
+function blogCard(x,i){return `<article class="card blogCard">${x.image_url?`<img class="blogCover" src="${esc(x.image_url)}" alt="${esc(x.title)}" loading="lazy">`:''}<span class="chip y">${esc(x.cat)}</span><h3 class="mt12">${esc(x.title)}</h3><p class="muted small mt8">${esc(x.desc)}</p><button class="link small mt12" data-act="blog-open" data-v="${i}">Baca selengkapnya</button></article>`}
+function viewBlog(load=true){
+ const cats=['Semua','Strategi UTBK','Mandiri PTN','Kedinasan','Tips Belajar','Info Cognera'];
+ const posts=BLOG_FILTER==='Semua'?BLOG_POSTS:BLOG_POSTS.filter(x=>x.cat===BLOG_FILTER);
+ mount(shell('blog',`<div class="pageHead"><h1>Blog Cognera</h1><p>Wawasan seputar strategi belajar, persiapan ujian, dan cara memahami progres belajarmu.</p></div>
+ <div class="seg mb16">${cats.map(c=>`<button class="${BLOG_FILTER===c?'on':''}" data-act="blog-filter" data-v="${esc(c)}">${c}</button>`).join('')}</div>
+ <div class="grid g3 blogGrid">${posts.map(blogCard).join('')}</div>${!posts.length?'<div class="empty">Belum ada artikel pada kategori ini.</div>':''}`));
+ if(load)loadBlogPosts();
+}
+function blogArticleHtml(p){return `<article class="blogArticle card"><div class="blogArticleHead"><span class="chip y">${esc(p.cat)}</span><h1>${esc(p.title)}</h1><p class="muted">${esc(p.desc||'')}</p>${p.published_at?`<div class="muted small blogDate">${new Date(p.published_at).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}</div>`:''}</div>${p.image_url?`<img class="blogArticleCover" src="${esc(p.image_url)}" alt="${esc(p.title)}">`:''}<div class="blogBody">${String(p.content||'').split(/\n\s*\n/).map(x=>x.trim()?`<p>${esc(x).replace(/\n/g,'<br>')}</p>`:'').join('')}</div><div class="blogArticleFoot"><button class="btn btn-ghost" data-act="blog-back">Kembali ke blog</button></div></article>`}
+function openBlogPost(index){const posts=BLOG_FILTER==='Semua'?BLOG_POSTS:BLOG_POSTS.filter(x=>x.cat===BLOG_FILTER);const p=posts[index];if(!p)return;mount(shell('blog',blogArticleHtml(p)));window.scrollTo({top:0,behavior:'instant'});}
+
 /* ===== ROUTER ===== */
 function route(){
   clearTimers(); closeModal();
@@ -2465,6 +3239,7 @@ function route(){
     case 'komunitas': return viewKomunitas();
     case 'profil': return viewProfil(p[1]);
     case 'nera': return viewNera(qs);
+    case 'blog': return viewBlog();
     case 'paket': return viewPaket(qs);
     case 'checkout': return viewCheckout(p[1],p[2]);
     case 'bayar': return viewBayar(p[1]);
@@ -2569,6 +3344,9 @@ const ACT = {
   'cg-image-remove'(){ clearCogitImage(); },
   'cg-followed-topics'(){ const L=TOPICS.filter(x=>isFol(x.id)); openModal(`<h3>Topik yang kamu ikuti</h3><p class="muted small" style="margin:4px 0 10px">Ruang belajar yang muncul di berandamu.</p><div class="cgTopicModalList">${L.map(x=>`<div class="tRow"><div class="grow"><b>${esc(x.name)}</b><div class="muted small">${x.id==='umum'?'Terbuka untuk semua':(TCOUNT[x.id]||0)+' pengikut'}</div></div><button class="btn btn-ghost btn-sm" data-act="cg-topic-modal-open" data-v="${esc(x.id)}">Buka</button></div>`).join('')}</div><button class="btn btn-yellow btn-block mt16" data-act="close">Selesai</button>`); },
   'cg-topic-modal-open'(t){ closeModal(); CF=t.dataset.v; CV='feed'; viewKomunitas(); },
+  'blog-filter'(t){ BLOG_FILTER=t.dataset.v||'Semua'; viewBlog(); },
+  'blog-open'(t){ openBlogPost(+t.dataset.v||0); },
+  'blog-back'(){ viewBlog(); },
   'program-toggle'(){
     ACTIVITY_OPEN=!ACTIVITY_OPEN;
     const wrap=document.querySelector('.programPickerWrap');
@@ -2614,12 +3392,52 @@ const ACT = {
     let L=[]; if(SB){ const r=await SB.rpc('list_follows',{p_uid:id,p_kind:kind}); if(!r.error) L=(r.data||[]).map(mapUser); else console.warn(r.error); }
     else if(kind==='following'&&id===U.id) L=localPeople().filter(u=>UFOL.has(u.uid));
     const b=$('#plBody'); if(!b) return; b.className='mt12'; b.innerHTML=L.length?L.map(userRow).join(''):'<div class="empty">Belum ada.</div>'; },
-  'cg-open'(t,e){ if(e&&e.target&&e.target.closest('a[href^="#/profil/"]')) return; const id=t.dataset.id; if(OPENPOST===id&&!onProfile()) return; _fy=window.scrollY; OPENPOST=id; if(onProfile()){ location.hash='#/komunitas'; return; } try{ history.pushState({cg:1},''); }catch(e){} viewKomunitas(); },
+  'cg-open'(t,e){ if(e&&e.target&&e.target.closest('a[href^="#/profil/"]')) return; const id=t.dataset.id; if(OPENPOST===id&&!onProfile()) return; _fy=window.scrollY; _cgOpeningPost=true; OPENPOST=id; if(onProfile()){ location.hash='#/komunitas'; return; } try{ history.pushState({cg:1},''); }catch(e){} viewKomunitas(); },
   'cg-back'(){ if(history.state&&history.state.cg) history.back(); else { OPENPOST=null; viewKomunitas(); window.scrollTo(0,_fy); } },
   'cg-set'(){ cgSheet(); },
   'cg-font'(t){ CGS.ff=t.dataset.v; cgSave(); closeModal(); cgSheet(); },
   'cg-reset'(){ CGS={ff:'std',fs:15,lh:1.55,j:false}; cgSave(); closeModal(); cgSheet(); cgApply(); },
-  'reply-toggle'(t){ const id=String(t.dataset.reply); const y=window.scrollY; if(REPLY_EXPANDED.has(id)) REPLY_EXPANDED.delete(id); else REPLY_EXPANDED.add(id); cgRefresh(); requestAnimationFrame(()=>{ window.scrollTo({top:y,left:0,behavior:'instant'}); requestAnimationFrame(()=>window.scrollTo({top:y,left:0,behavior:'instant'})); }); },
+  'reply-toggle'(t){
+    const id=String(t.dataset.reply||''), y=window.scrollY;
+    _cgReplyScrollY=y;
+    // Prevent the background post refresh from firing during this local UI toggle.
+    _pl=Date.now();
+    const ps=getPosts(), p=ps.find(x=>String(x.id)===String(t.dataset.id));
+    if(!p){ return; }
+    const rows=Array.isArray(p.replies)?p.replies:[];
+    const byId=new Map();
+    rows.forEach((r,i)=>byId.set(String(r.id||('legacy-'+p.id+'-'+i)),r));
+    const parentOf=r=>String(r?.parent_id||r?.parentId||'');
+    const rootIdOf=(start)=>{
+      let cur=String(start), guard=0;
+      while(cur && guard++<rows.length+2){
+        const r=byId.get(cur); if(!r) break;
+        const par=parentOf(r);
+        if(!par || !byId.has(par)) break;
+        cur=par;
+      }
+      return cur;
+    };
+    const rootId=rootIdOf(id);
+    const threadIds=[];
+    const collect=(rid)=>{
+      const key=String(rid);
+      if(!key || threadIds.includes(key)) return;
+      threadIds.push(key);
+      rows.forEach((r,i)=>{
+        const cid=String(r.id||('legacy-'+p.id+'-'+i));
+        if(parentOf(r)===key) collect(cid);
+      });
+    };
+    collect(rootId||id);
+    const allOpen=threadIds.length>0 && threadIds.every(rid=>REPLY_EXPANDED.has(rid));
+    if(allOpen){
+      threadIds.forEach(rid=>REPLY_EXPANDED.delete(rid));
+    }else{
+      threadIds.forEach(rid=>REPLY_EXPANDED.add(rid));
+    }
+    cgRefresh();
+  },
   'reply-image-pick'(t){ const f=t.closest('form')?.querySelector('[data-reply-image-input]'); if(f) f.click(); },
   'reply-image-remove'(){ clearReplyImage(); },
   'reply-menu'(t){ const r=replyRecord(t.dataset.id,t.dataset.reply); if(!r) return; const mine=!U.guest&&r.uid===U.id; openModal(`<h3>Opsi balasan</h3><div class="opts mt12" style="gap:8px">${!mine&&!U.guest?`<button class="btn btn-ghost avDanger" data-act="reply-report" data-id="${esc(t.dataset.id)}" data-reply="${esc(t.dataset.reply)}">Laporkan komentar</button>`:''}${mine?`<button class="btn btn-ghost avDanger" data-act="reply-report" data-id="${esc(t.dataset.id)}" data-reply="${esc(t.dataset.reply)}">Laporkan komentar</button>`:''}<button class="btn btn-ghost" data-act="close">Tutup</button></div>`); },
@@ -2755,6 +3573,36 @@ document.addEventListener('click',e=>{
 document.addEventListener('click',e=>{ if(e.target.closest('.side a')){ const r=$('#appRoot'); if(r) r.classList.remove('open'); } });
 document.addEventListener('click',e=>{ const a=e.target.closest('#overlay a[href^="#/"]'); if(a) setTimeout(closeModal,0); });
 
+
+/* ===== COMMENT MENTIONS ===== */
+function mentionCandidates(input){
+  const value=String(input.value||'');
+  const caret=input.selectionStart??value.length;
+  const before=value.slice(0,caret);
+  const m=before.match(/(?:^|\s)@([a-zA-Z0-9._-]*)$/);
+  if(!m) return {q:'',start:-1};
+  return {q:(m[1]||'').toLowerCase(),start:caret-(m[1]||'').length-1};
+}
+function closeMentionMenus(){ document.querySelectorAll('.cgMentionMenu:not([hidden])').forEach(x=>x.hidden=true); }
+document.addEventListener('input',e=>{
+  const input=e.target.closest('.cgMentionInput'); if(!input) return;
+  const menu=input.parentElement?.querySelector('.cgMentionMenu'); if(!menu) return;
+  const info=mentionCandidates(input); if(info.start<0){ menu.hidden=true; return; }
+  const list=localPeople().filter(u=>normalizeUsername(u.username||u.name).startsWith(info.q)).filter(u=>u.uid!==U.id);
+  if(!list.length){ menu.hidden=true; return; }
+  menu.innerHTML=mentionPickerHtml(list); menu.hidden=false;
+});
+document.addEventListener('click',e=>{
+  const pick=e.target.closest('.cgMentionPick');
+  if(pick){
+    const menu=pick.closest('.cgMentionMenu'), form=pick.closest('form'), input=form?.querySelector('.cgMentionInput'); if(!input) return;
+    const value=input.value, caret=input.selectionStart??value.length, before=value.slice(0,caret), m=before.match(/(?:^|\s)@([a-zA-Z0-9._-]*)$/); if(!m) return;
+    const start=caret-(m[1]||'').length-1, handle='@'+pick.dataset.mention;
+    input.value=value.slice(0,start)+handle+' '+value.slice(caret); const pos=start+handle.length+1; input.focus(); input.setSelectionRange(pos,pos); if(menu) menu.hidden=true; return;
+  }
+  if(!e.target.closest('.cgMentionMenu,.cgMentionInput')) closeMentionMenus();
+});
+
 /* ===== FORMS ===== */
 document.addEventListener('submit',async e=>{
   const f=e.target.closest('form[data-form]'); if(!f) return; e.preventDefault();
@@ -2762,13 +3610,19 @@ document.addEventListener('submit',async e=>{
   const busy=b=>{ if(btn){ btn.disabled=b; } };
   try{
     if(kind==='register'){
-      const name=(v.name||'').trim(), email=(v.email||'').trim().toLowerCase(), pw=v.password||'';
+      const name=(v.name||'').trim(), username=normalizeUsername(v.username), phone=(v.phone||'').trim(), sekolah=(v.sekolah||'').trim(), kelas=(v.kelas||'').trim(), email=(v.email||'').trim().toLowerCase(), pw=v.password||'';
       if(name.length<2) return authErr('Nama minimal 2 karakter.');
+      if(!/^[a-z0-9._-]{3,20}$/.test(username)) return authErr('Username 3–20 karakter: huruf kecil, angka, titik, _ atau -.');
+      if(!/^08\d{8,12}$|^\+628\d{7,11}$/.test(phone)) return authErr('No. HP harus diawali 08 atau +62. Contoh: 081234567890.');
+      if(sekolah.length<2) return authErr('Asal sekolah wajib diisi.');
+      if(kelas.length<1) return authErr('Kelas wajib diisi.');
       if(!validEmail(email)) return authErr('Format email belum benar. Contoh: nama@email.com');
       if(pw.length<8) return authErr('Kata sandi minimal 8 karakter.');
       if(!v.agree) return authErr('Centang persetujuan Syarat & Ketentuan untuk melanjutkan.');
+      const taken=LS.get('users',[]).some(u=>normalizeUsername(u.username)===username);
+      if(taken) return authErr('Username tersebut sudah digunakan. Pilih username lain.');
       authErr(''); busy(true);
-      const r=await Auth.register({name,email,password:pw}); LS.set('flash',{email,migrated:r.migrated}); go('/masuk');
+      const r=await Auth.register({name,username,phone,sekolah,kelas,email,password:pw}); LS.set('flash',{email,migrated:r.migrated}); go('/masuk');
     } else if(kind==='login'){
       const email=(v.email||'').trim().toLowerCase();
       if(!validEmail(email)) return authErr('Format email belum benar. Contoh: nama@email.com');
@@ -2784,9 +3638,14 @@ document.addEventListener('submit',async e=>{
     } else if(kind==='profile'){
       if(U.guest){ Object.assign(DATA.profile,{jalur:v.jalur,tahun:+v.tahun,goal:+v.goal}); }
       else {
-        const name=(v.name||'').trim(); if(name.length<2) return;
-        Object.assign(DATA.profile,{name,sekolah:(v.sekolah||'').trim(),jalur:v.jalur,tahun:+v.tahun,goal:+v.goal});
-        const users=LS.get('users',[]); const u=users.find(x=>x.id===U.id); if(u){u.name=name; LS.set('users',users);}
+        const name=(v.name||'').trim(), username=normalizeUsername(v.username), phone=(v.phone||'').trim(), sekolah=(v.sekolah||'').trim(), kelas=(v.kelas||'').trim(); if(name.length<2) return toast('Nama minimal 2 karakter.');
+        if(!/^[a-z0-9._-]{3,20}$/.test(username)) return toast('Username 3–20 karakter: huruf kecil, angka, titik, _ atau -.');
+        if(!/^08\d{8,12}$|^\+628\d{7,11}$/.test(phone)) return toast('No. HP harus diawali 08 atau +62.');
+        if(sekolah.length<2) return toast('Asal sekolah wajib diisi.');
+        if(kelas.length<1) return toast('Kelas wajib diisi.');
+        const users=LS.get('users',[]); if(users.some(x=>x.id!==U.id&&normalizeUsername(x.username)===username)) return toast('Username tersebut sudah digunakan.');
+        Object.assign(DATA.profile,{name,username,phone,sekolah,kelas,jalur:v.jalur,tahun:+v.tahun,goal:+v.goal});
+        const u=users.find(x=>x.id===U.id); if(u){u.name=name;u.username=username;u.phone=phone;u.sekolah=sekolah;u.kelas=kelas; LS.set('users',users);}
       }
       save(); $('#profOk').innerHTML='<div class="ok-note">Perubahan tersimpan.</div>'; toast('Perubahan tersimpan');
     } else if(kind==='password'){
@@ -2805,21 +3664,21 @@ document.addEventListener('submit',async e=>{
           imageUrl=SB.storage.from('community-media').getPublicUrl(path).data.publicUrl;
         }else imageUrl=CG_IMAGE_PREVIEW;
       }
-      if(SB){ const av=DATA.profile.avatar||DATA.profile.gpic||''; const {data,error}=await SB.from('community_posts').insert({uid:U.id,author:DATA.profile.name,topic:v.topic||'umum',text:text.slice(0,280),image_url:imageUrl||null,avatar:/^https?:/.test(av)?av:null}).select().single();
+      if(SB){ const av=DATA.profile.avatar||DATA.profile.gpic||''; const {data,error}=await SB.from('community_posts').insert({uid:U.id,author:DATA.profile.name,username:DATA.profile.username||null,topic:v.topic||'umum',text:text.slice(0,280),image_url:imageUrl||null,avatar:/^https?:/.test(av)?av:null}).select().single();
         if(error){ console.warn(error); return toast('Gagal mengirim: '+(error.message||'coba lagi')); }
         CACHE_POSTS.unshift(mapPost({...data,image_url:imageUrl||data.image_url})); clearCogitImage(); viewKomunitas(); return toast('Cogit terkirim'); }
-      const ps=getPosts(); ps.push({id:uid(),uid:U.id,author:DATA.profile.name,avatar:DATA.profile.avatar||DATA.profile.gpic||'',topic:v.topic||'umum',text:text.slice(0,280),image_url:imageUrl,t:Date.now(),likes:[],replies:[]}); LS.set('posts',ps); clearCogitImage(); viewKomunitas(); toast('Cogit terkirim');
+      const ps=getPosts(); ps.push({id:uid(),uid:U.id,author:DATA.profile.name,username:DATA.profile.username||'',avatar:DATA.profile.avatar||DATA.profile.gpic||'',topic:v.topic||'umum',text:text.slice(0,280),image_url:imageUrl,t:Date.now(),likes:[],replies:[]}); LS.set('posts',ps); clearCogitImage(); viewKomunitas(); toast('Cogit terkirim');
     } else if(kind==='reply'){
       if(needLogin('Masuk untuk membalas Cogit.')) return;
       const text=(v.text||'').trim(); if(!text&&!REPLY_IMAGE_BLOB) return toast('Tulis balasan atau tambahkan foto dulu.');
       const ps=getPosts(), p=ps.find(x=>String(x.id)===String(f.dataset.id)); if(!p) return;
       let imageUrl='';
       try{ imageUrl=await uploadReplyImage(); }catch(err){ console.warn('reply image upload',err); return toast('Gagal mengunggah foto balasan.'); }
-      const av=DATA.profile.avatar||DATA.profile.gpic||'', parentReply=f.dataset.parent?replyRecord(p.id,f.dataset.parent):null, reply={id:uid(),parent_id:f.dataset.parent||null,reply_to_username:parentReply?(parentReply.reply_to_username||parentReply.replyToUsername||handleOf(parentReply.author)):handleOf(p.author),author:DATA.profile.name,avatar:av,uid:U.id,text:text.slice(0,200),image_url:imageUrl,t:Date.now(),likes:[]};
+      const av=DATA.profile.avatar||DATA.profile.gpic||'', parentReply=f.dataset.parent?replyRecord(p.id,f.dataset.parent):null, reply={id:uid(),parent_id:f.dataset.parent||null,reply_to_username:parentReply?(parentReply.username||parentReply.reply_to_username||parentReply.replyToUsername||handleOf(parentReply.author)):handleOf(p.username||p.author),username:DATA.profile.username||'',author:DATA.profile.name,avatar:av,uid:U.id,text:text.slice(0,200),image_url:imageUrl,t:Date.now(),likes:[]};
       if(!Array.isArray(p.replies)) p.replies=[]; p.replies.push(reply); REPLY_TO=null; REPLY_IMAGE_BLOB=null; REPLY_IMAGE_PREVIEW='';
       if(SB){ const {data,error}=await SB.rpc('add_cogit_reply',{p_post_id:p.id,p_body:text.slice(0,200),p_parent_id:reply.parent_id,p_image_url:imageUrl||null});
         if(error){ p.replies=p.replies.filter(x=>x.id!==reply.id); viewKomunitas(); console.warn(error); return toast('Gagal mengirim balasan. Pastikan migrasi Cogit terbaru sudah diterapkan.'); }
-        if(data&&typeof data==='object'&&data.id){ const i=p.replies.findIndex(x=>x.id===reply.id); if(i>=0) p.replies[i]=data; }
+        if(data&&typeof data==='object'&&data.id){ const i=p.replies.findIndex(x=>x.id===reply.id); if(i>=0) p.replies[i]={...p.replies[i],...data,username:data.username||p.replies[i].username||DATA.profile.username||''}; }
         _pl=0; await loadPosts(); viewKomunitas(); return toast('Balasan terkirim'); }
       LS.set('posts',ps); viewKomunitas();
     } else if(kind==='nera'){
@@ -2847,7 +3706,530 @@ document.addEventListener('submit',async e=>{
   if(/[?&]code=/.test(location.search)||/[?&]error=/.test(location.search)) history.replaceState(null,'',location.pathname+(location.hash||''));
   route();
 })();
-</script></body></html>
+</script>
+<style id="cg-mobile-comment-final">
+/* ===== COGIT COMMENT THREAD — final hierarchy =====
+   Direct reply = same left edge as the main comment.
+   Reply-to-reply = one fixed indent only, with a curved avatar-to-avatar connector.
+*/
+.cgRepRoot{position:relative}
+.cgRepRoot>.cgRep{padding-left:18px}
+.cgRepDescendants{margin:0;padding:0}
+.cgRepChildren{position:relative;margin:0 0 0 44px;padding:0!important;border:0!important}
+.cgRepChildren:empty{display:none}
+.cgRepNestedBranch{position:relative}
+.cgRepNestedBranch>.cgRep{position:relative;margin-left:0!important;padding-left:0!important}
+/* Curved branch: the connector rises toward the parent avatar, curves, then lands at the child avatar. */
+.cgRepChildren>.cgRepNestedBranch>.cgRep:before{
+  content:"";position:absolute;left:-30px;top:-19px;width:28px;height:37px;
+  border-left:2px solid #cfd2d8;border-bottom:2px solid #cfd2d8;
+  border-bottom-left-radius:22px;pointer-events:none;
+}
+.cgRepChildren>.cgRepNestedBranch:first-child>.cgRep:before{top:-24px;height:42px}
+.cgRepliesToggleRoot{display:block;margin-left:18px;margin-right:18px;margin-bottom:0;padding:7px 0;color:var(--muted);font-size:12px;font-weight:700;background:none;border:0;cursor:pointer;text-align:left}
+.cgRepliesToggleRoot:hover{color:var(--ink)}
+.cgReplyInline{display:grid;grid-template-columns:32px minmax(0,1fr) 32px auto;align-items:center;gap:7px;margin-top:9px;padding:8px}
+.cgReplyInline>.pa{width:32px;height:32px}.cgReplyInline .input{min-width:0;width:100%;height:38px;min-height:38px;padding:0 10px;font-size:13px}.cgReplyInline .pbtn{width:32px;height:32px;padding:0;justify-content:center}.cgReplyInline .btn{height:34px;min-width:0;padding:0 10px;font-size:12px;white-space:nowrap}
+@media(max-width:640px){
+  .cgReply{display:grid;grid-template-columns:32px minmax(0,1fr) 32px auto;align-items:center;gap:6px;padding:10px 12px!important;overflow:hidden}
+  .cgReply>.pa{width:32px;height:32px}.cgReply .input{width:100%;min-width:0;height:38px;min-height:38px;padding:0 10px;font-size:13px}.cgReply .pbtn{width:32px;height:32px;padding:0;justify-content:center}.cgReply .btn{height:34px;min-width:0;width:auto;padding:0 9px;font-size:12px;white-space:nowrap}
+  .cgReplyInline{grid-template-columns:30px minmax(0,1fr) 30px auto;gap:5px;margin-top:8px;padding:7px}.cgReplyInline>.pa{width:30px;height:30px}.cgReplyInline .input{height:36px;min-height:36px;font-size:13px;padding:0 9px}.cgReplyInline .pbtn{width:30px;height:30px}.cgReplyInline .btn{height:32px;padding:0 8px;font-size:11px}
+  .cgRep{display:grid;grid-template-columns:32px minmax(0,1fr);gap:8px;padding:12px 12px!important;min-width:0}.cgRep>.pa{width:32px;height:32px}.cgRepBody{min-width:0}.cgRepMeta{gap:2px 5px!important;min-width:0}.cgRepMeta .cgMore{margin-left:auto}.cgRepText{font-size:14px;line-height:1.5;overflow-wrap:anywhere}.cgRepActions{display:flex;align-items:center;gap:7px!important;margin-top:7px!important;flex-wrap:nowrap!important;white-space:nowrap;overflow:hidden}.cgRepActions .pbtn{font-size:12px!important;gap:3px!important;padding:3px 2px!important;flex:0 0 auto}.cgRepActions .pbtn svg{width:16px!important;height:16px!important}
+  .cgRepRoot>.cgRep{padding-left:12px!important}
+  .cgRepChildren{margin-left:40px!important;padding:0!important}
+  .cgRepChildren>.cgRepNestedBranch>.cgRep:before{left:-27px;top:-17px;width:25px;height:34px;border-bottom-left-radius:19px}
+  .cgRepChildren>.cgRepNestedBranch:first-child>.cgRep:before{top:-21px;height:38px}
+  .cgRepliesToggleRoot{margin-left:12px;margin-right:12px}
+  .cgReplyPreview{margin:7px 0 0!important;width:min(220px,100%)}.cgReplyImage{max-height:280px}
+}
+@media(max-width:360px){
+  .cgRepChildren{margin-left:36px!important}
+  .cgRepChildren>.cgRepNestedBranch>.cgRep:before{left:-24px;width:22px}
+}
+</style>
+
+<style id="cg-comments-v3-final">
+/* V3: deeper reply hierarchy, stable expansion scroll, clickable handles + mentions */
+.cgDet .cgRepChildren{margin:8px 0 0 64px !important;padding:0 !important;border:0 !important;width:calc(100% - 64px) !important;box-sizing:border-box !important;}
+.cgDet .cgRepChildren>.cgRep,
+.cgDet .cgRepChildren .cgRep.cgRepIndented{width:100% !important;max-width:none !important;margin:0 !important;padding-left:0 !important;}
+.cgDet .cgRepliesToggle{margin-left:64px !important;max-width:calc(100% - 64px) !important;}
+.cgDet .cgRepActions{gap:22px !important;}
+.cgDet .cgRepActions .pbtn{min-width:0 !important;}
+.cgMention{color:#1597e5 !important;text-decoration:none !important;font-weight:600;}
+.cgMention:hover{text-decoration:underline !important;}
+.cgMentionMenu{position:absolute;z-index:80;left:0;right:0;top:calc(100% + 6px);background:var(--card,#fff);border:1px solid var(--line,#e8e6df);border-radius:12px;box-shadow:0 12px 28px rgba(0,0,0,.12);padding:5px;max-height:240px;overflow:auto;}
+.cgReply,.cgReplyInline{position:relative;}
+.cgMentionPick{width:100%;display:flex;align-items:center;gap:9px;border:0;background:none;border-radius:9px;padding:7px 8px;text-align:left;cursor:pointer;color:var(--ink);}
+.cgMentionPick:hover{background:#f6f4ed;}
+.cgMentionPick>span:last-child{display:flex;flex-direction:column;min-width:0;}
+.cgMentionPick b{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cgMentionPick small{font-size:11px;color:var(--muted);}
+.cgMentionAvatar{width:28px;height:28px;min-width:28px;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:#e9e9e9;font-size:11px;font-weight:800;}
+.cgMentionAvatar img{width:100%;height:100%;object-fit:cover;}
+@media(max-width:640px){
+  .cgDet .cgRepChildren{margin-left:36px !important;width:calc(100% - 36px) !important;}
+  .cgDet .cgRepliesToggle{margin-left:36px !important;max-width:calc(100% - 36px) !important;}
+  .cgDet .cgRepActions{gap:16px !important;}
+}
+@media(max-width:380px){
+  .cgDet .cgRepChildren{margin-left:32px !important;width:calc(100% - 32px) !important;}
+  .cgDet .cgRepliesToggle{margin-left:32px !important;max-width:calc(100% - 32px) !important;}
+}
+</style>
+
+<style id="cg-comments-user-final-fix">
+/* Final Cogit thread polish: deeper hierarchy, stable composer, clickable usernames. */
+.cgDet .cgRepChildren,
+.cgDet .cgRepChildren > .cgRep,
+.cgDet .cgRepChildren .cgRep.cgRepIndented{box-sizing:border-box !important;}
+
+/* Direct reply stays aligned to the post; every descendant is visibly nested. */
+.cgDet .cgRepChildren{
+  margin:8px 0 0 0 !important;
+  padding:0 !important;
+  width:100% !important;
+  border:0 !important;
+}
+.cgDet .cgRepChildren > .cgRep,
+.cgDet .cgRepChildren .cgRep.cgRepIndented{
+  margin-left:68px !important;
+  width:calc(100% - 68px) !important;
+  max-width:calc(100% - 68px) !important;
+  padding-left:0 !important;
+}
+
+/* The reply controls belong to the reply body, not the avatar edge. */
+.cgDet .cgRepActions{
+  margin-left:0 !important;
+  justify-content:flex-start !important;
+}
+.cgDet .cgRepliesToggle{
+  margin:8px 0 0 136px !important;
+  max-width:calc(100% - 136px) !important;
+  padding:3px 0 !important;
+  display:flex !important;
+  width:fit-content !important;
+  text-align:left !important;
+}
+
+/* Username is the primary clickable identity, matching the reference layout. */
+.cgRepIdentity{display:inline-flex;align-items:baseline;gap:6px;min-width:0;max-width:calc(100% - 34px);}
+.cgReplyUsername{font-weight:800;color:var(--ink);text-decoration:none;overflow-wrap:anywhere;}
+.cgReplyUsername:hover{text-decoration:underline;text-underline-offset:2px;}
+.cgRepMeta{display:flex !important;align-items:center !important;justify-content:space-between !important;min-width:0 !important;}
+
+/* Prevent the inline reply composer from using the old named-grid-area rules. */
+.cgDet .cgReplyInline,
+.cgDet .cgReply{
+  display:grid !important;
+  grid-template-columns:30px minmax(0,1fr) 30px auto !important;
+  grid-template-areas:none !important;
+  align-items:center !important;
+  gap:7px !important;
+  min-width:0 !important;
+  width:100% !important;
+  overflow:visible !important;
+}
+.cgDet .cgReplyInline > *,
+.cgDet .cgReply > *{grid-area:auto !important;}
+.cgDet .cgReplyInline > .cgMentionMenu,
+.cgDet .cgReply > .cgMentionMenu{display:block;position:absolute;grid-column:1 / -1;grid-row:1;}
+.cgDet .cgReplyInline > .cgMentionMenu[hidden],
+.cgDet .cgReply > .cgMentionMenu[hidden]{display:none !important;}
+.cgDet .cgReplyInline .input,
+.cgDet .cgReply .input{min-width:0 !important;width:100% !important;}
+
+@media(max-width:640px){
+  .cgDet .cgRepChildren > .cgRep,
+  .cgDet .cgRepChildren .cgRep.cgRepIndented{
+    margin-left:52px !important;
+    width:calc(100% - 52px) !important;
+    max-width:calc(100% - 52px) !important;
+  }
+  .cgDet .cgRepliesToggle{
+    margin-left:104px !important;
+    max-width:calc(100% - 104px) !important;
+    font-size:12px !important;
+    line-height:1.35 !important;
+  }
+  .cgDet .cgReplyInline,
+  .cgDet .cgReply{
+    grid-template-columns:30px minmax(0,1fr) 30px 45px !important;
+    gap:5px !important;
+  }
+  .cgDet .cgReplyInline .input,
+  .cgDet .cgReply .input{font-size:12px !important;}
+}
+@media(max-width:380px){
+  .cgDet .cgRepChildren > .cgRep,
+  .cgDet .cgRepChildren .cgRep.cgRepIndented{
+    margin-left:44px !important;
+    width:calc(100% - 44px) !important;
+    max-width:calc(100% - 44px) !important;
+  }
+  .cgDet .cgRepliesToggle{
+    margin-left:88px !important;
+    max-width:calc(100% - 88px) !important;
+    font-size:11.5px !important;
+  }
+  .cgDet .cgReplyInline,
+  .cgDet .cgReply{
+    grid-template-columns:27px minmax(0,1fr) 27px 42px !important;
+    gap:4px !important;
+  }
+}
+</style>
+
+
+<style id="cg-comments-hierarchy-final">
+/* Final hierarchy: each nested reply moves right; controls follow the same column. */
+.cgDet .cgRep.cgRepDepth{
+  width:calc(100% - (var(--cg-depth) * 68px)) !important;
+  max-width:calc(100% - (var(--cg-depth) * 68px)) !important;
+  margin-left:calc(var(--cg-depth) * 68px) !important;
+  box-sizing:border-box !important;
+}
+.cgDet .cgRep.cgRepDepth > .pa{width:38px !important;height:38px !important;min-width:38px !important;}
+.cgDet .cgRepChildren{width:100% !important;margin:0 !important;padding:0 !important;}
+.cgDet .cgRepChildren .cgRepDepth{margin-top:0 !important;}
+.cgDet .cgRepliesToggle{
+  margin-left:68px !important;
+  max-width:calc(100% - 68px) !important;
+}
+.cgDet .cgRepDepth[data-depth="2"] .cgRepActions{margin-top:8px !important;}
+.cgDet .cgRepDepth[data-depth="2"] .cgReplyInline{margin-top:8px !important;}
+.cgDet .cgReplyUsername,.cgDet .pName{
+  color:var(--ink) !important;text-decoration:none !important;font-weight:800 !important;
+}
+.cgDet .cgReplyUsername:hover,.cgDet .pName:hover{text-decoration:underline !important;text-underline-offset:2px;}
+@media(max-width:640px){
+  .cgDet .cgRep.cgRepDepth{
+    width:calc(100% - (var(--cg-depth) * 50px)) !important;
+    max-width:calc(100% - (var(--cg-depth) * 50px)) !important;
+    margin-left:calc(var(--cg-depth) * 50px) !important;
+  }
+  .cgDet .cgRep.cgRepDepth > .pa{width:32px !important;height:32px !important;min-width:32px !important;}
+  .cgDet .cgRepliesToggle{margin-left:50px !important;max-width:calc(100% - 50px) !important;}
+}
+@media(max-width:380px){
+  .cgDet .cgRep.cgRepDepth{
+    width:calc(100% - (var(--cg-depth) * 44px)) !important;
+    max-width:calc(100% - (var(--cg-depth) * 44px)) !important;
+    margin-left:calc(var(--cg-depth) * 44px) !important;
+  }
+  .cgDet .cgRepliesToggle{margin-left:44px !important;max-width:calc(100% - 44px) !important;}
+}
+</style>
+
+<style id="cg-reference-layout-final">
+/* COGIT — adapted from supplied reference layout
+   Visual rule: top-level comment = level 1; ALL replies = level 2.
+   Reply depth in the data never creates another visual indentation. */
+.cgDet .cgReplies{width:100%!important;overflow:visible!important}
+.cgDet .cgRepRoot{display:block!important;width:100%!important;margin:0!important;padding:0!important;border:0!important;box-sizing:border-box!important}
+
+/* Main comment: no indentation. */
+.cgDet .cgRepRoot>.cgRep.cgRepDepth,
+.cgDet .cgRepRoot>.cgRep[data-depth="1"]{
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr)!important;
+  gap:10px!important;
+  width:100%!important;
+  margin:0!important;
+  padding:15px 24px 13px!important;
+  border-top:1px solid var(--line)!important;
+  border-bottom:1px solid var(--line)!important;
+  box-sizing:border-box!important;
+}
+
+/* ALL replies share one exact visual level. */
+.cgDet .cgRepNestedBranch,
+.cgDet .cgRepChildren,
+.cgDet .cgRepDescendants{
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  box-sizing:border-box!important;
+}
+
+.cgDet .cgRepRoot .cgRepNestedBranch>.cgRep.cgRepDepth,
+.cgDet .cgRepRoot .cgRepNestedBranch>.cgRep[data-depth],
+.cgDet .cgRepRoot .cgRepChildren>.cgRepNestedBranch>.cgRep{
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr)!important;
+  gap:10px!important;
+  width:calc(100% + 46px)!important;
+  margin:0 0 0 -46px!important;
+  padding:11px 24px 5px 0!important;
+  border:0!important;
+  box-sizing:border-box!important;
+}
+
+/* Critical: depth 3+ NEVER moves farther right. */
+.cgDet .cgRepRoot .cgRepNestedBranch .cgRepNestedBranch>.cgRep,
+.cgDet .cgRepRoot .cgRepNestedBranch .cgRepChildren>.cgRepNestedBranch>.cgRep,
+.cgDet .cgRepRoot .cgRepNestedBranch .cgRepChildren .cgRepNestedBranch .cgRepNestedBranch>.cgRep,
+.cgDet .cgRepRoot .cgRepNestedBranch .cgRepChildren .cgRepChildren .cgRepNestedBranch>.cgRep{
+  width:calc(100% + 46px)!important;
+  margin-left:-46px!important;
+}
+
+/* Remove all old tree lines / depth rails. */
+.cgDet .cgRepNestedBranch:before,
+.cgDet .cgRepNestedBranch:after,
+.cgDet .cgRepChildren:before,
+.cgDet .cgRepChildren:after,
+.cgDet .cgRepDepth:before,
+.cgDet .cgRepDepth:after{
+  display:none!important;
+  content:none!important;
+  border:0!important;
+}
+
+.cgDet .cgRepBody{min-width:0!important;width:100%!important}
+.cgDet .cgRepMeta{min-width:0!important}
+.cgDet .cgRepText{margin-top:8px!important;overflow-wrap:anywhere!important}
+
+/* Like / Balas */
+.cgDet .cgRepActions{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:18px!important;
+  margin:8px 0 0!important;
+  padding:0!important;
+}
+
+/* Toggle directly beneath THIS reply's action row. */
+.cgDet .cgRepBody>.cgRepliesToggle,
+.cgDet .cgRepBody>.cgRepliesToggleIn,
+.cgDet .cgRepBody>.cgRepliesToggleRoot{
+  display:block!important;
+  width:max-content!important;
+  max-width:100%!important;
+  margin:2px 0 0!important;
+  padding:0!important;
+  color:var(--muted)!important;
+  background:none!important;
+  border:0!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  line-height:1.5!important;
+  text-align:left!important;
+}
+
+/* Separates top-level comments only; replies remain visually one thread. */
+.cgDet .cgReplies>.cgRepRoot+.cgRepRoot{
+  border-top:1px solid var(--line)!important;
+}
+
+@media(max-width:640px){
+  .cgDet .cgRepRoot>.cgRep.cgRepDepth,
+  .cgDet .cgRepRoot>.cgRep[data-depth="1"]{
+    grid-template-columns:32px minmax(0,1fr)!important;
+    gap:8px!important;
+    padding:13px 14px 11px!important;
+  }
+  .cgDet .cgRepRoot .cgRepNestedBranch>.cgRep.cgRepDepth,
+  .cgDet .cgRepRoot .cgRepNestedBranch>.cgRep[data-depth],
+  .cgDet .cgRepRoot .cgRepChildren>.cgRepNestedBranch>.cgRep{
+    grid-template-columns:32px minmax(0,1fr)!important;
+    gap:8px!important;
+    width:calc(100% + 40px)!important;
+    margin-left:-40px!important;
+    padding:10px 12px 6px 0!important;
+  }
+  /* Same fixed reply column for every depth on mobile. */
+  .cgDet .cgRepRoot .cgRepNestedBranch .cgRepNestedBranch>.cgRep,
+  .cgDet .cgRepRoot .cgRepNestedBranch .cgRepChildren>.cgRepNestedBranch>.cgRep,
+  .cgDet .cgRepRoot .cgRepNestedBranch .cgRepChildren .cgRepNestedBranch .cgRepNestedBranch>.cgRep{
+    width:calc(100% + 40px)!important;
+    margin-left:-40px!important;
+  }
+  .cgDet .cgRepActions{gap:14px!important;margin-top:7px!important}
+  .cgDet .cgRepBody>.cgRepliesToggle,
+  .cgDet .cgRepBody>.cgRepliesToggleIn,
+  .cgDet .cgRepBody>.cgRepliesToggleRoot{font-size:11.5px!important;margin-top:2px!important}
+}
+
+@media(max-width:380px){
+  .cgDet .cgRepRoot .cgRepNestedBranch>.cgRep.cgRepDepth,
+  .cgDet .cgRepRoot .cgRepNestedBranch>.cgRep[data-depth],
+  .cgDet .cgRepRoot .cgRepChildren>.cgRepNestedBranch>.cgRep{
+    width:calc(100% + 36px)!important;
+    margin-left:-36px!important;
+  }
+  .cgDet .cgRepRoot .cgRepNestedBranch .cgRepNestedBranch>.cgRep,
+  .cgDet .cgRepRoot .cgRepNestedBranch .cgRepChildren>.cgRepNestedBranch>.cgRep{
+    width:calc(100% + 36px)!important;
+    margin-left:-36px!important;
+  }
+}
+</style>
+
+<style id="cg-comments-authoritative-flat-two-level">
+/* FINAL AUTHORITATIVE RULE — do not nest visual reply rows.
+   Level 1: root comment. Level 2: every visible descendant. */
+.cgDet .cgFlatReplyThread{
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  box-sizing:border-box!important;
+}
+.cgDet .cgFlatReplyThread > .cgRep{
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr)!important;
+  gap:10px!important;
+  width:100%!important;
+  margin:0!important;
+  padding:15px 24px 8px!important;
+  box-sizing:border-box!important;
+  min-width:0!important;
+}
+/* Root comment = no indent. */
+.cgDet .cgFlatReplyThread > .cgRep.cgVisualDepthRoot{
+  width:100%!important;
+  margin-left:0!important;
+  padding-left:24px!important;
+  padding-right:24px!important;
+  border-top:1px solid var(--line)!important;
+  border-bottom:1px solid var(--line)!important;
+}
+/* Every reply, regardless of actual data depth, = EXACTLY one indent. */
+.cgDet .cgFlatReplyThread > .cgRep.cgVisualDepthReply{
+  width:calc(100% - 56px)!important;
+  margin-left:56px!important;
+  padding-left:0!important;
+  padding-right:24px!important;
+  border:0!important;
+}
+.cgDet .cgFlatReplyThread > .cgRep + .cgRep.cgVisualDepthReply{
+  margin-top:0!important;
+}
+.cgDet .cgFlatReplyThread .cgRepDescendants,
+.cgDet .cgFlatReplyThread .cgRepChildren,
+.cgDet .cgFlatReplyThread .cgRepNestedBranch{
+  display:none!important;
+}
+.cgDet .cgFlatReplyThread .cgRepDepth{
+  position:relative!important;
+  min-width:0!important;
+}
+.cgDet .cgFlatReplyThread .cgRepDepth > .pa{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+}
+.cgDet .cgFlatReplyThread .cgRepBody{
+  min-width:0!important;
+  width:100%!important;
+}
+.cgDet .cgFlatReplyThread .cgRepActions{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  gap:17px!important;
+  width:100%!important;
+  margin:7px 0 0!important;
+  padding:0!important;
+}
+.cgDet .cgFlatReplyThread .cgRepliesToggle{
+  display:block!important;
+  width:max-content!important;
+  max-width:100%!important;
+  margin:3px 0 0!important;
+  padding:0!important;
+  text-align:left!important;
+}
+@media(max-width:640px){
+  .cgDet .cgFlatReplyThread > .cgRep{
+    grid-template-columns:32px minmax(0,1fr)!important;
+    gap:8px!important;
+    padding:13px 14px 7px!important;
+  }
+  .cgDet .cgFlatReplyThread > .cgRep.cgVisualDepthRoot{
+    width:100%!important;
+    margin-left:0!important;
+    padding-left:14px!important;
+    padding-right:14px!important;
+  }
+  .cgDet .cgFlatReplyThread > .cgRep.cgVisualDepthReply{
+    width:calc(100% - 34px)!important;
+    margin-left:34px!important;
+    padding-left:0!important;
+    padding-right:14px!important;
+  }
+  .cgDet .cgFlatReplyThread .cgRepDepth > .pa{
+    width:32px!important;
+    height:32px!important;
+    min-width:32px!important;
+  }
+  .cgDet .cgFlatReplyThread .cgRepActions{gap:14px!important;margin-top:7px!important;}
+}
+@media(max-width:380px){
+  .cgDet .cgFlatReplyThread > .cgRep.cgVisualDepthReply{
+    width:calc(100% - 28px)!important;
+    margin-left:28px!important;
+  }
+}
+</style>
+
+<style id="cg-comments-open-thread-final">
+/* FINAL THREAD BEHAVIOUR + REFERENCE ALIGNMENT
+   Clicking any "Lihat semua balasan" control opens the entire thread
+   in one action. All descendants stay in the same shared reply column. */
+.cgDet .cgFlatReplyThread > .cgRep.cgVisualDepthReply{
+  width:calc(100% - 60px)!important;
+  margin-left:60px!important;
+  padding-left:0!important;
+  padding-right:24px!important;
+}
+@media(max-width:640px){
+  .cgDet .cgFlatReplyThread > .cgRep.cgVisualDepthReply{
+    width:calc(100% - 36px)!important;
+    margin-left:36px!important;
+    padding-left:0!important;
+    padding-right:14px!important;
+  }
+}
+@media(max-width:380px){
+  .cgDet .cgFlatReplyThread > .cgRep.cgVisualDepthReply{
+    width:calc(100% - 32px)!important;
+    margin-left:32px!important;
+  }
+}
+</style>
+
+<style id="cg-thread-toggle-single-final">
+/* One toggle per reply thread, always at the bottom of that thread. */
+.cgDet .cgFlatReplyThread .cgThreadToggle{
+  display:block!important;
+  margin:2px 0 10px 56px!important;
+  padding:0!important;
+  width:max-content!important;
+  max-width:calc(100% - 56px)!important;
+  color:var(--muted)!important;
+  background:none!important;
+  border:0!important;
+  font-size:12px!important;
+  font-weight:700!important;
+  line-height:1.5!important;
+  text-align:left!important;
+  cursor:pointer!important;
+}
+.cgDet .cgFlatReplyThread .cgThreadToggle:hover{color:var(--ink)!important}
+@media(max-width:640px){
+  .cgDet .cgFlatReplyThread .cgThreadToggle{
+    margin-left:40px!important;
+    max-width:calc(100% - 40px)!important;
+    font-size:11.5px!important;
+  }
+}
+</style>
+</body></html>
 <style id="cg-topic-reply-refinements">
 /* Cogit topic-first composer + reply alignment */
 .cgTopicChooser{padding:20px 22px;background:linear-gradient(135deg,#fff 45%,#fffaf0);border:1px solid #f0e5c2}
@@ -2876,7 +4258,7 @@ document.addEventListener('submit',async e=>{
 .cgRepMeta .muted{min-width:0;overflow-wrap:anywhere}
 .cgRepText{font-size:15px;line-height:1.55;margin-top:8px}
 .cgReplyTo{font-weight:800;color:var(--ink);white-space:nowrap}
-.cgRepActions{gap:22px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.cgRepActions{gap:22px;margin-top:10px;align-items:center;flex-wrap:wrap}.cgRepChildren{margin:0;padding:0;border:0}.cgRep[data-depth="1"]{margin-left:34px;position:relative}.cgRep[data-depth="1"]:before{content:"";position:absolute;left:-20px;top:-20px;bottom:18px;border-left:1px dashed #cfc8ad}.cgRep[data-depth="1"]:after{content:"";position:absolute;left:-20px;top:18px;width:20px;border-top:1px dashed #cfc8ad}
 .cgRepActions .pbtn{font-size:14px;gap:6px;padding:4px;min-width:0;justify-content:flex-start}
 .cgRepActions .pbtn svg{width:20px;height:20px}
 @media(max-width:640px){
@@ -2913,6 +4295,48 @@ document.addEventListener('submit',async e=>{
 .homeActivityIcon{width:34px;height:34px;border-radius:10px;background:#fff8d9;display:grid;place-items:center;flex:none}
 .homeActivityIcon .ic{width:17px;height:17px}
 @media(max-width:640px){.homeActivities{padding:15px}.homeActivity{gap:9px}.homeActivities .btn{white-space:nowrap}}
+</style>
+<style id="cg-mobile-tabs-final">
+/* Cogit mobile tabs: all navigation stays visible without horizontal scrolling */
+@media (max-width: 640px){
+  .cgTabs{
+    width:100%;
+    box-sizing:border-box;
+    gap:0;
+    padding:0 6px;
+    overflow:hidden;
+  }
+  .cgTabs .t{
+    flex:1 1 0;
+    min-width:0;
+    padding:13px 3px 12px;
+    font-size:11.5px;
+    line-height:1.15;
+    text-align:center;
+    white-space:nowrap;
+  }
+  .cgTabs .t.on:after{
+    left:6px;
+    right:6px;
+  }
+  .cgTabs .pbtn{
+    flex:0 0 30px;
+    width:30px;
+    min-width:30px;
+    height:36px;
+    margin-left:2px;
+    padding:0;
+    justify-content:center;
+  }
+  .cgTabs .pbtn svg{width:17px;height:17px}
+}
+@media (max-width:360px){
+  .cgTabs{padding:0 3px}
+  .cgTabs .t{font-size:10.5px;padding-left:1px;padding-right:1px}
+  .cgTabs .t.on:after{left:4px;right:4px}
+  .cgTabs .pbtn{flex-basis:28px;width:28px;min-width:28px}
+  .cgTabs .pbtn svg{width:16px;height:16px}
+}
 </style>
 <style id="cg-topic-first-final">
 /* Cogit: topic-first landing + university topic cards */
@@ -2983,7 +4407,7 @@ document.addEventListener('submit',async e=>{
 </style>
 
 <style id="program-picker-navbar">
-.homeTargetLine{display:flex;align-items:center;gap:10px;margin-top:5px}.homeTargetLine span{color:#7b8088}.homeTargetLine b{font-weight:800}
+.homeTargetLine{display:flex;align-items:center;gap:6px;margin-top:5px}.homeTargetLine span{color:#7b8088}.homeTargetLine b{font-weight:800}
 .programPickerWrap{position:relative;z-index:80;min-width:0}
 .programPickerBtn{display:inline-flex;align-items:center;gap:8px;min-width:154px;max-width:min(250px,30vw);height:38px;padding:0 11px;border:1px solid #292b30;border-radius:10px;background:#191b20;color:#fff;text-align:left;cursor:pointer;box-shadow:0 2px 0 rgba(25,27,32,.10);transition:background .12s ease,border-color .12s ease}
 .programPickerBtn:hover{background:#22242a;border-color:#41434a}.programPickerBtn:active{transform:translateY(1px)}
@@ -2997,3 +4421,823 @@ document.addEventListener('submit',async e=>{
 .programOptionMark{width:21px;height:21px;border-radius:6px;display:grid;place-items:center;background:#fff;border:1px solid #dedfdc;flex:none}.programOption.selected .programOptionMark{background:#191b20;border-color:#191b20;color:#fff}.programOptionMark .ic{width:12px;height:12px}.programOption b{display:block;font-size:11.5px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.programOption small{display:block;color:#7a7f87;font-size:9.5px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.programOption.selected small{color:#5d531e}
 @media(max-width:640px){.programPickerBtn{min-width:0;max-width:185px;height:36px;padding:0 9px}.programPickerValue{font-size:11.5px;max-width:125px}.programPickerMenu{left:-6px;width:min(250px,calc(100vw - 16px));padding:9px}.programPickerOptions{gap:4px;max-height:280px}}
 </style>
+
+<style id="cg-mobile-replies-clean-final">
+/* Final Cogit reply layout: one visual indent only, no connector lines. */
+.cgRepChildren{
+  margin:8px 0 0 0 !important;
+  padding:0 !important;
+  border:0 !important;
+  width:100%;
+  min-width:0;
+}
+.cgRepChildren .cgRep,
+.cgRepChildren > .cgRep{
+  margin-left:34px !important;
+  padding-left:0 !important;
+  border-left:0 !important;
+  position:relative;
+  min-width:0;
+  width:calc(100% - 34px);
+  max-width:calc(100% - 34px);
+}
+.cgRepChildren .cgRep::before,
+.cgRepChildren .cgRep::after,
+.cgRep[data-depth="1"]::before,
+.cgRep[data-depth="1"]::after{
+  content:none !important;
+  display:none !important;
+}
+@media (max-width:640px){
+  .cgRepChildren{margin-top:6px !important;overflow:visible;}
+  .cgRepChildren .cgRep,
+  .cgRepChildren > .cgRep{
+    margin-left:24px !important;
+    width:calc(100% - 24px);
+    max-width:calc(100% - 24px);
+    padding:10px 0 !important;
+    gap:7px !important;
+    grid-template-columns:28px minmax(0,1fr) !important;
+  }
+  .cgRepChildren .cgRep > .pa{width:28px !important;height:28px !important;}
+  .cgRepChildren .cgRepBody{min-width:0;max-width:100%;overflow:visible;}
+  .cgRepText{overflow-wrap:anywhere;word-break:break-word;}
+
+  /* Composer: avatar + input + photo + compact Balas, all in one line. */
+  .cgReply, .cgReplyInline{
+    display:grid !important;
+    grid-template-columns:28px minmax(0,1fr) 28px 42px !important;
+    align-items:center !important;
+    gap:5px !important;
+    width:100%;
+    box-sizing:border-box;
+    min-width:0;
+    overflow:visible !important;
+  }
+  .cgReply{padding:8px 10px !important;}
+  .cgReplyInline{padding:6px !important;margin-top:7px;}
+  .cgReply > .pa,.cgReplyInline > .pa{width:28px !important;height:28px !important;min-width:28px;}
+  .cgReply .input,.cgReplyInline .input{
+    min-width:0 !important;width:100% !important;box-sizing:border-box;
+    height:36px !important;min-height:36px !important;
+    padding:0 9px !important;font-size:12px !important;
+  }
+  .cgReply .pbtn,.cgReplyInline .pbtn{
+    width:28px !important;min-width:28px !important;height:28px !important;
+    padding:0 !important;display:grid;place-items:center;
+  }
+  .cgReply .btn,.cgReplyInline .btn{
+    width:42px !important;min-width:42px !important;height:32px !important;
+    padding:0 !important;font-size:11px !important;line-height:1 !important;
+    white-space:nowrap;
+  }
+}
+@media (max-width:360px){
+  .cgRepChildren .cgRep,
+  .cgRepChildren > .cgRep{margin-left:20px !important;width:calc(100% - 20px);max-width:calc(100% - 20px);}
+  .cgReply,.cgReplyInline{grid-template-columns:26px minmax(0,1fr) 26px 40px !important;gap:4px !important;}
+  .cgReply > .pa,.cgReplyInline > .pa{width:26px !important;height:26px !important;min-width:26px;}
+  .cgReply .pbtn,.cgReplyInline .pbtn{width:26px !important;min-width:26px !important;height:26px !important;}
+  .cgReply .btn,.cgReplyInline .btn{width:40px !important;min-width:40px !important;font-size:10.5px !important;}
+}
+</style>
+
+<style id="cg-thread-level-capped-final">
+/* Thread model:
+   level 0 = direct replies to the Cogit/post, no indent.
+   level 1 = every descendant of that direct reply, one indent only.
+   Deeper descendants remain at level 1 forever. */
+.cgRepChildren{
+  margin:8px 0 0 0 !important;
+  padding:0 !important;
+  border:0 !important;
+  width:100% !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+.cgRepChildren .cgRep.cgRepIndented{
+  margin-left:32px !important;
+  padding-left:0 !important;
+  width:calc(100% - 32px) !important;
+  max-width:calc(100% - 32px) !important;
+  box-sizing:border-box !important;
+}
+.cgRepChildren .cgRep.cgRepIndented + .cgRep.cgRepIndented{margin-top:0 !important;}
+.cgRepChildren .cgRep::before,
+.cgRepChildren .cgRep::after,
+.cgRep[data-depth="1"]::before,
+.cgRep[data-depth="1"]::after{content:none !important;display:none !important;}
+@media(max-width:640px){
+  .cgRepChildren{margin-top:5px !important;overflow:visible !important;}
+  .cgRepChildren .cgRep.cgRepIndented{
+    margin-left:22px !important;
+    width:calc(100% - 22px) !important;
+    max-width:calc(100% - 22px) !important;
+  }
+  .cgRep,.cgRepBody,.cgRepText{min-width:0 !important;max-width:100% !important;}
+  .cgRepText{overflow-wrap:anywhere !important;word-break:break-word !important;}
+  .cgRepActions{max-width:100% !important;overflow:hidden !important;}
+}
+</style>
+<style id="cg-comments-final-v2">
+/* =========================================================
+   Cogit comments/thread — final responsive layout
+   Keeps the conversation close to the reference UI on both
+   desktop and mobile and prevents flex/grid collisions.
+   ========================================================= */
+.cgDet{
+  width:calc(100% - 48px) !important;
+  max-width:1140px !important;
+}
+.cgDet .cgBox{
+  overflow:hidden !important;
+  border-radius:18px !important;
+}
+.cgDet .cgBox .post{
+  padding:22px 24px !important;
+}
+
+/* Post header */
+.cgDet .pRow{display:grid !important;grid-template-columns:44px minmax(0,1fr) !important;gap:12px !important;min-width:0;}
+.cgDet .pRow>.pa{width:44px !important;height:44px !important;}
+.cgDet .pHead{display:flex;align-items:flex-start;gap:10px;min-width:0;}
+.cgDet .pWho{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 7px;min-width:0;flex:1;}
+.cgDet .pWho .pName{min-width:0;max-width:100%;overflow-wrap:anywhere;}
+.cgDet .pWho .muted{min-width:0;overflow-wrap:anywhere;}
+.cgDet .pHead>.pbtn{flex:0 0 auto;margin:-3px -4px 0 0 !important;}
+
+/* Post body + actions */
+.cgDet .cgText{overflow-wrap:anywhere;word-break:break-word;}
+.cgDet .pact{display:flex !important;align-items:center !important;gap:28px !important;margin-top:14px !important;min-width:0;}
+.cgDet .pact .pbtn{flex:0 0 auto;white-space:nowrap;}
+.cgDet .pact .sv{margin-left:auto;}
+
+/* Main reply composer */
+.cgDet .cgReply{
+  display:grid !important;
+  grid-template-columns:36px minmax(0,1fr) 36px auto !important;
+  align-items:center !important;
+  gap:9px !important;
+  padding:14px 24px !important;
+  min-width:0;
+  box-sizing:border-box;
+}
+.cgDet .cgReply>.pa{width:36px !important;height:36px !important;min-width:36px !important;}
+.cgDet .cgReply .input{min-width:0 !important;width:100% !important;height:40px !important;box-sizing:border-box;}
+.cgDet .cgReply .pbtn{width:36px !important;height:36px !important;min-width:36px !important;padding:0 !important;display:grid !important;place-items:center !important;}
+.cgDet .cgReply .btn{height:36px !important;min-width:56px !important;padding:0 12px !important;white-space:nowrap;}
+
+/* Reply list */
+.cgDet .cgReplies{min-width:0;}
+.cgDet .cgRep{
+  display:grid !important;
+  grid-template-columns:38px minmax(0,1fr) !important;
+  gap:12px !important;
+  align-items:start !important;
+  padding:17px 24px !important;
+  border-bottom:1px solid var(--line) !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+.cgDet .cgRep>.pa{grid-column:1 !important;grid-row:1 !important;width:38px !important;height:38px !important;min-width:38px !important;}
+.cgDet .cgRepBody{grid-column:2 !important;grid-row:1 !important;min-width:0 !important;max-width:100% !important;overflow:visible !important;}
+.cgDet .cgRepMeta{
+  display:flex !important;
+  align-items:center !important;
+  gap:3px 7px !important;
+  width:100% !important;
+  min-width:0 !important;
+  flex-wrap:nowrap !important;
+}
+.cgDet .cgRepMeta .pName,
+.cgDet .cgRepMeta>b{
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  overflow-wrap:anywhere !important;
+}
+.cgDet .cgRepMeta>.muted{
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  overflow:hidden !important;
+  text-overflow:ellipsis !important;
+  white-space:nowrap !important;
+}
+.cgDet .cgRepMeta .cgMore{
+  margin-left:auto !important;
+  flex:0 0 30px !important;
+  width:30px !important;
+  min-width:30px !important;
+  height:30px !important;
+  padding:0 !important;
+  display:grid !important;
+  place-items:center !important;
+}
+.cgDet .cgRepText{
+  margin:7px 0 0 !important;
+  font-size:15px !important;
+  line-height:1.55 !important;
+  overflow-wrap:anywhere !important;
+  word-break:break-word !important;
+}
+.cgDet .cgReplyTo{white-space:nowrap;}
+.cgDet .cgRepActions{
+  display:flex !important;
+  align-items:center !important;
+  gap:22px !important;
+  margin-top:10px !important;
+  max-width:100% !important;
+  flex-wrap:nowrap !important;
+  overflow:visible !important;
+}
+.cgDet .cgRepActions .pbtn{
+  flex:0 0 auto !important;
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:5px !important;
+  padding:3px 2px !important;
+  white-space:nowrap !important;
+  font-size:13px !important;
+}
+.cgDet .cgRepActions .pbtn svg{width:18px !important;height:18px !important;flex:none;}
+
+/* One visual indentation for all descendants */
+.cgDet .cgRepChildren{
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  min-width:0 !important;
+  box-sizing:border-box !important;
+}
+.cgDet .cgRepChildren>.cgRep,
+.cgDet .cgRepChildren .cgRep.cgRepIndented{
+  width:calc(100% - 44px) !important;
+  max-width:calc(100% - 44px) !important;
+  margin:0 0 0 44px !important;
+  padding-left:0 !important;
+  border-left:0 !important;
+}
+.cgDet .cgRepChildren .cgRep:last-child{border-bottom:1px solid var(--line) !important;}
+.cgDet .cgRepChildren .cgRep::before,
+.cgDet .cgRepChildren .cgRep::after,
+.cgDet .cgRep[data-depth="1"]::before,
+.cgDet .cgRep[data-depth="1"]::after{display:none !important;content:none !important;}
+
+/* Reply-to composer inside a thread */
+.cgDet .cgReplyInline{
+  display:grid !important;
+  grid-template-columns:30px minmax(0,1fr) 30px auto !important;
+  align-items:center !important;
+  gap:7px !important;
+  width:100% !important;
+  margin:9px 0 2px !important;
+  padding:7px !important;
+  box-sizing:border-box !important;
+}
+.cgDet .cgReplyInline>.pa{width:30px !important;height:30px !important;min-width:30px !important;}
+.cgDet .cgReplyInline .input{min-width:0 !important;width:100% !important;height:36px !important;box-sizing:border-box !important;}
+.cgDet .cgReplyInline .pbtn{width:30px !important;height:30px !important;min-width:30px !important;padding:0 !important;display:grid !important;place-items:center !important;}
+.cgDet .cgReplyInline .btn{height:32px !important;min-width:52px !important;padding:0 10px !important;white-space:nowrap !important;}
+.cgDet .cgReplyPreview{margin:7px 0 0 37px !important;width:min(220px,calc(100% - 37px)) !important;}
+
+/* Mobile */
+@media(max-width:640px){
+  .cgDet{width:calc(100% - 16px) !important;max-width:none !important;}
+  .cgDet .cgHead{margin:0 2px 10px !important;}
+  .cgDet .cgBox{border-radius:15px !important;}
+  .cgDet .cgBox .post{padding:15px 14px !important;}
+  .cgDet .pRow{grid-template-columns:34px minmax(0,1fr) !important;gap:9px !important;}
+  .cgDet .pRow>.pa{width:34px !important;height:34px !important;}
+  .cgDet .pHead{gap:5px !important;}
+  .cgDet .pWho{gap:2px 5px !important;line-height:1.25;}
+  .cgDet .pWho .pName{font-size:13px;}
+  .cgDet .pWho .muted{font-size:11px;}
+  .cgDet .cgText{font-size:14px !important;line-height:1.55 !important;margin-top:8px !important;}
+  .cgDet .pact{gap:17px !important;margin-top:11px !important;}
+  .cgDet .pact .pbtn{font-size:12px !important;padding:3px 2px !important;gap:4px !important;}
+  .cgDet .pact .pbtn svg{width:18px !important;height:18px !important;}
+
+  .cgDet .cgReply{
+    grid-template-columns:30px minmax(0,1fr) 30px 45px !important;
+    gap:5px !important;
+    padding:9px 10px !important;
+  }
+  .cgDet .cgReply>.pa{width:30px !important;height:30px !important;min-width:30px !important;}
+  .cgDet .cgReply .input{height:36px !important;min-height:36px !important;font-size:12px !important;padding:0 9px !important;}
+  .cgDet .cgReply .pbtn{width:30px !important;height:30px !important;min-width:30px !important;}
+  .cgDet .cgReply .btn{height:32px !important;min-width:45px !important;width:45px !important;padding:0 !important;font-size:11px !important;}
+
+  .cgDet .cgRep{
+    grid-template-columns:32px minmax(0,1fr) !important;
+    gap:8px !important;
+    padding:13px 12px !important;
+  }
+  .cgDet .cgRep>.pa{width:32px !important;height:32px !important;min-width:32px !important;}
+  .cgDet .cgRepMeta{gap:2px 5px !important;}
+  .cgDet .cgRepMeta .pName,.cgDet .cgRepMeta>b{font-size:12.5px !important;}
+  .cgDet .cgRepMeta>.muted{font-size:10.5px !important;}
+  .cgDet .cgRepMeta .cgMore{width:28px !important;min-width:28px !important;height:28px !important;}
+  .cgDet .cgRepText{font-size:13.5px !important;line-height:1.5 !important;margin-top:6px !important;}
+  .cgDet .cgRepActions{gap:14px !important;margin-top:8px !important;}
+  .cgDet .cgRepActions .pbtn{font-size:11.5px !important;padding:3px 1px !important;gap:3px !important;}
+  .cgDet .cgRepActions .pbtn svg{width:16px !important;height:16px !important;}
+
+  .cgDet .cgRepChildren>.cgRep,
+  .cgDet .cgRepChildren .cgRep.cgRepIndented{
+    width:calc(100% - 22px) !important;
+    max-width:calc(100% - 22px) !important;
+    margin-left:22px !important;
+  }
+  .cgDet .cgRepChildren>.cgRep{padding-top:11px !important;padding-bottom:11px !important;}
+
+  .cgDet .cgReplyInline{
+    grid-template-columns:28px minmax(0,1fr) 28px 45px !important;
+    gap:5px !important;
+    padding:6px !important;
+  }
+  .cgDet .cgReplyInline>.pa{width:28px !important;height:28px !important;min-width:28px !important;}
+  .cgDet .cgReplyInline .input{height:34px !important;min-height:34px !important;font-size:11.5px !important;}
+  .cgDet .cgReplyInline .pbtn{width:28px !important;height:28px !important;min-width:28px !important;}
+  .cgDet .cgReplyInline .btn{height:31px !important;min-width:45px !important;width:45px !important;padding:0 !important;font-size:10.5px !important;}
+  .cgDet .cgReplyPreview{margin-left:33px !important;width:min(210px,calc(100% - 33px)) !important;}
+}
+
+@media(max-width:380px){
+  .cgDet{width:calc(100% - 10px) !important;}
+  .cgDet .cgBox .post{padding-left:11px !important;padding-right:11px !important;}
+  .cgDet .pact{gap:11px !important;}
+  .cgDet .pact .pbtn{font-size:11px !important;}
+  .cgDet .cgReply{grid-template-columns:28px minmax(0,1fr) 28px 42px !important;gap:4px !important;padding-left:8px !important;padding-right:8px !important;}
+  .cgDet .cgReply>.pa{width:28px !important;height:28px !important;min-width:28px !important;}
+  .cgDet .cgReply .pbtn{width:28px !important;height:28px !important;min-width:28px !important;}
+  .cgDet .cgReply .btn{width:42px !important;min-width:42px !important;font-size:10.5px !important;}
+  .cgDet .cgRep{padding-left:9px !important;padding-right:9px !important;}
+  .cgDet .cgRepActions{gap:10px !important;}
+  .cgDet .cgRepActions .pbtn{font-size:11px !important;}
+  .cgDet .cgRepChildren>.cgRep,
+  .cgDet .cgRepChildren .cgRep.cgRepIndented{width:calc(100% - 18px) !important;max-width:calc(100% - 18px) !important;margin-left:18px !important;}
+  .cgDet .cgReplyInline{grid-template-columns:26px minmax(0,1fr) 26px 42px !important;gap:4px !important;}
+  .cgDet .cgReplyInline>.pa{width:26px !important;height:26px !important;min-width:26px !important;}
+  .cgDet .cgReplyInline .pbtn{width:26px !important;height:26px !important;min-width:26px !important;}
+  .cgDet .cgReplyInline .btn{width:42px !important;min-width:42px !important;font-size:10px !important;}
+}
+</style>
+<style id="cg-thread-toggle-alignment-final">
+/* Final thread control alignment:
+   "Lihat semua balasan" / "Sembunyikan balasan" starts exactly
+   where the indented reply/avatar starts, never at the card edge. */
+.cgDet .cgRepliesToggle{
+  display:flex !important;
+  align-items:center !important;
+  width:fit-content !important;
+  max-width:calc(100% - 44px) !important;
+  margin:8px 0 0 44px !important;
+  padding:3px 0 !important;
+  box-sizing:border-box !important;
+  text-align:left !important;
+  white-space:normal !important;
+}
+@media(max-width:640px){
+  .cgDet .cgRepliesToggle{
+    max-width:calc(100% - 22px) !important;
+    margin:6px 0 0 22px !important;
+    padding:3px 0 !important;
+    font-size:12px !important;
+    line-height:1.35 !important;
+  }
+}
+@media(max-width:380px){
+  .cgDet .cgRepliesToggle{
+    max-width:calc(100% - 18px) !important;
+    margin-left:18px !important;
+    font-size:11.5px !important;
+  }
+}
+</style>
+
+
+<style id="cg-comments-hierarchy-authoritative">
+/* Final hierarchy: root reply starts under the parent actions; nested reply alone steps right. */
+.cgRepRoot{display:block;position:relative;min-width:0}
+.cgRepRoot>.cgRep{margin-left:56px!important;width:calc(100% - 56px)!important;box-sizing:border-box}
+.cgRepliesToggleRoot{display:block!important;margin-left:56px!important;width:calc(100% - 56px)!important;max-width:none!important;box-sizing:border-box;text-align:left}
+.cgRepDescendants{margin-left:56px!important;width:calc(100% - 56px)!important;box-sizing:border-box}
+.cgRepDescendants>.cgRepNested{margin-left:56px!important;width:calc(100% - 56px)!important;box-sizing:border-box}
+.cgRepNested{position:relative}
+.cgRepNested>.cgRep{margin-left:0!important;width:100%!important}
+.cgRepNested:before{content:"";position:absolute;left:-28px;top:0;bottom:18px;border-left:1px solid #d8d3c7;pointer-events:none}
+.cgRepNested>.cgRep:first-child:after{content:"";position:absolute;left:-28px;top:30px;width:27px;border-top:1px solid #d8d3c7;pointer-events:none}
+.cgRepRoot>.cgRep .cgReplyUsername,.cgRepNested .cgReplyUsername{font-weight:700}
+.cgRepRoot>.cgRep .cgRepText,.cgRepNested .cgRepText{margin-top:8px}
+@media(max-width:640px){
+  .cgRepRoot>.cgRep{margin-left:52px!important;width:calc(100% - 52px)!important}
+  .cgRepliesToggleRoot{margin-left:52px!important;width:calc(100% - 52px)!important}
+  .cgRepDescendants{margin-left:52px!important;width:calc(100% - 52px)!important}
+  .cgRepDescendants>.cgRepNested{margin-left:42px!important;width:calc(100% - 42px)!important}
+}
+@media(max-width:380px){
+  .cgRepRoot>.cgRep{margin-left:44px!important;width:calc(100% - 44px)!important}
+  .cgRepliesToggleRoot{margin-left:44px!important;width:calc(100% - 44px)!important}
+  .cgRepDescendants{margin-left:44px!important;width:calc(100% - 44px)!important}
+  .cgRepDescendants>.cgRepNested{margin-left:36px!important;width:calc(100% - 36px)!important}
+}
+</style>
+
+<style id="cg-comments-exact-reference">
+/* Exact thread hierarchy based on the provided reference.
+   Root post = level 0. Direct replies = +44px. Replies to replies = another +44px. */
+.cgDet .cgRepRoot{display:block!important;position:relative!important;margin:0!important;padding:0!important;width:100%!important;}
+.cgDet .cgRepRoot>.cgRep[data-depth="1"]{
+  margin-left:44px!important;
+  width:calc(100% - 44px)!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+.cgDet .cgRepliesToggleRoot{
+  display:block!important;
+  margin:6px 0 0 44px!important;
+  padding:3px 0!important;
+  width:calc(100% - 44px)!important;
+  max-width:none!important;
+  text-align:left!important;
+  box-sizing:border-box!important;
+}
+.cgDet .cgRepDescendants{
+  margin:0!important;
+  padding:0!important;
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+/* Every rendered child is one additional hierarchy level. */
+.cgDet .cgRepDescendants>.cgRep[data-depth="2"]{
+  margin-left:88px!important;
+  width:calc(100% - 88px)!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+.cgDet .cgRepDescendants .cgRepNested{
+  margin:0!important;
+  padding:0!important;
+  width:100%!important;
+  border:0!important;
+  box-sizing:border-box!important;
+}
+.cgDet .cgRepDescendants .cgRepNested>.cgRep[data-depth="3"]{
+  margin-left:132px!important;
+  width:calc(100% - 132px)!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+.cgDet .cgRepDescendants .cgRepNested .cgRepNested>.cgRep[data-depth="4"]{
+  margin-left:176px!important;
+  width:calc(100% - 176px)!important;
+}
+/* Keep each reply's own avatar/body spacing exactly like the reference. */
+.cgDet .cgRep{grid-template-columns:36px minmax(0,1fr)!important;gap:10px!important;padding:15px 0!important;border-bottom:0!important;}
+.cgDet .cgRep>.pa{width:36px!important;height:36px!important;}
+.cgDet .cgRepMeta{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:8px!important;}
+.cgDet .cgRepIdentity{display:flex!important;align-items:center!important;gap:6px!important;min-width:0!important;}
+.cgDet .cgReplyUsername{font-weight:700!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;}
+.cgDet .cgRepText{margin:7px 0 0!important;line-height:1.55!important;overflow-wrap:anywhere!important;}
+.cgDet .cgRepActions{display:flex!important;align-items:center!important;gap:16px!important;margin-top:7px!important;}
+.cgDet .cgRepActions .pbtn{padding:2px 0!important;min-width:0!important;}
+/* The thread toggle lives at the same horizontal level as the direct reply. */
+.cgDet .cgRepliesToggleRoot{color:#858b95!important;font-size:13px!important;font-weight:500!important;}
+/* No fake tree lines: the reference uses indentation alone. */
+.cgDet .cgRepChildren:before,.cgDet .cgRepChildren>.cgRep:first-child:after,
+.cgDet .cgRepNested:before,.cgDet .cgRepNested>.cgRep:first-child:after{display:none!important;content:none!important;}
+@media(max-width:640px){
+  .cgDet .cgRepRoot>.cgRep[data-depth="1"]{margin-left:44px!important;width:calc(100% - 44px)!important;}
+  .cgDet .cgRepliesToggleRoot{margin-left:44px!important;width:calc(100% - 44px)!important;font-size:12px!important;}
+  .cgDet .cgRepDescendants>.cgRep[data-depth="2"]{margin-left:88px!important;width:calc(100% - 88px)!important;}
+  .cgDet .cgRepDescendants .cgRepNested>.cgRep[data-depth="3"]{margin-left:132px!important;width:calc(100% - 132px)!important;}
+  .cgDet .cgRepDescendants .cgRepNested .cgRepNested>.cgRep[data-depth="4"]{margin-left:176px!important;width:calc(100% - 176px)!important;}
+  .cgDet .cgRep{grid-template-columns:32px minmax(0,1fr)!important;gap:8px!important;padding:13px 0!important;}
+  .cgDet .cgRep>.pa{width:32px!important;height:32px!important;}
+  .cgDet .cgRepText{font-size:13.5px!important;}
+}
+@media(max-width:380px){
+  .cgDet .cgRepRoot>.cgRep[data-depth="1"]{margin-left:38px!important;width:calc(100% - 38px)!important;}
+  .cgDet .cgRepliesToggleRoot{margin-left:38px!important;width:calc(100% - 38px)!important;}
+  .cgDet .cgRepDescendants>.cgRep[data-depth="2"]{margin-left:76px!important;width:calc(100% - 76px)!important;}
+  .cgDet .cgRepDescendants .cgRepNested>.cgRep[data-depth="3"]{margin-left:114px!important;width:calc(100% - 114px)!important;}
+  .cgDet .cgRepDescendants .cgRepNested .cgRepNested>.cgRep[data-depth="4"]{margin-left:152px!important;width:calc(100% - 152px)!important;}
+}
+</style>
+<script>
+/* Ensure every visible reply has a clickable username, even for legacy reply rows. */
+(function(){
+  const _replyUsername=window.replyUsername;
+  if(typeof _replyUsername==='function'){
+    window.replyUsername=function(r){
+      const direct=normalizeUsername(r&&r.username||'');
+      if(direct) return direct;
+      const uid=String(r&&r.uid||'');
+      const person=(typeof REPLY_USERS!=='undefined'&&REPLY_USERS.get(uid))||
+        (typeof localPeople==='function'&&localPeople().find(x=>String(x.uid||'')===uid))||null;
+      return normalizeUsername(person&&person.username)||normalizeUsername(r&&r.author||'')||'pengguna';
+    };
+  }
+})();
+</script>
+\n<style id="cg-comments-hierarchy-v4-final">\n/* ============================================================\n   COGIT V4 — COMMENT > REPLY HIERARCHY\n   Reference rule:\n   - Top-level comments: no indent.\n   - A direct reply: +1 indent.\n   - A reply to that reply: +1 more indent.\n   - Every further reply: +1 more indent.\n   - The toggle sits directly under THIS comment's Like/Balas row.\n   - Toggle NEVER receives an extra left offset of its own.\n   ============================================================ */\n\n.cgDet .cgReplies{\n  width:100% !important;\n  min-width:0 !important;\n}\n\n/* Each rendered reply lives inside the previous reply's body.\n   Therefore one fixed margin here naturally compounds one level at a time. */\n.cgDet .cgRep.cgRepDepth{\n  display:grid !important;\n  grid-template-columns:36px minmax(0,1fr) !important;\n  gap:10px !important;\n  width:calc(100% - 56px) !important;\n  max-width:none !important;\n  margin-left:56px !important;\n  margin-right:0 !important;\n  padding:12px 24px 7px 0 !important;\n  box-sizing:border-box !important;\n  align-items:start !important;\n}\n\n/* A top-level comment/reply must NOT be indented. */\n.cgDet .cgRepRoot > .cgRep.cgRepDepth{\n  width:100% !important;\n  margin-left:0 !important;\n  padding-left:24px !important;\n  padding-right:24px !important;\n}\n\n.cgDet .cgRep.cgRepDepth > .pa{\n  width:36px !important;\n  height:36px !important;\n  min-width:36px !important;\n}\n\n.cgDet .cgRepBody{\n  min-width:0 !important;\n  width:100% !important;\n}\n\n/* CRITICAL: nested descendants do NOT add a second CSS margin based on\n   data-depth. The DOM nesting itself is the hierarchy. */\n.cgDet .cgRepDescendants,\n.cgDet .cgRepChildren,\n.cgDet .cgRepNestedBranch{\n  width:100% !important;\n  margin:0 !important;\n  padding:0 !important;\n  border:0 !important;\n  box-sizing:border-box !important;\n}\n\n/* Kill all previous depth-based offsets. */\n.cgDet .cgRep.cgRepDepth[data-depth="2"],\n.cgDet .cgRep.cgRepDepth[data-depth="3"],\n.cgDet .cgRep.cgRepDepth[data-depth="4"],\n.cgDet .cgRep.cgRepDepth[data-depth="5"],\n.cgDet .cgRep.cgRepDepth[data-depth="6"],\n.cgDet .cgRep.cgRepDepth[data-depth="7"],\n.cgDet .cgRep.cgRepDepth[data-depth="8"],\n.cgDet .cgRep.cgRepDepth[data-depth="9"],\n.cgDet .cgRep.cgRepDepth[data-depth="10"]{\n  margin-left:56px !important;\n  width:calc(100% - 56px) !important;\n}\n\n/* No fake tree rails. Indentation alone communicates hierarchy. */\n.cgDet .cgRepNestedBranch:before,\n.cgDet .cgRepNestedBranch:after,\n.cgDet .cgRepDepth:before,\n.cgDet .cgRepDepth:after{\n  content:none !important;\n  display:none !important;\n}\n\n/* Like / Balas row. */\n.cgDet .cgRepActions{\n  display:flex !important;\n  align-items:center !important;\n  justify-content:flex-start !important;\n  gap:18px !important;\n  margin:8px 0 0 !important;\n  padding:0 !important;\n  width:100% !important;\n  min-width:0 !important;\n}\n\n/* "Lihat semua balasan" is DIRECTLY below the action row,\n   with exactly the same left edge as Like/Balas. */\n.cgDet .cgRepBody > .cgRepliesToggle,\n.cgDet .cgRepBody > .cgRepliesToggleIn{\n  display:block !important;\n  margin:3px 0 0 !important;\n  padding:0 !important;\n  width:max-content !important;\n  max-width:100% !important;\n  color:var(--muted) !important;\n  background:none !important;\n  border:0 !important;\n  font-size:12px !important;\n  font-weight:700 !important;\n  line-height:1.5 !important;\n  text-align:left !important;\n  white-space:normal !important;\n  cursor:pointer !important;\n}\n\n.cgDet .cgRepBody > .cgRepliesToggle:hover,\n.cgDet .cgRepBody > .cgRepliesToggleIn:hover{\n  color:var(--ink) !important;\n}\n\n/* Top-level comment separators: each comment is visually isolated. */\n.cgDet .cgRepRoot{\n  display:block !important;\n  width:100% !important;\n  margin:0 !important;\n  padding:0 !important;\n  border-top:1px solid var(--line) !important;\n  border-bottom:1px solid var(--line) !important;\n  box-sizing:border-box !important;\n}\n\n.cgDet .cgRepRoot + .cgRepRoot{\n  border-top:0 !important;\n}\n\n@media(max-width:640px){\n  .cgDet .cgRep.cgRepDepth{\n    grid-template-columns:32px minmax(0,1fr) !important;\n    gap:8px !important;\n    width:calc(100% - 34px) !important;\n    margin-left:34px !important;\n    padding:10px 12px 6px 0 !important;\n  }\n  .cgDet .cgRepRoot > .cgRep.cgRepDepth{\n    width:100% !important;\n    margin-left:0 !important;\n    padding-left:14px !important;\n    padding-right:14px !important;\n  }\n  .cgDet .cgRep.cgRepDepth > .pa{\n    width:32px !important;\n    height:32px !important;\n    min-width:32px !important;\n  }\n  .cgDet .cgRepActions{\n    gap:14px !important;\n    margin-top:7px !important;\n  }\n  .cgDet .cgRepBody > .cgRepliesToggle,\n  .cgDet .cgRepBody > .cgRepliesToggleIn{\n    margin-top:2px !important;\n    font-size:11.5px !important;\n  }\n}\n\n@media(max-width:380px){\n  .cgDet .cgRep.cgRepDepth{\n    width:calc(100% - 28px) !important;\n    margin-left:28px !important;\n  }\n  .cgDet .cgRepRoot > .cgRep.cgRepDepth{\n    width:100% !important;\n    margin-left:0 !important;\n  }\n}\n</style>\n
+<style id="cg-comments-hierarchy-v5-absolute-final">
+/* ============================================================
+   COGIT V5 — EXACT THREAD RULE
+   1) Top-level comment/reply to the post: NO indent.
+   2) Reply to that comment: NO indent (same level as comment).
+   3) Reply to a reply: +1 indent.
+   4) Reply to that nested reply: +1 more indent.
+   5) Every later nested reply compounds one level further.
+
+   The DOM already nests descendants inside the parent .cgRepBody.
+   Therefore depth >= 2 gets ONE local indent; nesting naturally
+   compounds it. NEVER use absolute depth-based 44/88/132 offsets.
+   ============================================================ */
+
+/* Remove every previous hierarchy offset/rail. */
+.cgDet .cgRepRoot,
+.cgDet .cgRepDescendants,
+.cgDet .cgRepNestedBranch,
+.cgDet .cgRepChildren,
+.cgDet .cgRepNested{
+  position:relative !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+
+/* ROOT COMMENT / DIRECT REPLY TO POST = exactly the same horizontal
+   starting point as the post. */
+.cgDet .cgRepRoot > .cgRep.cgRepDepth,
+.cgDet .cgRepRoot > .cgRep[data-depth="1"]{
+  display:grid !important;
+  grid-template-columns:36px minmax(0,1fr) !important;
+  gap:10px !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:15px 24px 8px !important;
+  box-sizing:border-box !important;
+}
+
+/* REPLY TO A REPLY = one indent ONLY.
+   Because this element is inside the parent's .cgRepBody, every
+   additional nesting level compounds this same 44px local indent. */
+.cgDet .cgRepDescendants > .cgRepNestedBranch > .cgRep.cgRepDepth,
+.cgDet .cgRepDescendants > .cgRepNestedBranch > .cgRep[data-depth="2"],
+.cgDet .cgRepDescendants .cgRepNestedBranch .cgRepNestedBranch > .cgRep[data-depth="3"],
+.cgDet .cgRepDescendants .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch > .cgRep[data-depth="4"]{
+  display:grid !important;
+  grid-template-columns:36px minmax(0,1fr) !important;
+  gap:10px !important;
+  width:calc(100% - 44px) !important;
+  margin:0 0 0 44px !important;
+  padding:12px 0 7px !important;
+  box-sizing:border-box !important;
+}
+
+/* Generic fallback for ANY nested depth. This is deliberately the same
+   local offset at every level; DOM nesting makes depth 3, 4, 5... keep
+   moving right instead of flattening. */
+.cgDet .cgRepBody .cgRepDescendants .cgRepNestedBranch > .cgRep.cgRepDepth{
+  width:calc(100% - 44px) !important;
+  margin-left:44px !important;
+  margin-right:0 !important;
+}
+
+/* Direct children of the root are NOT nested descendants. */
+.cgDet .cgRepRoot > .cgRep.cgRepDepth{
+  width:100% !important;
+  margin-left:0 !important;
+}
+
+/* Never create artificial tree lines. */
+.cgDet .cgRepNestedBranch::before,
+.cgDet .cgRepNestedBranch::after,
+.cgDet .cgRepDepth::before,
+.cgDet .cgRepDepth::after,
+.cgDet .cgRepChildren::before,
+.cgDet .cgRepChildren::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* Avatar sizing. */
+.cgDet .cgRepDepth > .pa{
+  width:36px !important;
+  height:36px !important;
+  min-width:36px !important;
+}
+
+/* Content column must be allowed to shrink instead of forcing horizontal
+   overflow on deeply nested conversations. */
+.cgDet .cgRepBody{
+  min-width:0 !important;
+  width:100% !important;
+  box-sizing:border-box !important;
+}
+
+/* Like + Balas. */
+.cgDet .cgRepActions{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:17px !important;
+  width:100% !important;
+  min-width:0 !important;
+  margin:7px 0 0 !important;
+  padding:0 !important;
+  flex-wrap:wrap !important;
+}
+
+/* SHOW REPLIES: directly underneath the Like/Balas row, aligned to the
+   EXACT SAME LEFT EDGE as the Like button. No extra left margin. */
+.cgDet .cgRepBody > .cgRepliesToggle,
+.cgDet .cgRepBody > .cgRepliesToggleIn,
+.cgDet .cgRepBody > .cgRepliesToggleRoot{
+  display:block !important;
+  width:max-content !important;
+  max-width:100% !important;
+  margin:3px 0 0 !important;
+  padding:0 !important;
+  color:var(--muted) !important;
+  background:none !important;
+  border:0 !important;
+  font-size:12px !important;
+  font-weight:600 !important;
+  line-height:1.5 !important;
+  text-align:left !important;
+  white-space:normal !important;
+  cursor:pointer !important;
+}
+
+/* Remove old global toggle offsets even if the toggle class is styled
+   elsewhere in the file. */
+.cgDet .cgRepliesToggle{
+  margin-left:0 !important;
+  margin-right:0 !important;
+}
+
+/* Top-level comment separators: clear separation between comments. */
+.cgDet .cgReplies > .cgRepRoot{
+  border-top:1px solid var(--line) !important;
+  border-bottom:1px solid var(--line) !important;
+}
+.cgDet .cgReplies > .cgRepRoot + .cgRepRoot{
+  border-top:0 !important;
+}
+
+@media(max-width:640px){
+  .cgDet .cgRepRoot > .cgRep.cgRepDepth,
+  .cgDet .cgRepRoot > .cgRep[data-depth="1"]{
+    grid-template-columns:32px minmax(0,1fr) !important;
+    gap:8px !important;
+    width:100% !important;
+    margin-left:0 !important;
+    padding:13px 14px 7px !important;
+  }
+
+  /* One mobile indent for reply-to-reply; every deeper level compounds it. */
+  .cgDet .cgRepBody .cgRepDescendants .cgRepNestedBranch > .cgRep.cgRepDepth,
+  .cgDet .cgRepDescendants > .cgRepNestedBranch > .cgRep[data-depth="2"]{
+    grid-template-columns:32px minmax(0,1fr) !important;
+    gap:8px !important;
+    width:calc(100% - 30px) !important;
+    margin-left:30px !important;
+    padding:11px 0 6px !important;
+  }
+
+  .cgDet .cgRepDepth > .pa{
+    width:32px !important;
+    height:32px !important;
+    min-width:32px !important;
+  }
+
+  .cgDet .cgRepActions{
+    gap:14px !important;
+    margin-top:7px !important;
+  }
+
+  .cgDet .cgRepBody > .cgRepliesToggle,
+  .cgDet .cgRepBody > .cgRepliesToggleIn,
+  .cgDet .cgRepBody > .cgRepliesToggleRoot{
+    margin-left:0 !important;
+    margin-top:2px !important;
+    font-size:11.5px !important;
+  }
+}
+
+@media(max-width:380px){
+  .cgDet .cgRepRoot > .cgRep.cgRepDepth,
+  .cgDet .cgRepRoot > .cgRep[data-depth="1"]{
+    padding-left:10px !important;
+    padding-right:10px !important;
+  }
+  .cgDet .cgRepBody .cgRepDescendants .cgRepNestedBranch > .cgRep.cgRepDepth,
+  .cgDet .cgRepDescendants > .cgRepNestedBranch > .cgRep[data-depth="2"]{
+    width:calc(100% - 24px) !important;
+    margin-left:24px !important;
+  }
+}
+</style>
+
+<style id="cg-comments-flat-reply-thread-final">
+/* FINAL — Cogit reference layout:
+   Root comment = level 1.
+   Every reply, including reply-to-reply and deeper descendants = ONE shared level 2.
+   The data hierarchy remains intact; only the visual column is flattened. */
+.cgDet .cgRepRoot{position:relative!important;}
+
+/* Every descendant container visually escapes the parent's content column
+   and returns to the SAME reply column as the first reply. */
+.cgDet .cgRepRoot .cgRepDescendants{
+  width:calc(100% + 46px)!important;
+  margin-left:-46px!important;
+  padding:0!important;
+  border:0!important;
+  box-sizing:border-box!important;
+}
+
+/* Every reply row inside the shared reply column uses the same x-position.
+   No depth selector, no cumulative indentation. */
+.cgDet .cgRepRoot .cgRepDescendants .cgRepNestedBranch,
+.cgDet .cgRepRoot .cgRepDescendants .cgRepChildren{
+  width:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  box-sizing:border-box!important;
+}
+.cgDet .cgRepRoot .cgRepDescendants .cgRepNestedBranch > .cgRep.cgRepDepth,
+.cgDet .cgRepRoot .cgRepDescendants .cgRepChildren > .cgRepNestedBranch > .cgRep.cgRepDepth,
+.cgDet .cgRepRoot .cgRepDescendants .cgRepNestedBranch .cgRepNestedBranch > .cgRep.cgRepDepth,
+.cgDet .cgRepRoot .cgRepDescendants .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch > .cgRep.cgRepDepth{
+  display:grid!important;
+  grid-template-columns:36px minmax(0,1fr)!important;
+  gap:10px!important;
+  width:100%!important;
+  margin:0!important;
+  padding:12px 24px 7px!important;
+  box-sizing:border-box!important;
+}
+
+/* Do not let old depth rules re-indent any reply. */
+.cgDet .cgRepRoot .cgRepDescendants .cgRep[data-depth],
+.cgDet .cgRepRoot .cgRepDescendants .cgRep.cgRepDepth{
+  margin-left:0!important;
+  width:100%!important;
+}
+
+/* The descendant's own descendant container repeats the same escape,
+   so depth 3, 4, 5... all land on exactly the same reply column. */
+.cgDet .cgRepRoot .cgRepDescendants .cgRepBody > .cgRepDescendants{
+  width:calc(100% + 46px)!important;
+  margin-left:-46px!important;
+}
+
+.cgDet .cgRepRoot .cgRepDescendants .cgRepDepth > .pa{
+  width:36px!important;
+  height:36px!important;
+  min-width:36px!important;
+}
+
+.cgDet .cgRepRoot .cgRepDescendants .cgRepNestedBranch::before,
+.cgDet .cgRepRoot .cgRepDescendants .cgRepNestedBranch::after,
+.cgDet .cgRepRoot .cgRepDescendants .cgRepDepth::before,
+.cgDet .cgRepRoot .cgRepDescendants .cgRepDepth::after,
+.cgDet .cgRepRoot .cgRepDescendants .cgRepChildren::before,
+.cgDet .cgRepRoot .cgRepDescendants .cgRepChildren::after{
+  content:none!important;
+  display:none!important;
+}
+
+@media(max-width:640px){
+  .cgDet .cgRepRoot .cgRepDescendants{
+    width:calc(100% + 40px)!important;
+    margin-left:-40px!important;
+  }
+  .cgDet .cgRepRoot .cgRepDescendants .cgRepNestedBranch > .cgRep.cgRepDepth,
+  .cgDet .cgRepRoot .cgRepDescendants .cgRepChildren > .cgRepNestedBranch > .cgRep.cgRepDepth,
+  .cgDet .cgRepRoot .cgRepDescendants .cgRepNestedBranch .cgRepNestedBranch > .cgRep.cgRepDepth,
+  .cgDet .cgRepRoot .cgRepDescendants .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch > .cgRep.cgRepDepth{
+    grid-template-columns:32px minmax(0,1fr)!important;
+    gap:8px!important;
+    width:100%!important;
+    margin:0!important;
+    padding:11px 14px 6px!important;
+  }
+  .cgDet .cgRepRoot .cgRepDescendants .cgRepBody > .cgRepDescendants{
+    width:calc(100% + 40px)!important;
+    margin-left:-40px!important;
+  }
+  .cgDet .cgRepRoot .cgRepDescendants .cgRepDepth > .pa{
+    width:32px!important;
+    height:32px!important;
+    min-width:32px!important;
+  }
+}
+</style>
+
