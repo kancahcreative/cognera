@@ -2511,25 +2511,28 @@ async function hydrateReplyUsers(posts){
     if(!error && Array.isArray(data)) data.forEach(u=>REPLY_USERS.set(String(u.id),u));
   }catch(e){ console.warn('reply profile hydrate',e); }
 }
+function currentDisplayUsername(){
+  return normalizeUsername((DATA&&DATA.profile&&DATA.profile.username)||(U&&U.username)||(DATA&&DATA.profile&&DATA.profile.name)||(U&&U.name)||'pengguna') || 'pengguna';
+}
 function replyUsername(r){
   const direct=normalizeUsername(r&&r.username||'');
   if(direct) return direct;
   const uid=String(r&&r.uid||'');
-  if(!U.guest&&uid===String(U.id)) return normalizeUsername(DATA.profile.username||'pengguna');
+  if(!U.guest&&uid===String(U.id)) return currentDisplayUsername();
   const person=REPLY_USERS.get(uid)
     || localPeople().find(x=>String(x.uid||'')===uid)
     || (Array.isArray(PSUG)?PSUG.find(x=>String(x.uid||'')===uid):null);
-  return normalizeUsername(person&&person.username) || normalizeUsername(r&&r.author||'') || 'pengguna';
+  return normalizeUsername(person&&person.username) || normalizeUsername(person&&person.name) || normalizeUsername(r&&r.author||'') || 'pengguna';
 }
 function postUsername(p){
-  if(p&&p.uid&&!U.guest&&String(p.uid)===String(U.id)) return normalizeUsername(DATA.profile.username||p.username||p.author||'pengguna');
+  if(p&&p.uid&&!U.guest&&String(p.uid)===String(U.id)) return normalizeUsername(p.username||DATA.profile.username||U.username||p.author||DATA.profile.name||U.name||'pengguna') || 'pengguna';
   const direct=normalizeUsername(p&&p.username||'');
   if(direct) return direct;
   const uid=String(p&&p.uid||'');
   const person=REPLY_USERS.get(uid)
     || localPeople().find(x=>String(x.uid||'')===uid)
     || (Array.isArray(PSUG)?PSUG.find(x=>String(x.uid||'')===uid):null);
-  return normalizeUsername(person&&person.username) || normalizeUsername(p&&p.author||'') || 'pengguna';
+  return normalizeUsername(person&&person.username) || normalizeUsername(person&&person.name) || normalizeUsername(p&&p.author||'') || 'pengguna';
 }
 function replyProfileHref(r){ return r&&r.uid ? `#/profil/${esc(r.uid)}` : ''; }
 
@@ -2610,7 +2613,12 @@ function viewKomunitas(){
   const feed=locked?lock:`${topicHead}<section class="card cgBox">${composer}${tabs}<div id="cList">${listHtml()}</div></section>`;
 
   const sug=TOPICS.filter(x=>!isFol(x.id)).slice(0,3), ppl=suggestPeople(), followed=TOPICS.filter(x=>isFol(x.id));
-  const pop=getPosts().filter(p=>isFol(p.topic||'umum')&&cScore(p)>0).sort((a,b)=>cScore(b)-cScore(a)||b.t-a.t).slice(0,3);
+  // Cogit populer harus tetap tampil selama ada postingan yang bisa ditampilkan.
+  // Jangan mensyaratkan score > 0 karena posting baru tetap perlu muncul di kartu populer.
+  const pop=getPosts()
+    .filter(p=>isFol(p.topic||'umum'))
+    .sort((a,b)=>cScore(b)-cScore(a)||b.t-a.t)
+    .slice(0,3);
   const followedCard=`<section class="card"><h3>Topik yang kamu ikuti</h3><p class="muted small" style="margin:5px 0 7px">${followed.length} ruang belajar ada di berandamu.</p><div class="cgFollowedList">${followed.slice(0,3).map(x=>`<button class="cgTopicMini" data-act="cf" data-v="${esc(x.id)}"><i class="cgTopicDot"></i><b class="small grow" style="text-align:left">${esc(x.name)}</b>${cgIc('<path d="m9 18 6-6-6-6"/>')}</button>`).join('')}</div>${followed.length>3?`<button class="btn btn-ghost btn-sm cgRailMore" data-act="cg-followed-topics"><span>Lihat lengkap</span><span>${followed.length} topik ${cgIc('<path d="m9 18 6-6-6-6"/>')}</span></button>`:''}</section>`;
   const rail=`<aside class="cgRail">
     ${followedCard}
@@ -2652,12 +2660,25 @@ function replyTreeHtml(p){
     const id=String(r.id||('legacy-'+p.id+'-'+i));
     index.set(id,{...r,id});
   });
+  const replyTime=r=>{
+    const v=Number(r&&r.t);
+    if(Number.isFinite(v)&&v>0) return v;
+    const d=Date.parse(r&&r.created_at||'');
+    return Number.isFinite(d)?d:0;
+  };
   rows.forEach((r,i)=>{
     const id=String(r.id||('legacy-'+p.id+'-'+i));
     const parent=String(r.parent_id||r.parentId||'');
     if(!children.has(parent)) children.set(parent,[]);
     children.get(parent).push(index.get(id));
   });
+  // Root comments: newest first. Replies: chronological order, so a newer
+  // reply is appended below the older reply it follows.
+  const rootsForRender=()=>((children.get('')||[]).slice().sort((a,b)=>replyTime(b)-replyTime(a)));
+  for(const [parent,list] of children){
+    if(parent==='') continue;
+    list.sort((a,b)=>replyTime(a)-replyTime(b));
+  }
 
   const countDesc=(id,seen=new Set())=>{
     const key=String(id);
@@ -2686,12 +2707,20 @@ function replyTreeHtml(p){
     const usernameHtml=r.uid&&username
       ?`<a class="cgReplyUsername" href="#/profil/${esc(r.uid)}">${esc(username)}</a>`
       :`<span class="cgReplyUsername">${esc(username||'pengguna')}</span>`;
-    const replyToHandle=r.reply_to_username||r.replyToUsername||'';
-    const replyTo=replyToHandle?mentionHtml(replyToHandle):'';
+    const parentId=String(r.parent_id||r.parentId||'');
+    const parentReply=parentId?index.get(parentId):null;
+    const target=parentReply||p;
+    const targetUsername=parentReply?replyUsername(parentReply):postUsername(p);
+    const targetUid=target&&target.uid?String(target.uid):'';
+    const replyTo=targetUsername
+      ?(targetUid
+        ?`<a class="cgReplyTo" href="#/profil/${esc(targetUid)}">@${esc(targetUsername)}</a>`
+        :`<span class="cgReplyTo">@${esc(targetUsername)}</span>`)
+      :'';
     const image=r.image_url||r.imageUrl||'';
     const replyForm=REPLY_TO===r.id&&!U.guest?`<form class="cgReplyInline" data-form="reply" data-id="${esc(p.id)}" data-parent="${esc(r.id)}">${avLink(U.id,DATA.profile.avatar||DATA.profile.gpic||'',DATA.profile.name)}<input class="input cgMentionInput" name="text" maxlength="200" placeholder="Balas ke ${esc(username||'pengguna')}" aria-label="Balas ke ${esc(username||'pengguna')}" autocomplete="off"><div class="cgMentionMenu" hidden></div><input type="file" data-reply-image-input="1" accept="image/*" hidden><button class="pbtn" type="button" data-act="reply-image-pick" aria-label="Tambah foto balasan">${cgIc('<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="8.5" cy="9" r="1.5"/><path d="m21 15-5-5L5 20"/>')}</button><button class="btn btn-yellow btn-sm" type="submit">Balas</button></form>${REPLY_IMAGE_PREVIEW?`<div class="cgReplyPreview"><img src="${esc(REPLY_IMAGE_PREVIEW)}" alt="Pratinjau foto balasan"><button type="button" data-act="reply-image-remove" aria-label="Hapus foto balasan">×</button></div>`:''}`:'';
 
-    return `<div class="cgRep cgRepDepth cgVisualDepth${visualDepth===1?'Root':'Reply'}" data-reply-id="${esc(r.id)}" data-depth="${visualDepth}" style="--cg-depth:${visualDepth-1}">${avLink(r.uid,src,username||'pengguna')}<div class="cgRepBody"><div class="cgRepMeta"><div class="cgRepIdentity">${usernameHtml}<span class="muted small">· ${timeAgo(t)}</span></div><button class="pbtn cgMore" data-act="reply-menu" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-label="Opsi balasan">${cgIc('<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',1)}</button></div><p class="cgText cgRepText">${replyTo?`<span class="cgReplyTo">${replyTo}</span> `:''}${mentionHtml(r.text||'')}</p>${image?`<img class="cgReplyImage" src="${esc(image)}" alt="Foto dalam balasan" loading="lazy">`:''}<div class="cgRepActions"><button class="pbtn ${liked?'pl':''}" data-act="reply-like" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-pressed="${liked}" aria-label="Sukai balasan">${cgIc('<path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.3 12C19 16.4 12 21 12 21z"/>',liked)}<span>${likes.length}</span></button><button class="pbtn cgReplyAction" data-act="reply-open" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-label="Balas komentar">${cgIc('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}<span>Balas</span></button></div>${replyForm}</div></div>`;
+    return `<div class="cgRep cgRepDepth cgVisualDepth${visualDepth===1?'Root':'Reply'}" data-reply-id="${esc(r.id)}" data-depth="${visualDepth}" style="--cg-depth:${visualDepth-1}">${avLink(r.uid,src,username||'pengguna')}<div class="cgRepBody"><div class="cgRepMeta"><div class="cgRepIdentity">${usernameHtml}<span class="muted small">· ${timeAgo(t)}</span></div><button class="pbtn cgMore" data-act="reply-menu" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-label="Opsi balasan">${cgIc('<circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/>',1)}</button></div><p class="cgText cgRepText">${replyTo}${replyTo?' ':''}${mentionHtml(r.text||'')}</p>${image?`<img class="cgReplyImage" src="${esc(image)}" alt="Foto dalam balasan" loading="lazy">`:''}<div class="cgRepActions"><button class="pbtn ${liked?'pl':''}" data-act="reply-like" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-pressed="${liked}" aria-label="Sukai balasan">${cgIc('<path d="M12 21s-7-4.6-9.3-9A5.3 5.3 0 0 1 12 6.6 5.3 5.3 0 0 1 21.3 12C19 16.4 12 21 12 21z"/>',liked)}<span>${likes.length}</span></button><button class="pbtn cgReplyAction" data-act="reply-open" data-id="${esc(p.id)}" data-reply="${esc(r.id)}" aria-label="Balas komentar">${cgIc('<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>')}<span>Balas</span></button></div>${replyForm}</div></div>`;
   };
 
   /* Flatten every visible descendant into the root reply container.
@@ -2725,7 +2754,7 @@ function replyTreeHtml(p){
     return roots.map(renderThread).join('');
   };
 
-  const roots=children.get('')||[];
+  const roots=rootsForRender();
   return roots.length?`<div class="cgFlatReplyThread">${flatVisible(roots)}</div>`:'';
 }
 
@@ -3667,18 +3696,18 @@ document.addEventListener('submit',async e=>{
       if(SB){ const av=DATA.profile.avatar||DATA.profile.gpic||''; const {data,error}=await SB.from('community_posts').insert({uid:U.id,author:DATA.profile.name,username:DATA.profile.username||null,topic:v.topic||'umum',text:text.slice(0,280),image_url:imageUrl||null,avatar:/^https?:/.test(av)?av:null}).select().single();
         if(error){ console.warn(error); return toast('Gagal mengirim: '+(error.message||'coba lagi')); }
         CACHE_POSTS.unshift(mapPost({...data,image_url:imageUrl||data.image_url})); clearCogitImage(); viewKomunitas(); return toast('Cogit terkirim'); }
-      const ps=getPosts(); ps.push({id:uid(),uid:U.id,author:DATA.profile.name,username:DATA.profile.username||'',avatar:DATA.profile.avatar||DATA.profile.gpic||'',topic:v.topic||'umum',text:text.slice(0,280),image_url:imageUrl,t:Date.now(),likes:[],replies:[]}); LS.set('posts',ps); clearCogitImage(); viewKomunitas(); toast('Cogit terkirim');
+      const ps=getPosts(); ps.push({id:uid(),uid:U.id,author:DATA.profile.name,username:currentDisplayUsername(),avatar:DATA.profile.avatar||DATA.profile.gpic||'',topic:v.topic||'umum',text:text.slice(0,280),image_url:imageUrl,t:Date.now(),likes:[],replies:[]}); LS.set('posts',ps); clearCogitImage(); viewKomunitas(); toast('Cogit terkirim');
     } else if(kind==='reply'){
       if(needLogin('Masuk untuk membalas Cogit.')) return;
       const text=(v.text||'').trim(); if(!text&&!REPLY_IMAGE_BLOB) return toast('Tulis balasan atau tambahkan foto dulu.');
       const ps=getPosts(), p=ps.find(x=>String(x.id)===String(f.dataset.id)); if(!p) return;
       let imageUrl='';
       try{ imageUrl=await uploadReplyImage(); }catch(err){ console.warn('reply image upload',err); return toast('Gagal mengunggah foto balasan.'); }
-      const av=DATA.profile.avatar||DATA.profile.gpic||'', parentReply=f.dataset.parent?replyRecord(p.id,f.dataset.parent):null, reply={id:uid(),parent_id:f.dataset.parent||null,reply_to_username:parentReply?(parentReply.username||parentReply.reply_to_username||parentReply.replyToUsername||handleOf(parentReply.author)):handleOf(p.username||p.author),username:DATA.profile.username||'',author:DATA.profile.name,avatar:av,uid:U.id,text:text.slice(0,200),image_url:imageUrl,t:Date.now(),likes:[]};
+      const av=DATA.profile.avatar||DATA.profile.gpic||'', parentReply=f.dataset.parent?replyRecord(p.id,f.dataset.parent):null, reply={id:uid(),parent_id:f.dataset.parent||null,reply_to_username:parentReply?(parentReply.username||parentReply.reply_to_username||parentReply.replyToUsername||handleOf(parentReply.author)):handleOf(p.username||p.author),username:currentDisplayUsername(),author:DATA.profile.name,avatar:av,uid:U.id,text:text.slice(0,200),image_url:imageUrl,t:Date.now(),likes:[]};
       if(!Array.isArray(p.replies)) p.replies=[]; p.replies.push(reply); REPLY_TO=null; REPLY_IMAGE_BLOB=null; REPLY_IMAGE_PREVIEW='';
       if(SB){ const {data,error}=await SB.rpc('add_cogit_reply',{p_post_id:p.id,p_body:text.slice(0,200),p_parent_id:reply.parent_id,p_image_url:imageUrl||null});
         if(error){ p.replies=p.replies.filter(x=>x.id!==reply.id); viewKomunitas(); console.warn(error); return toast('Gagal mengirim balasan. Pastikan migrasi Cogit terbaru sudah diterapkan.'); }
-        if(data&&typeof data==='object'&&data.id){ const i=p.replies.findIndex(x=>x.id===reply.id); if(i>=0) p.replies[i]={...p.replies[i],...data,username:data.username||p.replies[i].username||DATA.profile.username||''}; }
+        if(data&&typeof data==='object'&&data.id){ const i=p.replies.findIndex(x=>x.id===reply.id); if(i>=0) p.replies[i]={...p.replies[i],...data,username:data.username||p.replies[i].username||currentDisplayUsername()}; }
         _pl=0; await loadPosts(); viewKomunitas(); return toast('Balasan terkirim'); }
       LS.set('posts',ps); viewKomunitas();
     } else if(kind==='nera'){
@@ -3700,7 +3729,22 @@ document.addEventListener('submit',async e=>{
       const sess=data&&data.session, local=LS.get('session',null);
       if(sess){ if(local!==sess.user.id){ const us=sess.user; await pullRemote(us.id,(us.user_metadata&&(us.user_metadata.name||us.user_metadata.full_name))||'',us.email,gpicOf(us)); } }
       else if(local) LS.del('session');
-      if(sess){ loadSession(); const gp=gpicOf(sess.user); if(gp&&U&&!U.guest&&DATA&&DATA.profile&&DATA.profile.gpic!==gp){ DATA.profile.gpic=gp; save(); } }
+      if(sess){
+        loadSession();
+        if(U&&!U.guest){
+          try{
+            const pr=await SB.from('profiles').select('username,name,avatar').eq('id',U.id).maybeSingle();
+            if(!pr.error&&pr.data){
+              if(pr.data.username) DATA.profile.username=pr.data.username;
+              if(pr.data.name) DATA.profile.name=pr.data.name;
+              if(pr.data.avatar) DATA.profile.avatar=pr.data.avatar;
+              U.username=pr.data.username||U.username||'';
+              save();
+            }
+          }catch(e){ console.warn('profile hydrate',e); }
+        }
+        const gp=gpicOf(sess.user); if(gp&&U&&!U.guest&&DATA&&DATA.profile&&DATA.profile.gpic!==gp){ DATA.profile.gpic=gp; save(); }
+      }
     }catch(e){ console.warn(e); }
   }
   if(/[?&]code=/.test(location.search)||/[?&]error=/.test(location.search)) history.replaceState(null,'',location.pathname+(location.hash||''));
@@ -4257,7 +4301,7 @@ document.addEventListener('submit',async e=>{
 .cgRepMeta .pName,.cgRepMeta b{min-width:0;max-width:100%;overflow-wrap:anywhere;font-size:13.5px}
 .cgRepMeta .muted{min-width:0;overflow-wrap:anywhere}
 .cgRepText{font-size:15px;line-height:1.55;margin-top:8px}
-.cgReplyTo{font-weight:800;color:var(--ink);white-space:nowrap}
+.cgReplyTo{font-weight:800;color:#0a84d8;text-decoration:none;white-space:nowrap;margin:0;padding:0}
 .cgRepActions{gap:22px;margin-top:10px;align-items:center;flex-wrap:wrap}.cgRepChildren{margin:0;padding:0;border:0}.cgRep[data-depth="1"]{margin-left:34px;position:relative}.cgRep[data-depth="1"]:before{content:"";position:absolute;left:-20px;top:-20px;bottom:18px;border-left:1px dashed #cfc8ad}.cgRep[data-depth="1"]:after{content:"";position:absolute;left:-20px;top:18px;width:20px;border-top:1px dashed #cfc8ad}
 .cgRepActions .pbtn{font-size:14px;gap:6px;padding:4px;min-width:0;justify-content:flex-start}
 .cgRepActions .pbtn svg{width:20px;height:20px}
@@ -4941,7 +4985,6 @@ document.addEventListener('submit',async e=>{
   }
 })();
 </script>
-\n<style id="cg-comments-hierarchy-v4-final">\n/* ============================================================\n   COGIT V4 — COMMENT > REPLY HIERARCHY\n   Reference rule:\n   - Top-level comments: no indent.\n   - A direct reply: +1 indent.\n   - A reply to that reply: +1 more indent.\n   - Every further reply: +1 more indent.\n   - The toggle sits directly under THIS comment's Like/Balas row.\n   - Toggle NEVER receives an extra left offset of its own.\n   ============================================================ */\n\n.cgDet .cgReplies{\n  width:100% !important;\n  min-width:0 !important;\n}\n\n/* Each rendered reply lives inside the previous reply's body.\n   Therefore one fixed margin here naturally compounds one level at a time. */\n.cgDet .cgRep.cgRepDepth{\n  display:grid !important;\n  grid-template-columns:36px minmax(0,1fr) !important;\n  gap:10px !important;\n  width:calc(100% - 56px) !important;\n  max-width:none !important;\n  margin-left:56px !important;\n  margin-right:0 !important;\n  padding:12px 24px 7px 0 !important;\n  box-sizing:border-box !important;\n  align-items:start !important;\n}\n\n/* A top-level comment/reply must NOT be indented. */\n.cgDet .cgRepRoot > .cgRep.cgRepDepth{\n  width:100% !important;\n  margin-left:0 !important;\n  padding-left:24px !important;\n  padding-right:24px !important;\n}\n\n.cgDet .cgRep.cgRepDepth > .pa{\n  width:36px !important;\n  height:36px !important;\n  min-width:36px !important;\n}\n\n.cgDet .cgRepBody{\n  min-width:0 !important;\n  width:100% !important;\n}\n\n/* CRITICAL: nested descendants do NOT add a second CSS margin based on\n   data-depth. The DOM nesting itself is the hierarchy. */\n.cgDet .cgRepDescendants,\n.cgDet .cgRepChildren,\n.cgDet .cgRepNestedBranch{\n  width:100% !important;\n  margin:0 !important;\n  padding:0 !important;\n  border:0 !important;\n  box-sizing:border-box !important;\n}\n\n/* Kill all previous depth-based offsets. */\n.cgDet .cgRep.cgRepDepth[data-depth="2"],\n.cgDet .cgRep.cgRepDepth[data-depth="3"],\n.cgDet .cgRep.cgRepDepth[data-depth="4"],\n.cgDet .cgRep.cgRepDepth[data-depth="5"],\n.cgDet .cgRep.cgRepDepth[data-depth="6"],\n.cgDet .cgRep.cgRepDepth[data-depth="7"],\n.cgDet .cgRep.cgRepDepth[data-depth="8"],\n.cgDet .cgRep.cgRepDepth[data-depth="9"],\n.cgDet .cgRep.cgRepDepth[data-depth="10"]{\n  margin-left:56px !important;\n  width:calc(100% - 56px) !important;\n}\n\n/* No fake tree rails. Indentation alone communicates hierarchy. */\n.cgDet .cgRepNestedBranch:before,\n.cgDet .cgRepNestedBranch:after,\n.cgDet .cgRepDepth:before,\n.cgDet .cgRepDepth:after{\n  content:none !important;\n  display:none !important;\n}\n\n/* Like / Balas row. */\n.cgDet .cgRepActions{\n  display:flex !important;\n  align-items:center !important;\n  justify-content:flex-start !important;\n  gap:18px !important;\n  margin:8px 0 0 !important;\n  padding:0 !important;\n  width:100% !important;\n  min-width:0 !important;\n}\n\n/* "Lihat semua balasan" is DIRECTLY below the action row,\n   with exactly the same left edge as Like/Balas. */\n.cgDet .cgRepBody > .cgRepliesToggle,\n.cgDet .cgRepBody > .cgRepliesToggleIn{\n  display:block !important;\n  margin:3px 0 0 !important;\n  padding:0 !important;\n  width:max-content !important;\n  max-width:100% !important;\n  color:var(--muted) !important;\n  background:none !important;\n  border:0 !important;\n  font-size:12px !important;\n  font-weight:700 !important;\n  line-height:1.5 !important;\n  text-align:left !important;\n  white-space:normal !important;\n  cursor:pointer !important;\n}\n\n.cgDet .cgRepBody > .cgRepliesToggle:hover,\n.cgDet .cgRepBody > .cgRepliesToggleIn:hover{\n  color:var(--ink) !important;\n}\n\n/* Top-level comment separators: each comment is visually isolated. */\n.cgDet .cgRepRoot{\n  display:block !important;\n  width:100% !important;\n  margin:0 !important;\n  padding:0 !important;\n  border-top:1px solid var(--line) !important;\n  border-bottom:1px solid var(--line) !important;\n  box-sizing:border-box !important;\n}\n\n.cgDet .cgRepRoot + .cgRepRoot{\n  border-top:0 !important;\n}\n\n@media(max-width:640px){\n  .cgDet .cgRep.cgRepDepth{\n    grid-template-columns:32px minmax(0,1fr) !important;\n    gap:8px !important;\n    width:calc(100% - 34px) !important;\n    margin-left:34px !important;\n    padding:10px 12px 6px 0 !important;\n  }\n  .cgDet .cgRepRoot > .cgRep.cgRepDepth{\n    width:100% !important;\n    margin-left:0 !important;\n    padding-left:14px !important;\n    padding-right:14px !important;\n  }\n  .cgDet .cgRep.cgRepDepth > .pa{\n    width:32px !important;\n    height:32px !important;\n    min-width:32px !important;\n  }\n  .cgDet .cgRepActions{\n    gap:14px !important;\n    margin-top:7px !important;\n  }\n  .cgDet .cgRepBody > .cgRepliesToggle,\n  .cgDet .cgRepBody > .cgRepliesToggleIn{\n    margin-top:2px !important;\n    font-size:11.5px !important;\n  }\n}\n\n@media(max-width:380px){\n  .cgDet .cgRep.cgRepDepth{\n    width:calc(100% - 28px) !important;\n    margin-left:28px !important;\n  }\n  .cgDet .cgRepRoot > .cgRep.cgRepDepth{\n    width:100% !important;\n    margin-left:0 !important;\n  }\n}\n</style>\n
 <style id="cg-comments-hierarchy-v5-absolute-final">
 /* ============================================================
    COGIT V5 — EXACT THREAD RULE
