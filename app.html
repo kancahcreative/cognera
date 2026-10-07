@@ -1479,21 +1479,49 @@ async function pushRemote(){
 }
 const gpicOf=us=>(us&&us.user_metadata&&(us.user_metadata.avatar_url||us.user_metadata.picture))||'';
 async function pullRemote(uid,name,email,pic,meta={}){
-  // Bootstrap the app profile only after Supabase Auth has created auth.users.
-  // No auth.users trigger is required for Google signup.
+  // IMPORTANT: Supabase Auth is the source of truth. Set the local session
+  // immediately so a temporary profiles/user_data query error can NEVER turn
+  // an authenticated Google user back into Guest.
+  const u={id:uid,name:name||email?.split('@')[0]||'User',email:email||'',username:meta.username||'',phone:meta.phone||'',sekolah:meta.sekolah||'',kelas:meta.kelas||''};
+  const users=LS.get('users',[]).filter(x=>x.id!==uid); users.push(u); LS.set('users',users);
+  LS.set('session',uid);
+  const existing=LS.get('data:'+uid,null)||(LS.get('data:guest',null));
+  const base=defaultData(u);
+  if(existing){
+    const seed=Object.assign(base,existing);
+    seed.profile=Object.assign({},base.profile,existing.profile||{}, {name:(existing.profile&&existing.profile.name)||u.name,username:(existing.profile&&existing.profile.username)||u.username,phone:(existing.profile&&existing.profile.phone)||u.phone,sekolah:(existing.profile&&existing.profile.sekolah)||u.sekolah,kelas:(existing.profile&&existing.profile.kelas)||u.kelas});
+    if(pic) seed.profile.gpic=pic;
+    LS.set('data:'+uid,seed);
+    LS.del('data:guest');
+  } else {
+    if(pic) base.profile.gpic=pic;
+    LS.set('data:'+uid,base);
+  }
+  loadSession();
+
+  // Remote profile/data are enrichment only. Authentication must not depend on them.
   try{
-    await SB.from('profiles').upsert({id:uid,username:meta.username||('user_'+String(uid).replace(/-/g,'').slice(0,8)),name:name||email.split('@')[0],phone:meta.phone||'',jalur:'utbk',tahun:2027,goal:3,sekolah:meta.sekolah||'',kelas:meta.kelas||'',xp:0,onboarded:false,avatar:pic||null},{onConflict:'id',ignoreDuplicates:true});
+    const profileRes=await SB.from('profiles').upsert({id:uid,username:u.username||('user_'+String(uid).replace(/-/g,'').slice(0,8)),name:u.name,phone:u.phone||'',jalur:'utbk',tahun:2027,goal:3,sekolah:u.sekolah||'',kelas:u.kelas||'',xp:0,onboarded:false,avatar:pic||null},{onConflict:'id',ignoreDuplicates:true});
+    if(profileRes.error) console.warn('profile bootstrap gagal',profileRes.error);
   }catch(profileErr){ console.warn('profile bootstrap gagal',profileErr); }
-  const [d,e]=await Promise.all([SB.from('user_data').select('data').eq('user_id',uid).maybeSingle(),
-    SB.from('entitlements').select('package_id,ends_at').eq('user_id',uid)]);
-  const now=Date.now();
-  const pk=(e.data||[]).filter(x=>!x.ends_at||new Date(x.ends_at).getTime()>now).map(x=>x.package_id);
-  const u={id:uid,name,email,username:meta.username||'',phone:meta.phone||'',sekolah:meta.sekolah||'',kelas:meta.kelas||''}; const users=LS.get('users',[]).filter(x=>x.id!==uid); users.push(u); LS.set('users',users);
-  const base=defaultData(u), remote=(d.data&&d.data.data)||{};
-  const local=LS.get('data:'+uid,null)||(LS.get('data:guest',null));
-  const merged=Object.assign(base, remote.profile?remote:(local||{}), {packages:pk});
-  merged.profile=Object.assign({},base.profile,merged.profile,{name:merged.profile&&merged.profile.name||name,username:merged.profile&&merged.profile.username||meta.username||'',phone:merged.profile&&merged.profile.phone||meta.phone||'',sekolah:merged.profile&&merged.profile.sekolah||meta.sekolah||'',kelas:merged.profile&&merged.profile.kelas||meta.kelas||''}); if(pic) merged.profile.gpic=pic;
-  LS.set('data:'+uid,merged); LS.del('data:guest'); LS.set('session',uid); loadSession();
+
+  try{
+    const [d,e]=await Promise.all([
+      SB.from('user_data').select('data').eq('user_id',uid).maybeSingle(),
+      SB.from('entitlements').select('package_id,ends_at').eq('user_id',uid)
+    ]);
+    if(d.error) console.warn('user_data load gagal',d.error);
+    if(e.error) console.warn('entitlements load gagal',e.error);
+    const now=Date.now();
+    const pk=(e.data||[]).filter(x=>!x.ends_at||new Date(x.ends_at).getTime()>now).map(x=>x.package_id);
+    const remote=(d.data&&d.data.data)||{};
+    const current=LS.get('data:'+uid,null)||defaultData(u);
+    const merged=Object.assign(defaultData(u),current,remote.profile?remote:{},{packages:pk});
+    merged.profile=Object.assign({},defaultData(u).profile,merged.profile||{},{name:(merged.profile&&merged.profile.name)||u.name,username:(merged.profile&&merged.profile.username)||u.username,phone:(merged.profile&&merged.profile.phone)||u.phone,sekolah:(merged.profile&&merged.profile.sekolah)||u.sekolah,kelas:(merged.profile&&merged.profile.kelas)||u.kelas});
+    if(pic) merged.profile.gpic=pic;
+    LS.set('data:'+uid,merged);
+    loadSession();
+  }catch(remoteErr){ console.warn('remote bootstrap gagal, tetap login sebagai user',remoteErr); }
 }
 
 async function hashPw(pw,salt){
