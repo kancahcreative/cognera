@@ -1583,7 +1583,7 @@ const Auth = {
     if(SB){
       const {data,error}=await SB.auth.signInWithIdToken({provider:'google',token:credential,nonce});
       if(error) throw new Error(error.message);
-      const us=data.user; await pullRemote(us.id,(us.user_metadata&&(us.user_metadata.name||us.user_metadata.full_name))||us.email.split('@')[0],us.email,gpicOf(us)); return U;
+      const us=data.user; await pullRemote(us.id,(us.user_metadata&&(us.user_metadata.name||us.user_metadata.full_name))||us.email.split('@')[0],us.email,gpicOf(us),{username:us.user_metadata?.preferred_username||'',phone:us.user_metadata?.phone||'',sekolah:us.user_metadata?.sekolah||'',kelas:us.user_metadata?.kelas||''}); return U;
     }
     const p=jwtPayload(credential), email=String(p.email||'').toLowerCase();
     if(!email) throw new Error('Gagal membaca akun Google.');
