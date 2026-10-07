@@ -1290,115 +1290,85 @@ const SUB = {
   tpan:{n:'TPA Numerik',                       j:'mandiri'}
 };
 
-/* ===== BANK SOAL CONTOH (ganti/isi dari backend atau CMS Anda) ===== */
+/* ===== BANK SOAL — seluruhnya dari Supabase ===== */
 const BANK = [];
-(function(){
-  const c = {};
-  function Q(s, q, o, a, e, extra){
-    c[s] = (c[s]||0)+1;
-    BANK.push(Object.assign({id:s+c[s], s, q, o, a, e}, extra||{}));
-  }
-  /* Penalaran Umum */
-  Q('pu','Semua dokter adalah sarjana. Sebagian sarjana adalah penulis. Kesimpulan yang pasti benar adalah …',
-    ['Semua dokter adalah penulis.','Sebagian dokter adalah penulis.','Sebagian penulis adalah sarjana.','Semua penulis adalah dokter.','Tidak ada penulis yang menjadi dokter.'],2,
-    'Pernyataan "sebagian sarjana adalah penulis" bisa dibalik menjadi "sebagian penulis adalah sarjana" (konversi pernyataan sebagian). Opsi lain belum tentu benar karena tidak ada informasi yang menghubungkan dokter dengan penulis.');
-  Q('pu','Perhatikan pola bilangan 2, 6, 12, 20, 30, … Bilangan berikutnya adalah …',
-    ['36','40','42','44','48'],2,
-    'Selisih antarsuku adalah 4, 6, 8, 10, sehingga selisih berikutnya 12. Jadi suku berikutnya 30 + 12 = 42.');
-  Q('pu','Jika hujan turun, maka jalanan basah. Jalanan tidak basah. Kesimpulan yang sah adalah …',
-    ['Hujan turun.','Hujan tidak turun.','Jalanan basah karena hujan.','Mungkin hujan turun.','Tidak ada kesimpulan yang dapat ditarik.'],1,
-    'Ini modus tollens: P → Q dan ¬Q, maka ¬P. Karena jalanan tidak basah, hujan pasti tidak turun.');
-  Q('pu','Ana, Budi, Cika, dan Dedi duduk berjajar dalam satu baris. Ana tepat di sebelah kiri Budi, Cika tidak duduk di ujung, dan Dedi duduk di ujung kanan. Urutan dari kiri ke kanan adalah …',
-    ['Ana, Budi, Cika, Dedi','Cika, Ana, Budi, Dedi','Budi, Ana, Cika, Dedi','Ana, Cika, Budi, Dedi','Dedi, Ana, Budi, Cika'],0,
-    'Dedi di posisi 4. Posisi 1–3 diisi Ana, Budi, Cika dengan Ana tepat di kiri Budi dan Cika bukan di posisi 1. Satu-satunya susunan yang cocok: Ana (1), Budi (2), Cika (3), Dedi (4).');
-  Q('pu','Sebuah kota menurunkan batas kecepatan di zona sekolah dan jumlah kecelakaan turun 30%. Pernyataan yang paling memperkuat bahwa penurunan itu disebabkan oleh batas kecepatan yang baru adalah …',
-    ['Jumlah kendaraan di kota tersebut meningkat.','Kota lain tanpa perubahan batas kecepatan juga mengalami penurunan serupa.','Zona sekolah di kota tetangga yang batas kecepatannya tidak diubah tidak mengalami perubahan jumlah kecelakaan.','Cuaca sepanjang tahun lebih cerah dari biasanya.','Patroli polisi ditambah di seluruh kota.'],2,
-    'Penguat terbaik adalah pembanding (kelompok kontrol): wilayah serupa tanpa perubahan batas kecepatan tidak mengalami penurunan, sehingga penyebab lain jadi kurang mungkin. Opsi lain justru menawarkan penyebab alternatif.');
-  /* PK */
-  Q('pk','25% dari 240 ditambah 1/3 dari 90 adalah …',['80','85','90','95','100'],2,'25% × 240 = 60 dan 1/3 × 90 = 30, sehingga jumlahnya 90.');
-  Q('pk','Jika 3x − 7 = 2x + 5, maka nilai x adalah …',['2','8','10','12','14'],3,'Pindahkan suku: 3x − 2x = 5 + 7, sehingga x = 12.');
-  Q('pk','Rata-rata lima bilangan adalah 12. Jika satu bilangan dikeluarkan, rata-rata empat bilangan sisanya menjadi 10. Bilangan yang dikeluarkan adalah …',['16','18','20','22','24'],2,'Jumlah lima bilangan = 5 × 12 = 60. Jumlah empat bilangan sisa = 4 × 10 = 40. Bilangan yang dikeluarkan = 60 − 40 = 20.');
-  Q('pk','Sebuah mobil menempuh 180 km dalam 3 jam. Dengan kecepatan yang sama, jarak yang ditempuh dalam 5 jam adalah …',['240 km','270 km','300 km','320 km','360 km'],2,'Kecepatan = 180 ÷ 3 = 60 km/jam. Jarak 5 jam = 60 × 5 = 300 km.');
-  Q('pk','Perbandingan umur ayah dan anak adalah 5 : 2. Jika selisih umur mereka 30 tahun, umur anak adalah …',['10 tahun','15 tahun','20 tahun','25 tahun','30 tahun'],2,'Selisih 5 − 2 = 3 bagian = 30 tahun, jadi 1 bagian = 10. Umur anak = 2 × 10 = 20 tahun.');
-  /* PPU */
-  Q('ppu','Kata yang penulisannya baku adalah …',['aktifitas','analisa','apotik','resiko','nasihat'],4,'Bentuk baku: aktivitas, analisis, apotek, risiko, dan nasihat. Dari pilihan yang ada, hanya "nasihat" yang sudah baku.');
-  Q('ppu','Penulisan kalimat yang sesuai dengan ejaan yang benar adalah …',['Buku itu diletakkan di atas meja.','Buku itu di letakkan di atas meja.','Buku itu diletakkan diatas meja.','Buku itu di letakkan diatas meja.','Buku itu diletakan di atas meja.'],0,'"diletakkan" adalah kata kerja pasif sehingga "di-" ditulis serangkai, sedangkan "di atas" adalah kata depan sehingga dipisah. Bentuk dasarnya "letak" + "-kan" menjadi "diletakkan" (dua k).');
-  Q('ppu','Lembaga negara yang berwenang menguji undang-undang terhadap Undang-Undang Dasar 1945 adalah …',['Mahkamah Agung','Mahkamah Konstitusi','Dewan Perwakilan Rakyat','Komisi Yudisial','Badan Pemeriksa Keuangan'],1,'Menurut UUD 1945, Mahkamah Konstitusi berwenang menguji undang-undang terhadap UUD. Mahkamah Agung menguji peraturan di bawah undang-undang.');
-  Q('ppu','Gas yang paling banyak terdapat di atmosfer bumi adalah …',['Oksigen','Nitrogen','Karbon dioksida','Argon','Hidrogen'],1,'Atmosfer bumi terdiri atas sekitar 78% nitrogen, 21% oksigen, dan sisanya gas lain seperti argon dan karbon dioksida.');
-  Q('ppu','Antonim kata "transparan" adalah …',['jernih','bening','buram','nyata','jelas'],2,'"Transparan" berarti tembus pandang atau terbuka. Lawan katanya adalah "buram", yaitu tidak dapat ditembus pandangan.');
-  /* PBM */
-  const pb1='Penelitian menunjukkan bahwa siswa yang tidur kurang dari enam jam semalam cenderung memiliki konsentrasi yang lebih rendah di kelas. Namun, para peneliti menekankan bahwa kurang tidur bukan satu-satunya faktor; pola makan dan tingkat stres juga berpengaruh.';
-  Q('pbm','Gagasan utama bacaan tersebut adalah …',['Siswa wajib tidur lebih dari delapan jam setiap malam.','Kurang tidur berkaitan dengan turunnya konsentrasi siswa, tetapi bukan satu-satunya penyebab.','Pola makan adalah faktor terpenting dalam konsentrasi belajar.','Stres tidak memengaruhi kemampuan siswa di kelas.','Penelitian tentang tidur belum menghasilkan kesimpulan.'],1,'Kalimat pertama menyampaikan hubungan tidur dan konsentrasi, kalimat kedua memberi catatan bahwa faktor lain ikut berpengaruh. Keduanya terangkum pada opsi kedua.',{p:pb1});
-  Q('pbm','Pernyataan yang sesuai dengan isi bacaan adalah …',['Semua siswa yang kurang tidur pasti sulit berkonsentrasi.','Pola makan dan stres turut memengaruhi konsentrasi siswa.','Peneliti menyatakan tidur tidak berpengaruh pada konsentrasi.','Siswa yang tidur enam jam selalu berprestasi.','Konsentrasi hanya dipengaruhi oleh lama tidur.'],1,'Bacaan menyebut "cenderung" (bukan "pasti") dan menegaskan faktor lain, yaitu pola makan dan stres, juga berpengaruh.',{p:pb1});
-  const pb2='Banyak kota besar mulai membatasi penggunaan kantong plastik sekali pakai. Kebijakan ini mengurangi sampah plastik di sungai, tetapi sebagian pedagang kecil mengeluh karena biaya kemasan pengganti lebih mahal.';
-  Q('pbm','Kalimat yang TIDAK dapat disimpulkan dari bacaan adalah …',['Beberapa kota besar membatasi kantong plastik sekali pakai.','Sampah plastik di sungai berkurang setelah kebijakan diterapkan.','Kemasan pengganti memiliki biaya yang lebih tinggi.','Sebagian pedagang kecil mengeluhkan kebijakan tersebut.','Semua pedagang kecil mendukung kebijakan tersebut.'],4,'Bacaan hanya menyebut "sebagian pedagang kecil mengeluh", sehingga klaim bahwa semuanya mendukung tidak didukung teks.',{p:pb2});
-  Q('pbm','Simpulan yang paling tepat untuk bacaan tersebut adalah …',['Kebijakan pembatasan plastik sebaiknya dihentikan.','Kebijakan tersebut berdampak baik bagi lingkungan sekaligus menjadi beban bagi sebagian pedagang.','Pedagang kecil tidak perlu memakai kemasan pengganti.','Sampah plastik hanya ada di sungai.','Kota besar tidak berhasil menerapkan kebijakan itu.'],1,'Simpulan harus merangkum dua sisi yang dibahas teks: manfaat lingkungan dan beban biaya bagi sebagian pedagang.',{p:pb2});
-  Q('pbm','Kalimat yang paling efektif adalah …',['Para siswa-siswa mengerjakan soal itu dengan teliti.','Siswa mengerjakan soal itu dengan teliti.','Para siswa-siswa tersebut mengerjakan soal dengan sangat teliti sekali.','Siswa-siswa itu para mengerjakan soal dengan teliti.','Mengerjakan soal itu dengan teliti oleh para siswa-siswa.'],1,'Kalimat efektif tidak berlebihan. "Para" dan pengulangan "siswa-siswa" sama-sama menandakan jamak, sehingga cukup salah satunya. Opsi kedua singkat, lengkap, dan jelas.');
-  /* LBI */
-  const lb1='Perpustakaan desa di Kecamatan Sukamaju awalnya hanya menyimpan 200 buku. Setelah warga mengadakan gerakan donasi buku, koleksinya meningkat menjadi 1.500 judul dalam dua tahun. Kini perpustakaan itu juga menjadi tempat anak-anak belajar kelompok setiap sore.';
-  Q('lbi','Tujuan utama penulis bacaan tersebut adalah …',['Mengajak pembaca membeli buku baru.','Menginformasikan perkembangan perpustakaan desa berkat donasi warga.','Mengkritik kondisi perpustakaan desa.','Membandingkan perpustakaan desa dengan perpustakaan kota.','Menjelaskan cara membuka perpustakaan.'],1,'Teks memaparkan fakta perubahan koleksi dan fungsi perpustakaan, tanpa ajakan atau kritik, sehingga tujuannya memberi informasi.',{p:lb1});
-  Q('lbi','Peningkatan jumlah koleksi buku selama dua tahun adalah …',['1.300 buku','1.500 buku','1.700 buku','200 buku','1.000 buku'],0,'Koleksi awal 200 dan menjadi 1.500, sehingga peningkatannya 1.500 − 200 = 1.300 buku.',{p:lb1});
-  Q('lbi','Simpulan yang tepat dari bacaan tersebut adalah …',['Perpustakaan desa tidak memerlukan bantuan warga.','Peran aktif warga dapat mengembangkan perpustakaan desa.','Anak-anak lebih senang belajar sendiri.','Donasi buku hanya bermanfaat bagi kota besar.','Koleksi 200 buku sudah cukup.'],1,'Bacaan menunjukkan koleksi tumbuh dan fungsi perpustakaan meluas setelah warga berdonasi, jadi peran aktif warga menjadi kunci.',{p:lb1});
-  Q('lbi','Sinonim kata "koleksi" pada bacaan adalah …',['kumpulan','pinjaman','daftar','rak','bacaan'],0,'"Koleksi" berarti kumpulan benda yang dihimpun, dalam hal ini kumpulan buku.',{p:lb1});
-  Q('lbi','Judul yang paling sesuai untuk bacaan tersebut adalah …',['Perpustakaan Kota yang Ramai','Donasi Warga Menghidupkan Perpustakaan Desa Sukamaju','Cara Menyimpan Buku dengan Baik','Anak-Anak dan Hobi Membaca','Sejarah Kecamatan Sukamaju'],1,'Judul yang baik merangkum isi pokok: donasi warga dan berkembangnya perpustakaan di Sukamaju.',{p:lb1});
-  /* LBE */
-  const le1='Many people believe that multitasking makes them more productive. However, studies show that switching between tasks reduces accuracy and takes more time overall. As a result, experts recommend focusing on one task at a time.';
-  Q('lbe','What is the main idea of the passage?',['Multitasking is the best way to finish work quickly.','Focusing on one task at a time is more effective than multitasking.','Experts disagree about productivity.','Studies on productivity are unreliable.','People should avoid working in teams.'],1,'The passage first states a common belief, then uses "However" to contradict it and ends with the experts\' recommendation: focus on one task at a time.',{p:le1});
-  Q('lbe','The word "However" in the passage signals …',['an example','a result','a contrast','a time sequence','a definition'],2,'"However" introduces an idea that contrasts with the previous sentence: people believe multitasking helps, but studies show otherwise.',{p:le1});
-  Q('lbe','Which statement is supported by the passage?',['Switching between tasks can slow people down.','Multitasking always improves accuracy.','Experts recommend doing several tasks at once.','Productivity studies were published last year.','People who multitask finish earlier.'],0,'The passage says that switching between tasks "takes more time overall", so it can slow people down.',{p:le1});
-  Q('lbe','The word "accuracy" is closest in meaning to …',['speed','correctness','creativity','effort','attention span'],1,'"Accuracy" means the quality of being correct or precise.',{p:le1});
-  Q('lbe','If I ____ more time, I would finish the report today.',['have','had','has','will have','having'],1,'This is a second conditional (unreal present): If + past simple, would + base verb. So the correct form is "had".');
-  /* PM */
-  Q('pm','Harga sebuah buku Rp12.000 setelah mendapat diskon 20%. Harga sebelum diskon adalah …',['Rp14.000','Rp14.400','Rp15.000','Rp15.500','Rp16.000'],2,'Harga setelah diskon = 80% dari harga awal. Harga awal = 12.000 ÷ 0,8 = Rp15.000.');
-  Q('pm','Dua dadu dilempar bersamaan. Peluang munculnya jumlah mata dadu 7 adalah …',['1/12','1/9','1/6','1/4','5/36'],2,'Pasangan berjumlah 7: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) = 6 kejadian dari 36. Peluangnya 6/36 = 1/6.');
-  Q('pm','Keliling sebuah persegi panjang adalah 36 cm dan panjangnya dua kali lebarnya. Luas persegi panjang tersebut adalah …',['48 cm²','64 cm²','72 cm²','78 cm²','81 cm²'],2,'Keliling = 2(2l + l) = 6l = 36, jadi lebar 6 cm dan panjang 12 cm. Luas = 6 × 12 = 72 cm².');
-  Q('pm','Pipa A dapat mengisi penuh sebuah tangki dalam 6 jam dan pipa B dalam 3 jam. Jika keduanya dibuka bersamaan, tangki penuh dalam …',['1 jam','2 jam','3 jam','4,5 jam','9 jam'],1,'Laju gabungan = 1/6 + 1/3 = 1/2 tangki per jam. Waktu = 1 ÷ (1/2) = 2 jam.');
-  Q('pm','Diketahui f(x) = 2x + 3. Nilai f(f(1)) adalah …',['8','11','13','15','16'],2,'f(1) = 2(1) + 3 = 5. Lalu f(5) = 2(5) + 3 = 13.');
-  /* TWK */
-  Q('twk','Nilai musyawarah untuk mufakat terkandung dalam sila ke- …',['1','2','3','4','5'],3,'Sila ke-4: "Kerakyatan yang dipimpin oleh hikmat kebijaksanaan dalam permusyawaratan/perwakilan", yang mengandung nilai musyawarah.');
-  Q('twk','Ketentuan bahwa Indonesia adalah negara hukum tercantum dalam …',['Pasal 1 ayat (1) UUD 1945','Pasal 1 ayat (2) UUD 1945','Pasal 1 ayat (3) UUD 1945','Pasal 27 ayat (1) UUD 1945','Pasal 28 UUD 1945'],2,'Pasal 1 ayat (3) UUD 1945 menyatakan "Negara Indonesia adalah negara hukum".');
-  Q('twk','Sumpah Pemuda diikrarkan pada tahun …',['1908','1928','1945','1925','1930'],1,'Sumpah Pemuda diikrarkan pada Kongres Pemuda II, 28 Oktober 1928.');
-  Q('twk','Semboyan "Bhinneka Tunggal Ika" diambil dari kitab …',['Negarakertagama karya Mpu Prapanca','Sutasoma karya Mpu Tantular','Pararaton','Arjunawiwaha karya Mpu Kanwa','Bharatayuddha karya Mpu Sedah'],1,'Frasa "Bhinneka Tunggal Ika" berasal dari Kakawin Sutasoma karya Mpu Tantular pada masa Majapahit.');
-  /* TIU */
-  Q('tiu','Sinonim kata "efisien" adalah …',['boros','berdaya guna','lambat','rumit','mahal'],1,'"Efisien" berarti tepat atau berdaya guna tanpa membuang waktu, tenaga, atau biaya.');
-  Q('tiu','Hasil dari 3/4 + 2/5 adalah …',['5/9','23/20','7/10','6/20','3/2'],1,'3/4 = 15/20 dan 2/5 = 8/20. Jumlahnya 23/20.');
-  Q('tiu','Semua pegawai disiplin. Sebagian pegawai berprestasi. Kesimpulan yang pasti benar adalah …',['Semua yang disiplin berprestasi.','Sebagian yang disiplin berprestasi.','Tidak ada yang disiplin berprestasi.','Semua yang berprestasi bukan pegawai.','Sebagian pegawai tidak disiplin.'],1,'Pegawai yang berprestasi pasti disiplin (karena semua pegawai disiplin), sehingga sebagian yang disiplin berprestasi.');
-  Q('tiu','Lengkapi deret: 3, 9, 27, 81, …',['108','162','243','324','729'],2,'Setiap suku dikalikan 3: 81 × 3 = 243.');
-  /* TKP (pts = skor tiap opsi 1–5) */
-  Q('tkp','Anda harus menyelesaikan laporan dengan tenggat besok, tetapi rekan satu tim meminta bantuan untuk tugas lain yang juga mendesak. Sikap Anda …',
-    ['Menolak karena laporan sendiri lebih penting.','Berdiskusi dengan atasan untuk menentukan prioritas dan memberi tahu rekan kapan Anda bisa membantu.','Menyelesaikan laporan lebih dulu, lalu membantu rekan setelahnya.','Membantu rekan sepenuhnya dan mengerjakan laporan seadanya.','Mengabaikan permintaan rekan tanpa menjawab.'],1,
-    'Jawaban terbaik adalah yang komunikatif dan menjaga tanggung jawab sekaligus kerja sama: menentukan prioritas bersama atasan dan memberi kepastian kepada rekan.',{pts:[2,5,4,3,1]});
-  Q('tkp','Atasan mengkritik hasil kerja Anda yang kurang teliti di depan rapat. Sikap Anda …',
-    ['Menerima kritik, meminta masukan konkret, lalu memperbaiki pekerjaan.','Menerima kritik dan memperbaiki tanpa bertanya lebih lanjut.','Diam dan menghindari atasan karena malu.','Membela diri dengan menyalahkan data dari rekan.','Meminta maaf berulang kali tetapi tidak mengubah cara kerja.'],0,
-    'Sikap profesional adalah terbuka pada kritik dan aktif mencari masukan agar perbaikan tepat sasaran.',{pts:[5,4,2,1,3]});
-  Q('tkp','Anda menemukan prosedur kerja yang lebih cepat daripada prosedur yang berlaku di unit Anda. Sikap Anda …',
-    ['Menyampaikan usulan kepada atasan beserta data perbandingannya.','Menerapkannya sendiri secara diam-diam.','Tetap memakai prosedur lama karena sudah menjadi aturan.','Mendiskusikan dengan rekan lebih dulu, lalu mengusulkannya kepada atasan.','Menceritakannya kepada pihak di luar unit.'],0,
-    'Inovasi disampaikan lewat jalur yang tepat dan didukung data. Mendiskusikan dengan rekan juga baik, tetapi usulan langsung berbasis data lebih kuat.',{pts:[5,2,3,4,1]});
-  Q('tkp','Seorang warga marah karena berkasnya ditolak akibat kurang lengkap. Sikap Anda …',
-    ['Mendengarkan, menjelaskan kekurangan berkas dengan tenang, dan memandu cara melengkapinya.','Menjelaskan sekali lalu meminta warga mengantre kembali.','Meminta rekan lain menangani warga tersebut.','Menjawab dengan nada tinggi agar warga paham aturan.','Menerima berkas yang belum lengkap agar warga tenang.'],0,
-    'Pelayanan publik yang baik: empatik, tenang, dan solutif tanpa melanggar aturan.',{pts:[5,3,2,1,2]});
-  /* TPA */
-  Q('tpav','Sinonim kata "lugas" adalah …',['berbelit-belit','tidak berbelit-belit','samar','panjang lebar','ragu-ragu'],1,'"Lugas" berarti langsung ke pokok persoalan dan tidak berbelit-belit.');
-  Q('tpav','Antonim kata "optimis" adalah …',['yakin','pesimis','tenang','berani','realistis'],1,'Optimis berarti selalu berpengharapan baik. Lawan katanya adalah pesimis.');
-  Q('tpav','Dokter : Rumah sakit = Guru : …',['Murid','Buku','Sekolah','Kelas','Ujian'],2,'Hubungan tempat kerja: dokter bekerja di rumah sakit, guru bekerja di sekolah.');
-  Q('tpav','Panas : Dingin = Terang : …',['Cahaya','Gelap','Lampu','Siang','Matahari'],1,'Hubungan antonim: panas berlawanan dengan dingin, terang berlawanan dengan gelap.');
-  Q('tpan','Hasil dari 15 × 12 ÷ 4 adalah …',['35','40','45','50','60'],2,'15 × 12 = 180, lalu 180 ÷ 4 = 45.');
-  Q('tpan','Lengkapi deret: 1, 4, 9, 16, 25, …',['30','34','36','42','49'],2,'Deret kuadrat bilangan asli: 1², 2², 3², 4², 5², jadi berikutnya 6² = 36.');
-  Q('tpan','20% dari 450 adalah …',['80','85','90','95','100'],2,'20% × 450 = 0,2 × 450 = 90.');
-  Q('tpan','Hasil dari √144 + 5² adalah …',['27','32','37','42','169'],2,'√144 = 12 dan 5² = 25, sehingga jumlahnya 37.');
-})();
-const QBY = Object.fromEntries(BANK.map(q=>[q.id,q]));
+const QBY = Object.create(null);
+
+/* ===== DATA TRYOUT DARI SUPABASE =====
+   Tryout yang dibuat Admin/Import PDF harus memakai questions.tryout_id,
+   bukan mengambil seluruh bank soal berdasarkan subtest. */
+let REMOTE_TRYOUTS_LOADED=false;
+async function loadRemoteTryouts(){
+  if(!SB || REMOTE_TRYOUTS_LOADED) return;
+  try{
+    const {data:trs,error:te}=await SB.from('tryouts').select('id,title,jalur,access,minutes,max_tries,open_at,close_at,subs,image_url,active').eq('active',true).order('created_at',{ascending:false});
+    if(te) throw te;
+    const rows=Array.isArray(trs)?trs:[];
+    const ids=rows.map(x=>x.id).filter(Boolean);
+    let qs=[];
+    if(ids.length){
+      const {data,error}=await SB.from('questions').select('id,subtest,body,text,passage,options,answer,correct_answer,explanation,points,active,tryout_id').in('tryout_id',ids).order('id',{ascending:true});
+      if(error) throw error;
+      qs=Array.isArray(data)?data:[];
+    }
+    qs.forEach(x=>{
+      const opts=Array.isArray(x.options)?x.options:(x.options&&typeof x.options==='object'?Object.values(x.options):[]);
+      const ans=Number.isFinite(Number(x.answer))?Number(x.answer):Math.max(0,['A','B','C','D','E'].indexOf(String(x.correct_answer||'').toUpperCase()));
+      const meta=x.options&&typeof x.options==='object'&&!Array.isArray(x.options)?x.options:{};
+      const choices=Array.isArray(x.options)?x.options:(Array.isArray(meta.choices)?meta.choices:[]);
+      const type=String(meta.type||'single_choice');
+      const q={id:x.id,s:String(x.subtest||'').toLowerCase(),q:x.body||x.text||'',o:choices,a:ans,p:x.passage||'',e:x.explanation||'',pts:x.points&&Array.isArray(x.points.pts)?x.points.pts:null,tryout_id:x.tryout_id,kind:'tryout',type,correct_answer:x.correct_answer||'',remote:true,image_url:x.image_url||''};
+      const old=QBY[x.id];
+      if(!old){ BANK.push(q); QBY[x.id]=q; }
+    });
+    rows.forEach(x=>{
+      if(TRYOUTS.some(t=>String(t.id)===String(x.id))) return;
+      const subs=Array.isArray(x.subs)?x.subs.map(v=>String(v).toLowerCase()).filter(Boolean):[...new Set(qs.filter(q=>String(q.tryout_id)===String(x.id)).map(q=>String(q.subtest||'').toLowerCase()).filter(Boolean))];
+      TRYOUTS.push({id:String(x.id),title:x.title||'Tryout',jalur:x.jalur||'utbk',access:x.access||'free',subs,tries:Number(x.max_tries??3),openAt:x.open_at||null,closeAt:x.close_at||null,minutes:x.minutes||null,image_url:x.image_url||'',remote:true});
+    });
+    REMOTE_TRYOUTS_LOADED=true;
+  }catch(e){ console.warn('Gagal memuat tryout Supabase:',e); }
+}
+
+/* ===== DATA LATIHAN & MATERI DARI SUPABASE ===== */
+let REMOTE_DRILL_LOADED=false;
+let REMOTE_LESSONS_LOADED=false;
+async function loadRemoteDrillQuestions(){
+  if(!SB || REMOTE_DRILL_LOADED) return;
+  try{
+    const {data,error}=await SB.from('questions').select('id,subtest,body,text,passage,options,answer,correct_answer,explanation,points,active,image_url,created_at').eq('kind','drill').is('tryout_id',null).eq('active',true).order('created_at',{ascending:false});
+    if(error) throw error;
+    (data||[]).forEach(x=>{
+      const meta=x.options&&typeof x.options==='object'&&!Array.isArray(x.options)?x.options:{};
+      const opts=Array.isArray(x.options)?x.options:(Array.isArray(meta.choices)?meta.choices:[]);
+      const ans=Number.isFinite(Number(x.answer))&&Number(x.answer)>=0?Number(x.answer):Math.max(0,['A','B','C','D','E'].indexOf(String(x.correct_answer||'').toUpperCase()));
+      const q={id:x.id,s:String(x.subtest||'').toLowerCase(),q:x.body||x.text||'',o:opts,a:ans,p:x.passage||'',e:x.explanation||'',pts:x.points&&Array.isArray(x.points.pts)?x.points.pts:null,image_url:x.image_url||'',kind:'drill',type:String(meta.type||'single_choice'),correct_answer:x.correct_answer||'',remote:true};
+      if(!QBY[x.id]){BANK.push(q);QBY[x.id]=q;}
+    });
+    REMOTE_DRILL_LOADED=true;
+  }catch(e){console.warn('Gagal memuat latihan Supabase:',e)}
+}
+async function loadRemoteLessons(){
+  if(!SB || REMOTE_LESSONS_LOADED) return;
+  try{
+    const {data,error}=await SB.from('blog_posts').select('*').eq('published',true).order('published_at',{ascending:false}).order('created_at',{ascending:false});
+    if(error) throw error;
+    const rows=Array.isArray(data)?data:[];
+    const mapped=rows.map((x,i)=>({
+      id:String(x.id),s:String(x.subtest||x.sub||inferSubtest(x.title||x.category||'')||'pu').toLowerCase(),
+      j:Array.isArray(x.jalur)?x.jalur:(x.jalur?[x.jalur]:['utbk','mandiri','kedinasan']),
+      t:x.title||'Materi',min:Number(x.minutes||x.min||5),kw:Array.isArray(x.keywords)?x.keywords:[],body:x.content||'',image_url:x.image_url||''
+    }));
+    LESSONS.push(...mapped);
+    REMOTE_LESSONS_LOADED=true;
+  }catch(e){console.warn('Gagal memuat materi Supabase:',e)}
+}
+function inferSubtest(text){const t=String(text||'').toLowerCase();const map=[['pu',['penalaran umum']],['ppu',['pengetahuan dan pemahaman umum','ppu']],['pbm',['pemahaman bacaan','pbm']],['pk',['pengetahuan kuantitatif','pk']],['lbi',['literasi bahasa indonesia','lbi']],['lbe',['literasi bahasa inggris','lbe']],['pm',['penalaran matematika','pm']],['twk',['twk','wawasan kebangsaan']],['tiu',['tiu','intelegensia umum']],['tkp',['tkp','karakteristik pribadi']]];for(const [k,a] of map)if(a.some(v=>t.includes(v)))return k;return '';}
 
 /* ===== TRYOUT ===== */
 const UTBK_SUBS = ['pu','ppu','pbm','pk','lbi','lbe','pm'];
-const TRYOUTS = [
-  {id:'snbt-gratis-1', title:'Tryout SNBT 2027 Gratis (Part 1)', jalur:'utbk', access:'free', subs:UTBK_SUBS, tries:3, openAt:'2026-10-01T00:00:00+07:00', closeAt:'2026-10-12T23:59:59+07:00'},
-  {id:'skd-gratis-1',  title:'Simulasi SKD Kedinasan (Part 1)', jalur:'kedinasan', access:'free', subs:['twk','tiu','tkp'], tries:3, openAt:'2026-10-06T00:00:00+07:00', closeAt:'2026-10-19T23:59:59+07:00'},
-  {id:'tpa-gratis-1',  title:'Tryout TPA Mandiri PTN (Part 1)', jalur:'mandiri', access:'free', subs:['tpav','tpan'], tries:3, openAt:'2026-10-13T00:00:00+07:00', closeAt:'2026-10-26T23:59:59+07:00'},
-  {id:'snbt-premium-1',title:'Tryout Premium UTBK SNBT 2027 #1', jalur:'utbk', access:'premium', subs:UTBK_SUBS, seed:7},
-  {id:'snbt-premium-2',title:'Tryout Premium UTBK SNBT 2027 #2', jalur:'utbk', access:'premium', subs:UTBK_SUBS, seed:19},
-  {id:'skd-premium-1', title:'Tryout Premium SKD Kedinasan 2026 #1', jalur:'kedinasan', access:'premium', subs:['twk','tiu','tkp'], seed:5}
-];
+const TRYOUTS = [];
+
 
 /* ===== PAKET (harga dari landing page) ===== */
 const PACKAGES = [
@@ -1416,82 +1386,7 @@ const PACKAGES = [
 ];
 
 /* ===== MATERI ===== */
-const LESSONS = [
- {id:'logika', s:'pu', j:['utbk'], t:'Silogisme dan penarikan kesimpulan', min:6, kw:['silogisme','logika','kesimpulan','modus','premis'], body:`
-  <p>Soal penalaran umum sering meminta kesimpulan yang <b>pasti benar</b>, bukan yang mungkin benar. Pegang aturan berikut.</p>
-  <h3>Pola yang sah</h3>
-  <span class="eq">Semua A adalah B; semua B adalah C ⇒ semua A adalah C</span>
-  <span class="eq">Sebagian A adalah B ⇒ sebagian B adalah A</span>
-  <span class="eq">Modus ponens: P → Q dan P ⇒ Q</span>
-  <span class="eq">Modus tollens: P → Q dan ¬Q ⇒ ¬P</span>
-  <h3>Kesalahan yang sering muncul</h3>
-  <ul><li>P → Q dan Q ⇒ P <b>tidak sah</b> (hujan membuat jalan basah, tetapi jalan basah belum tentu karena hujan).</li>
-  <li>"Sebagian A bukan B" tidak berarti "sebagian A adalah B".</li></ul>
-  <h3>Tips</h3><p>Gambar diagram Venn sebelum membaca opsi. Hapus opsi yang memakai kata mutlak ("semua", "tidak ada") jika premis hanya menyebut "sebagian".</p>`},
- {id:'pola', s:'pu', j:['utbk','mandiri'], t:'Pola bilangan dan deret', min:5, kw:['pola','deret','bilangan','barisan'], body:`
-  <p>Periksa pola dengan urutan ini: selisih, selisih dari selisih, rasio, lalu pola khusus.</p>
-  <ul><li><b>Selisih tetap</b>: 5, 8, 11, 14 → tambah 3.</li>
-  <li><b>Selisih bertingkat</b>: 2, 6, 12, 20 → selisih 4, 6, 8.</li>
-  <li><b>Rasio tetap</b>: 3, 9, 27, 81 → kali 3.</li>
-  <li><b>Kuadrat/kubik</b>: 1, 4, 9, 16 → n².</li>
-  <li><b>Fibonacci</b>: 1, 1, 2, 3, 5, 8 → jumlah dua suku sebelumnya.</li></ul>
-  <p>Jika satu pola tidak cocok, coba pisahkan suku ganjil dan genap sebagai dua deret.</p>`},
- {id:'persen', s:'pk', j:['utbk','mandiri'], t:'Persentase, perbandingan, dan rata-rata', min:7, kw:['persen','persentase','perbandingan','rata-rata','rerata'], body:`
-  <h3>Rumus inti</h3>
-  <span class="eq">p% dari N = p/100 × N</span>
-  <span class="eq">Rata-rata = jumlah data ÷ banyak data</span>
-  <span class="eq">Harga setelah diskon d% = (100 − d)% × harga awal</span>
-  <h3>Perbandingan</h3><p>Ubah rasio menjadi "bagian". Jika a : b = 5 : 2 dan selisihnya 30, maka 3 bagian = 30 sehingga 1 bagian = 10.</p>
-  <h3>Tips</h3><p>Untuk rata-rata yang berubah setelah data dikeluarkan, hitung <b>jumlah</b> total dulu, bukan rata-ratanya.</p>`},
- {id:'cerita', s:'pm', j:['utbk'], t:'Soal cerita: kecepatan, pekerjaan, dan peluang', min:8, kw:['cerita','kecepatan','pekerjaan','peluang','pipa'], body:`
-  <span class="eq">Jarak = kecepatan × waktu</span>
-  <span class="eq">Pekerjaan bersama: 1/t = 1/t₁ + 1/t₂</span>
-  <span class="eq">Peluang = banyak kejadian ÷ banyak kemungkinan</span>
-  <p>Contoh: pipa A penuh dalam 6 jam, pipa B dalam 3 jam. Laju gabungan 1/6 + 1/3 = 1/2, sehingga waktu bersama 2 jam.</p>
-  <p>Untuk dua dadu, ada 36 kemungkinan. Jumlah 7 muncul dari 6 pasangan sehingga peluangnya 1/6.</p>`},
- {id:'ejaan', s:'ppu', j:['utbk'], t:'Kata baku dan ejaan', min:5, kw:['baku','ejaan','kata','di','tidak baku'], body:`
-  <h3>Pasangan yang sering diuji</h3>
-  <ul><li>aktivitas (bukan aktifitas) · analisis (bukan analisa) · apotek (bukan apotik)</li>
-  <li>risiko (bukan resiko) · nasihat (bukan nasehat) · jadwal (bukan jadual)</li>
-  <li>teknik, sistem, kualitas, objek, praktik</li></ul>
-  <h3>Kata depan "di"</h3>
-  <p>Tulis <b>terpisah</b> bila menunjukkan tempat (di atas meja, di rumah) dan <b>serangkai</b> bila berupa awalan kata kerja pasif (diletakkan, dibaca).</p>
-  <p>Kata dasar yang berakhiran k + "-kan" menjadi dua k: letak → letakkan.</p>`},
- {id:'gagasan', s:'pbm', j:['utbk'], t:'Menemukan gagasan utama dan simpulan', min:6, kw:['gagasan','utama','bacaan','simpulan','paragraf','membaca'], body:`
-  <ol><li>Baca kalimat pertama dan terakhir paragraf: gagasan utama sering ada di sana.</li>
-  <li>Cari kata penghubung kontras (namun, tetapi): gagasan penting biasanya mengikuti kata tersebut.</li>
-  <li>Cocokkan opsi dengan teks, bukan dengan pengetahuanmu sendiri.</li>
-  <li>Waspadai kata mutlak (semua, selalu, hanya) yang tidak ada di teks.</li></ol>
-  <p>Untuk kalimat efektif: hindari pemborosan kata (para siswa-siswa, sangat … sekali) dan pastikan subjek serta predikat jelas.</p>`},
- {id:'reading', s:'lbe', j:['utbk'], t:'English reading strategies', min:6, kw:['english','inggris','reading','bahasa inggris','however','conditional'], body:`
-  <ul><li><b>Skim</b> first: read the title and first sentences to get the topic.</li>
-  <li><b>Signal words</b>: however / but (contrast), therefore / as a result (result), for example (illustration).</li>
-  <li>The main idea usually appears in the first or last sentence.</li>
-  <li>For vocabulary questions, substitute each option back into the sentence.</li></ul>
-  <h3>Grammar quick check</h3>
-  <p>Second conditional: <code>If + past simple, would + base verb</code> (If I had more time, I would finish).</p>`},
- {id:'twk', s:'twk', j:['kedinasan'], t:'Pancasila, UUD 1945, dan sejarah kebangsaan', min:8, kw:['twk','pancasila','uud','sumpah pemuda','kebangsaan','bhinneka'], body:`
-  <ul><li>Sila ke-4 berisi nilai musyawarah mufakat.</li>
-  <li>Pasal 1 ayat (3) UUD 1945: Indonesia adalah negara hukum.</li>
-  <li>Sumpah Pemuda: 28 Oktober 1928. Proklamasi: 17 Agustus 1945.</li>
-  <li>"Bhinneka Tunggal Ika" berasal dari Kakawin Sutasoma karya Mpu Tantular.</li></ul>
-  <p>Hafalkan istilah kunci, lalu latih soal agar terbiasa dengan pilihan jawaban yang mirip.</p>`},
- {id:'tiu', s:'tiu', j:['kedinasan'], t:'TIU: verbal, numerik, dan logika', min:6, kw:['tiu','intelegensia','sinonim','antonim','silogisme'], body:`
-  <p>TIU menguji tiga kemampuan: verbal (sinonim, antonim, analogi), numerik (hitungan, deret, perbandingan), dan logika (silogisme, analitis).</p>
-  <ul><li>Kerjakan numerik yang cepat dahulu, tinggalkan yang berbelit.</li>
-  <li>Untuk analogi, tentukan <b>hubungan</b> pasangan pertama (tempat kerja, lawan kata, bagian-keseluruhan) lalu terapkan ke pasangan kedua.</li></ul>`},
- {id:'tkp', s:'tkp', j:['kedinasan'], t:'Strategi menjawab TKP', min:5, kw:['tkp','karakteristik','pelayanan','situasional'], body:`
-  <p>Tiap opsi TKP memiliki skor 1–5, jadi tidak ada jawaban kosong. Pilih opsi yang:</p>
-  <ul><li><b>Komunikatif</b>: melaporkan dan berdiskusi lewat jalur yang tepat.</li>
-  <li><b>Solutif</b>: menawarkan jalan keluar, bukan hanya menghindar atau menyalahkan.</li>
-  <li><b>Profesional</b>: tenang, patuh aturan, dan mengutamakan pelayanan.</li></ul>
-  <p>Hindari opsi ekstrem (mengabaikan, marah, melanggar aturan) dan opsi yang hanya menguntungkan diri sendiri.</p>`},
- {id:'tpa', s:'tpav', j:['mandiri'], t:'TPA: analogi, sinonim, dan antonim', min:5, kw:['tpa','analogi','sinonim','antonim','verbal'], body:`
-  <h3>Jenis hubungan analogi</h3>
-  <ul><li>Lawan kata: panas : dingin</li><li>Tempat kerja: dokter : rumah sakit</li>
-  <li>Alat dan fungsi: pisau : memotong</li><li>Bagian dan keseluruhan: roda : mobil</li></ul>
-  <p>Buat kalimat penghubung pasangan pertama, lalu uji dengan pasangan kedua.</p>`}
-];
+const LESSONS = [];
 
 /* ===== TIPS NERA ===== */
 const TIPS = {
@@ -1756,11 +1651,9 @@ function accessReason(t){
   return 'premium';
 }
 function tryoutQids(t){
-  let ids=[];
-  t.subs.forEach(s=>{ let qs=BANK.filter(q=>q.s===s); if(t.seed) qs=shuffle(qs,seeded(t.seed+s)); ids=ids.concat(qs.map(q=>q.id)); });
-  return ids;
+  return BANK.filter(q=>String(q.tryout_id)===String(t.id) && q.kind==='tryout').map(q=>q.id);
 }
-const tryoutMinutes = t=>Math.max(10,Math.ceil(tryoutQids(t).length*1.3));
+const tryoutMinutes = t=>Number(t.minutes)>0?Number(t.minutes):Math.max(10,Math.ceil(tryoutQids(t).length*1.3));
 const triesUsed = t=>DATA.attempts.filter(a=>a.tid===t.id).length;
 
 /* ===== UI PRIMITIVES ===== */
@@ -1775,7 +1668,7 @@ function openModal(html,cls){
   closeModal();
   const o=document.createElement('div'); o.className='overlay'; o.id='overlay';
   o.innerHTML=`<div class="modal ${cls||''}" role="dialog" aria-modal="true">${html}</div>`;
-  o.addEventListener('click',e=>{ if(e.target===o) closeModal(); });
+  o.addEventListener('click',e=>{ if(e.target===o || e.target.closest('[data-act=\"close\"]')) closeModal(); });
   document.body.appendChild(o);
   const f=o.querySelector('input,textarea,button,select'); if(f) f.focus();
 }
@@ -2029,14 +1922,7 @@ function viewBeranda(){
     </aside></div>`));
 }
 
-function tryoutDisplayTitle(t){
-  const target=activeProgram();
-  if(target && target.jalur==='mandiri' && t.jalur==='mandiri'){
-    const label=target.name.replace(/^Ujian /,'').replace(/ 2027$/,'');
-    return `${t.access==='premium'?'Tryout Premium':'Tryout'} ${label} 2027`;
-  }
-  return t.title;
-}
+function tryoutDisplayTitle(t){ return t.title; }
 function tryoutCard(t){
   const n=tryoutQids(t).length, ok=hasAccess(t), used=triesUsed(t), prem=t.access==='premium';
   const left=prem?'tanpa batas':Math.max(0,t.tries-used)+' dari '+t.tries+' percobaan';
@@ -2060,9 +1946,13 @@ function activeProgram(){
 }
 function tryoutMatchesTarget(t,target){
   if(!target) return true;
+  if(t.target_id && String(t.target_id)===String(target.id)) return true;
+  const n=String(target.name||'').toLowerCase().replace(/^ujian\s+/,'').replace(/\b20\d{2}\b/g,'');
+  const title=String(t.title||'').toLowerCase();
+  const aliases=n.split(/\s+/).filter(x=>x.length>2);
+  if(target.jalur==='mandiri' && aliases.length && aliases.some(a=>title.includes(a))) return true;
   if(target.jalur==='utbk') return t.jalur==='utbk';
   if(target.jalur==='kedinasan') return t.jalur==='kedinasan';
-  if(target.jalur==='mandiri') return t.jalur==='mandiri';
   return t.jalur===target.jalur;
 }
 function lessonMatchesTarget(l,target){
@@ -2076,11 +1966,12 @@ function targetProgramLabel(){
 
 function viewTryoutList(){
   const target=activeProgram();
-  const list=TRYOUTS.filter(t=>tryoutMatchesTarget(t,target) && (TF==='all'||t.jalur===TF||(TF==='free'&&t.access==='free')));
+  const targetActive=TF==='target';
+  const list=TRYOUTS.filter(t=>targetActive?tryoutMatchesTarget(t,target):(TF==='all'||t.jalur===TF||(TF==='free'&&t.access==='free')));
   mount(shell('tryout',`
     <div class="pageHead"><h1>Tryout</h1><p>Simulasi dengan timer dan navigasi soal seperti ujian sungguhan. Skor dan pembahasan langsung tersedia setelah selesai.</p></div>
     ${DATA.inprogress?`<div class="card row between wrapflex mb16" ><div><b>Ada tryout yang belum selesai</b><div class="muted small">${esc(TRYOUTS.find(x=>x.id===DATA.inprogress.tid).title)}</div></div><a class="btn btn-yellow btn-sm" href="#/tryout/${DATA.inprogress.tid}/kerjakan">Lanjutkan</a></div>`:''}
-    <div class="seg mb16" role="tablist">${[['all','Semua'],['free','Gratis'],['utbk','UTBK-SNBT'],['mandiri','Mandiri PTN'],['kedinasan','Kedinasan']].map(([k,l])=>`<button role="tab" class="${TF===k?'on':''}" data-act="tf" data-v="${k}">${l}</button>`).join('')}</div>
+    <div class="seg mb16" role="tablist">${[['all','Semua'],['free','Gratis'],['utbk','UTBK-SNBT'],['mandiri','Mandiri PTN'],['kedinasan','Kedinasan'],...(target?[['target',target.name.replace(/^Ujian\s+/,'')]]:[])].map(([k,l])=>`<button role="tab" class="${TF===k?'on':''}" data-act="tf" data-v="${k}">${esc(l)}</button>`).join('')}</div>
     <section class="card mb16"><div class="row between wrapflex"><div><h3>Timeline tryout</h3><p class="muted small" style="margin:4px 0 0">Tryout gratis bisa dikerjakan selama timeline terbuka. Setelah timeline berakhir, akses tetap tersedia untuk pelanggan paket.</p></div><span class="chip y">Akses di luar timeline = Premium</span></div><div class="grid g3 mt16">${TRYOUTS.filter(t=>t.access==='free').map(t=>`<div style="border-left:3px solid var(--yellow);padding-left:12px"><b>${esc(tryoutDisplayTitle(t))}</b><div class="muted small mt8">${timelineLabel(t)}</div><div class="small mt8">${inTryoutTimeline(t)?'<span class="chip ok">Sedang dibuka</span>':'<span class="chip">Timeline selesai</span>'}</div></div>`).join('')}</div></section>
     ${list.length?`<div class="grid g3">${list.map(tryoutCard).join('')}</div>`:'<div class="empty">Belum ada tryout untuk filter ini.</div>'}`));
 }
@@ -2095,7 +1986,7 @@ function viewTryoutIntro(id){
     <div class="card mt12"><span class="chip ${prem?'dark':'y'}">${prem?'Premium':'Gratis'}</span><h1 class="mt12" style="font-size:28px">${esc(t.title)}</h1>
       <div class="meta mt8"><span>${n} soal</span><span>${tryoutMinutes(t)} menit</span><span>${prem?'Percobaan tanpa batas':`Percobaan: ${used} dari ${t.tries} terpakai`}</span></div>
       <h3 class="mt24">Subtes</h3>
-      <ul style="margin:8px 0 0;padding-left:20px;line-height:1.9">${t.subs.map(s=>`<li>${SUB[s].n} <span class="muted">(${BANK.filter(q=>q.s===s).length} soal)</span></li>`).join('')}</ul>
+      <ul style="margin:8px 0 0;padding-left:20px;line-height:1.9">${t.subs.map(s=>`<li>${SUB[s]?.n||s.toUpperCase()} <span class="muted">(${BANK.filter(q=>q.s===s && (!t.remote || String(q.tryout_id)===String(t.id))).length} soal)</span></li>`).join('')}</ul>
       <h3 class="mt24">Sebelum mulai</h3>
       <ul style="margin:8px 0 0;padding-left:20px;line-height:1.8"><li>Timer berjalan terus walau kamu berpindah halaman, dan tryout otomatis dikumpulkan saat waktu habis.</li><li>Kamu bisa menandai soal ragu-ragu dan kembali ke soal mana saja.</li><li>Jawaban tersimpan otomatis. Jika browser tertutup, kamu bisa melanjutkan selama waktu belum habis.</li></ul>
       <div class="row mt24 wrapflex">${out?`<button class="btn btn-ink" disabled>Percobaan habis</button>`:`<button class="btn btn-ink" data-act="start-to" data-v="${t.id}">${prog?'Lanjutkan tryout':'Mulai tryout'}</button>`}</div>
@@ -2109,10 +2000,34 @@ function viewLocked(t){
     ${outside&&t.openAt?`<div class="chip y mt12">Timeline: ${timelineLabel(t)}</div>`:''}
     <div class="row mt16" style="justify-content:center"><a class="btn btn-ghost" href="#/tryout">Kembali</a><a class="btn btn-yellow" href="#/paket">${outside?'Berlangganan':'Lihat paket'}</a></div></div>`));
 }
+/* ===== QUESTION TYPES ===== */
+function qType(q){ return String(q?.type||'single_choice'); }
+function normalizeAnswer(v){ return String(v??'').trim().toLowerCase().replace(/\\s+/g,' '); }
+function qCorrect(q,pick){
+  const type=qType(q);
+  if(type==='multiple_choice'){
+    const wanted=String(q.correct_answer||'').toUpperCase().split(/[,;\\s]+/).filter(Boolean).sort();
+    const got=Array.isArray(pick)?pick.map(x=>LETTERS[Number(x)]||String(x).toUpperCase()).sort():[];
+    return wanted.length===got.length && wanted.every((x,i)=>x===got[i]);
+  }
+  if(type==='short_text') return normalizeAnswer(pick)===normalizeAnswer(q.correct_answer);
+  if(type==='essay') return false;
+  return Number(pick)===Number(q.a);
+}
+function questionInput(q,pick,disabled=false){
+  const type=qType(q);
+  if(type==='short_text') return `<input class="answerText" data-act="run-text" value="${esc(pick??'')}" ${disabled?'disabled':''} placeholder="Tulis jawaban singkat…">`;
+  if(type==='essay') return `<textarea class="answerText" data-act="run-text" rows="7" ${disabled?'disabled':''} placeholder="Tulis jawabanmu…">${esc(pick??'')}</textarea>`;
+  if(type==='multiple_choice') return `<div class="opts" role="group" aria-label="Pilih semua jawaban yang benar">${q.o.map((o,i)=>`<button class="opt ${Array.isArray(pick)&&pick.includes(i)?'sel':''}" ${disabled?'disabled':''} data-act="run-multi-pick" data-v="${i}"><span class="k">${LETTERS[i]}</span><span>${esc(o)}</span></button>`).join('')}</div>`;
+  return `<div class="opts" role="radiogroup" aria-label="Pilihan jawaban">${q.o.map((o,i)=>`<button class="opt ${pick===i?'sel':''}" ${disabled?'disabled':''} data-act="run-pick" data-v="${i}"><span class="k">${LETTERS[i]}</span><span>${esc(o)}</span></button>`).join('')}</div>`;
+}
+
 /* ===== TRYOUT RUNNER ===== */
 function startTryout(tid){
   const t=TRYOUTS.find(x=>x.id===tid);
+  if(!t) return go('/tryout');
   if(!hasAccess(t)) return go('/paket');
+  if(!tryoutQids(t).length) return toast('Soal tryout belum tersedia.');
   if(DATA.inprogress && DATA.inprogress.tid===tid){ return go('/tryout/'+tid+'/kerjakan'); }
   if(DATA.inprogress){ return openModal(`<h3>Ada tryout yang belum selesai</h3><p class="muted">Selesaikan atau lepas dulu tryout sebelumnya sebelum memulai yang baru. Jawaban tryout yang dilepas tidak dinilai.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-ink grow" data-act="drop-start" data-v="${tid}">Lepas dan mulai baru</button></div>`); }
   if(t.access==='free' && triesUsed(t)>=t.tries) return toast('Percobaan untuk tryout ini sudah habis.');
@@ -2147,7 +2062,8 @@ function renderRun(){
       <section class="card" aria-live="polite"><div class="row between wrapflex mb16"><span class="chip y">${SUB[q.s].n} · ${idxIn}/${sameSub.length}</span><span class="muted small">Soal ${A.cur+1} dari ${total}</span></div>
         ${q.p?`<div class="passage">${esc(q.p)}</div>`:''}
         <div class="qtext">${esc(q.q)}</div>
-        <div class="opts" role="radiogroup" aria-label="Pilihan jawaban">${q.o.map((o,i)=>`<button class="opt ${pick===i?'sel':''}" role="radio" aria-checked="${pick===i}" data-act="run-pick" data-v="${i}"><span class="k">${LETTERS[i]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+        ${q.image_url?`<img src="${esc(q.image_url)}" alt="Ilustrasi soal" style="max-width:100%;max-height:420px;object-fit:contain;border-radius:12px;margin:12px 0">`:''}
+        ${questionInput(q,pick,false)}
         <div class="row mt16"><button class="btn btn-ghost btn-sm" data-act="run-flag">${ic('flag')}${A.flags[q.id]?'Hapus tanda ragu':'Tandai ragu-ragu'}</button>${pick!=null?`<button class="btn btn-ghost btn-sm" data-act="run-clear">Hapus jawaban</button>`:''}</div>
       </section>
       <aside class="card" aria-label="Navigasi soal" style="align-self:start"><b>Navigasi soal</b>${nav}
@@ -2173,7 +2089,7 @@ function submitAttempt(auto){
     const q=QBY[id], pick=A.answers[id], r=per[q.s]||(per[q.s]={pts:0,max:0,n:0,correct:0,wrong:0,empty:0});
     r.n++; r.max+=q.pts?5:1;
     if(pick==null){ r.empty++; }
-    else{ const ok=pick===q.a; r.pts+=q.pts?q.pts[pick]:(ok?1:0); if(ok) r.correct++; else r.wrong++; addStat(q.s,ok); bumpActivity(ok,false); }
+    else{ const ok=qCorrect(q,pick); const earned=q.pts&&Number.isInteger(pick)?(q.pts[pick]||0):(ok?1:0); r.pts+=earned; if(qType(q)!=='essay' && ok) r.correct++; else if(qType(q)!=='essay') r.wrong++; if(qType(q)==='essay') r.empty++; addStat(q.s,ok); bumpActivity(ok,false); }
   });
   Object.values(per).forEach(r=>r.score=Math.round(200+800*r.pts/r.max));
   const scores=Object.values(per).map(r=>r.score), total=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
@@ -2191,7 +2107,7 @@ function viewHasil(id){
   const low=rows[0], tot=a.qids.length;
   const corr=rows.reduce((s,[,r])=>s+r.correct,0), wr=rows.reduce((s,[,r])=>s+r.wrong,0), em=rows.reduce((s,[,r])=>s+r.empty,0);
   const items=a.qids.map((qid,i)=>{
-    const q=QBY[qid], pick=a.answers[qid], st=pick==null?'empty':(pick===q.a?'right':'wrong');
+    const q=QBY[qid], pick=a.answers[qid], st=pick==null||pick===''?'empty':(qType(q)==='essay'?'manual':(qCorrect(q,pick)?'right':'wrong'));
     return {q,i,pick,st};
   }).filter(x=>RF==='all'||x.st===RF);
   mount(shell('tryout',`
@@ -2215,7 +2131,7 @@ let DR=null;
 function viewLatihan(sub){
   if(!sub||!SUB[sub]){ DR=null; return drillChooser(); }
   if(!DR||DR.sub!==sub){
-    DR={sub, ids:shuffle(BANK.filter(q=>q.s===sub)).slice(0,5).map(q=>q.id), i:0, picked:null, checked:false, ok:0};
+    DR={sub, ids:shuffle(BANK.filter(q=>q.kind==='drill'&&q.s===sub)).slice(0,5).map(q=>q.id), i:0, picked:null, checked:false, ok:0};
   }
   renderDrill();
 }
@@ -2236,21 +2152,22 @@ function renderDrill(){
       <p style="font-size:18px;margin:10px 0 4px"><b>${D.ok} dari ${total}</b> jawaban benar</p><p class="muted">Kamu mendapat sekitar ${xp} XP dari sesi ini.</p>
       <div class="row mt16 wrapflex" style="justify-content:center"><button class="btn btn-ink" data-act="drill-again">Latihan lagi</button><a class="btn btn-ghost" href="#/latihan">Pilih subtes lain</a><a class="btn btn-ghost" href="#/materi">Buka materi</a></div></div>`));
   }
-  const q=QBY[D.ids[D.i]];
-  const cls=k=>{ if(!D.checked) return D.picked===k?'sel':''; if(k===q.a) return 'right'; if(k===D.picked) return 'wrong'; return ''; };
+  const q=QBY[D.ids[D.i]], type=qType(q);
+  const cls=k=>{ if(!D.checked) return Array.isArray(D.picked)?(D.picked.includes(k)?'sel':''):D.picked===k?'sel':''; if(type==='multiple_choice') return Array.isArray(D.picked)&&D.picked.includes(k)?(qCorrect(q,D.picked)?'right':'wrong'):''; if(k===q.a) return 'right'; if(k===D.picked) return 'wrong'; return ''; };
+  const drillInput=type==='short_text'||type==='essay'?`<textarea class="answerText" data-act="drill-text" rows="${type==='essay'?7:2}" ${D.checked?'disabled':''} placeholder="${type==='essay'?'Tulis jawabanmu…':'Tulis jawaban singkat…'}">${esc(D.picked??'')}</textarea>`:type==='multiple_choice'?`<div class="opts">${q.o.map((o,k)=>`<button class="opt ${cls(k)}" ${D.checked?'disabled':''} data-act="drill-multi-pick" data-v="${k}"><span class="k">${LETTERS[k]}</span><span>${esc(o)}</span></button>`).join('')}</div>`:`<div class="opts">${q.o.map((o,k)=>`<button class="opt ${cls(k)}" ${D.checked?'disabled':''} data-act="drill-pick" data-v="${k}"><span class="k">${LETTERS[k]}</span><span>${esc(o)}</span></button>`).join('')}</div>`;
   mount(shell('latihan',`<a class="link small" href="#/latihan">Ganti subtes</a>
     <section class="card mt12" style="max-width:760px" aria-live="polite">
-      <div class="row between wrapflex mb16"><span class="chip y">${SUB[q.s].n}</span><span class="muted small">Soal ${D.i+1} dari ${total}</span></div>
+      <div class="row between wrapflex mb16"><span class="chip y">${SUB[q.s]?.n||q.s}</span><span class="muted small">Soal ${D.i+1} dari ${total}</span></div>
       <div class="bar mb16"><i style="width:${pct(D.i,total)}%"></i></div>
-      ${q.p?`<div class="passage">${esc(q.p)}</div>`:''}<div class="qtext">${esc(q.q)}</div>
-      <div class="opts">${q.o.map((o,k)=>`<button class="opt ${cls(k)}" ${D.checked?'disabled':''} data-act="drill-pick" data-v="${k}"><span class="k">${LETTERS[k]}</span><span>${esc(o)}</span></button>`).join('')}</div>
-      ${D.checked?`<div class="explain"><b>${D.picked===q.a?'Benar.':'Belum tepat.'}</b> ${esc(q.e)}${q.pts?` <span class="chip" style="margin-left:4px">Skor jawabanmu: ${q.pts[D.picked]}</span>`:''}</div>
+      ${q.p?`<div class="passage">${esc(q.p)}</div>`:''}<div class="qtext">${esc(q.q)}</div>${q.image_url?`<img src="${esc(q.image_url)}" alt="Ilustrasi soal" style="max-width:100%;max-height:420px;object-fit:contain;border-radius:12px;margin:12px 0">`:''}
+      ${drillInput}
+      ${D.checked?`<div class="explain"><b>${type==='essay'?'Jawaban tersimpan untuk diperiksa manual.':qCorrect(q,D.picked)?'Benar.':'Belum tepat.'}</b> ${esc(q.e||'')}${q.pts&&Number.isInteger(D.picked)?` <span class="chip" style="margin-left:4px">Skor jawabanmu: ${q.pts[D.picked]}</span>`:''}</div>
         <div class="row mt16 wrapflex"><a class="btn btn-ghost" href="#/nera?q=${q.id}">${ic('spark')}Tanya Nera</a><button class="btn btn-ink grow" data-act="drill-next">${D.i+1<total?'Soal berikutnya':'Lihat ringkasan'}</button></div>`
-      :`<div class="mt16"><button class="btn btn-ink btn-block" data-act="drill-check" ${D.picked==null?'disabled':''}>Periksa jawaban</button></div>`}
+      :`<div class="mt16"><button class="btn btn-ink btn-block" data-act="drill-check" ${D.picked==null||D.picked===''?'disabled':''}>Periksa jawaban</button></div>`}
     </section>`));
 }
 function drillCheck(){
-  const q=QBY[DR.ids[DR.i]], ok=DR.picked===q.a, goal=DATA.profile.goal, before=(today().dc||0);
+  const q=QBY[DR.ids[DR.i]], ok=qCorrect(q,DR.picked), goal=DATA.profile.goal, before=(today().dc||0);
   addStat(q.s,ok); bumpActivity(ok,true); DATA.xp+=ok?10:2; if(ok) DR.ok++; DR.checked=true; save();
   if(ok && before<goal && (today().dc||0)>=goal) toast('Misi hari ini selesai!');
   renderDrill();
@@ -2258,7 +2175,8 @@ function drillCheck(){
 
 /* ===== MATERI ===== */
 let MF='all';
-function viewMateri(){
+function viewMateri(load=true){
+  if(load) loadRemoteLessons().then(()=>{ if(LESSONS.length && location.hash.replace(/^#/,'').split('/')[1]==='materi') viewMateri(false); }).catch(()=>{});
   const target=activeProgram();
   const list=LESSONS.filter(l=>lessonMatchesTarget(l,target) && (MF==='all'||l.j.includes(MF))), done=DATA.materiDone.length;
   mount(shell('materi',`
@@ -3314,6 +3232,8 @@ const ACT = {
   'start-to'(t){ startTryout(t.dataset.v); },
   'drop-start'(t){ DATA.inprogress=null; save(); closeModal(); startTryout(t.dataset.v); },
   'run-pick'(t){ const A=DATA.inprogress; A.answers[A.qids[A.cur]]=+t.dataset.v; save(); renderRun(); },
+  'run-multi-pick'(t){ const A=DATA.inprogress,id=A.qids[A.cur],arr=Array.isArray(A.answers[id])?[...A.answers[id]]:[],v=+t.dataset.v,i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else arr.push(v);A.answers[id]=arr;save();renderRun(); },
+  'run-text'(t){ const A=DATA.inprogress; A.answers[A.qids[A.cur]]=t.value; save(); },
   'run-clear'(){ const A=DATA.inprogress; delete A.answers[A.qids[A.cur]]; save(); renderRun(); },
   'run-flag'(){ const A=DATA.inprogress, id=A.qids[A.cur]; if(A.flags[id]) delete A.flags[id]; else A.flags[id]=1; save(); renderRun(); },
   'run-go'(t){ const A=DATA.inprogress; A.cur=+t.dataset.v; save(); renderRun(); window.scrollTo(0,0); },
@@ -3323,6 +3243,8 @@ const ACT = {
   'run-submit'(){ submitAttempt(false); },
   rf(t){ RF=t.dataset.v; viewHasil(t.dataset.id); },
   'drill-pick'(t){ if(DR.checked) return; DR.picked=+t.dataset.v; renderDrill(); },
+  'drill-multi-pick'(t){ if(DR.checked)return;const arr=Array.isArray(DR.picked)?[...DR.picked]:[],v=+t.dataset.v,i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else arr.push(v);DR.picked=arr;renderDrill(); },
+  'drill-text'(t){ if(DR.checked)return;DR.picked=t.value;save(); },
   'drill-check'(){ if(DR.picked!=null) drillCheck(); },
   'drill-next'(){ DR.i++; DR.picked=null; DR.checked=false; renderDrill(); },
   'drill-again'(){ const s=DR.sub; DR=null; viewLatihan(s); },
@@ -3563,6 +3485,12 @@ const ACT = {
   'delete-account'(){ if(U.guest) return; openModal(`<h3>Hapus akun?</h3><p class="muted">Akun beserta seluruh datanya akan dihapus dari browser ini dan tidak bisa dikembalikan.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-ink grow" data-act="delete-ok">Hapus akun</button></div>`); },
   'delete-ok'(){ const id=U.id; LS.set('users',LS.get('users',[]).filter(u=>u.id!==id)); LS.del('data:'+id); Auth.logout(); closeModal(); go('/daftar'); }
 };
+document.addEventListener('input',e=>{
+  const t=e.target.closest('[data-act="run-text"],[data-act="drill-text"]');
+  if(!t)return;
+  if(t.dataset.act==='run-text'){const A=DATA.inprogress;if(A){A.answers[A.qids[A.cur]]=t.value;save();}}
+  else if(DR&&!DR.checked){DR.picked=t.value;}
+});
 document.addEventListener('click',e=>{
   if(e.target.closest('a[href^="#/profil/"]')){ e.stopPropagation(); return; }
   const m=$('.menu.open'); if(m && !e.target.closest('.menuWrap')) m.classList.remove('open');
@@ -3704,6 +3632,7 @@ document.addEventListener('submit',async e=>{
     }catch(e){ console.warn(e); }
   }
   if(/[?&]code=/.test(location.search)||/[?&]error=/.test(location.search)) history.replaceState(null,'',location.pathname+(location.hash||''));
+  await Promise.all([loadRemoteTryouts(),loadRemoteDrillQuestions(),loadRemoteLessons()]);
   route();
 })();
 </script>
