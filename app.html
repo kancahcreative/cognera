@@ -1506,42 +1506,7 @@ async function hashPw(pw,salt){
   let h=5381; const s=salt+':'+pw; for(let i=0;i<s.length;i++) h=((h<<5)+h+s.charCodeAt(i))>>>0; return 'x'+h.toString(16);
 }
 
-/* Google Identity Services (dipakai saat mode tanpa Supabase) */
-function loadGIS(){
-  return new Promise((res,rej)=>{
-    if(window.google&&google.accounts&&google.accounts.oauth2) return res();
-    const old=document.getElementById('gis'); if(old) old.remove();
-    const s=document.createElement('script'); s.id='gis'; s.src='https://accounts.google.com/gsi/client'; s.async=true;
-    s.onload=()=>res(); s.onerror=()=>rej(new Error('Gagal memuat Google. Periksa koneksi internetmu.'));
-    document.head.appendChild(s);
-  });
-}
-async function newNonce(){
-  const raw=btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(32))));
-  const h=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(raw));
-  return {raw,hashed:Array.from(new Uint8Array(h)).map(b=>b.toString(16).padStart(2,'0')).join('')};
-}
-function jwtPayload(t){
-  const b=t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
-  return JSON.parse(decodeURIComponent(atob(b).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join('')));
-}
-/* Tombol resmi Google (ID token). Hasilnya diserahkan ke Supabase atau disimpan lokal. */
-async function initGoogleBtn(){
-  const box=document.getElementById('gbtn'); if(!box||!CONFIG.GOOGLE_CLIENT_ID) return;
-  try{
-    await loadGIS();
-    const n=await newNonce();
-    google.accounts.id.initialize({
-      client_id:CONFIG.GOOGLE_CLIENT_ID, nonce:n.hashed, ux_mode:'popup', auto_select:false, use_fedcm_for_prompt:true,
-      callback:async resp=>{
-        try{ await Auth.googleToken({credential:resp.credential,nonce:n.raw}); LS.del('volatile'); go('/beranda'); }
-        catch(e){ toast(e.message||'Login Google gagal.'); }
-      }
-    });
-    google.accounts.id.renderButton(box,{type:'standard',theme:'outline',size:'large',shape:'pill',text:'continue_with',logo_alignment:'left',locale:'id',width:Math.max(200,Math.min(400,box.offsetWidth||320))});
-  }catch(e){ box.innerHTML='<div class="muted small">Tombol Google gagal dimuat. Periksa koneksi internet lalu muat ulang halaman.</div>'; }
-}
-
+/* Google login: gunakan Supabase OAuth langsung. Tidak memakai Google Identity Services/ID-token exchange. */
 /* Auth API — ganti isi fungsi ini dengan panggilan ke backend Anda (Supabase/Firebase/REST) */
 const Auth = {
   async register({name,username,phone,sekolah,kelas,email,password}){
@@ -1584,25 +1549,13 @@ const Auth = {
     const users=LS.get('users',[]); const u=users.find(x=>x.id===U.id);
     u.salt=uid(); u.hash=await hashPw(next,u.salt); LS.set('users',users); loadSession();
   },
-  async googleToken({credential,nonce}){
-    if(SB){
-      const {error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}});
-      if(error) throw new Error(error.message);
-      return null;
-    }
-    const p=jwtPayload(credential), email=String(p.email||'').toLowerCase();
-    if(!email) throw new Error('Gagal membaca akun Google.');
-    const users=LS.get('users',[]); let u=users.find(x=>x.email===email);
-    if(!u){
-      u={id:uid(), name:(p.given_name||p.name||email.split('@')[0]).slice(0,40), email, google:p.sub, picture:p.picture||'', createdAt:Date.now()};
-      users.push(u); LS.set('users',users);
-      const g=LS.get('data:guest',null);
-      if(g && (Object.keys(g.activity||{}).length || (g.attempts||[]).length)){
-        const d=Object.assign(defaultData(u),g,{onboarded:false,packages:[]}); d.profile=Object.assign({},g.profile,{name:u.name});
-        LS.set('data:'+u.id,d); LS.del('data:guest');
-      }
-    } else if(!u.google){ u.google=p.sub; LS.set('users',users); }
-    LS.set('session',u.id); loadSession(); if(p.picture&&DATA&&DATA.profile){ DATA.profile.gpic=p.picture; save(); } return u;
+  async googleToken(){
+    if(!SB) throw new Error('Supabase belum terhubung.');
+    const redirectTo=location.origin+location.pathname;
+    const {data,error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo,queryParams:{prompt:'select_account'}}});
+    if(error) throw new Error(error.message);
+    if(data&&data.url) location.assign(data.url);
+    return null;
   },
   logout(){ if(SB) SB.auth.signOut(); LS.del('session'); loadSession(); }
 };
@@ -3211,10 +3164,22 @@ document.addEventListener('change',e=>{ if(e.target&&e.target.id==='avFile'){ co
 
 const ACT = {
   async google(t){
-    if(!SB) return toast('Login Google belum dihubungkan. Isi GOOGLE_CLIENT_ID di CONFIG.');
-    if(t) t.disabled=true; LS.del('volatile');
-    const {error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}});
-    if(error){ toast(error.message); if(t) t.disabled=false; }
+    if(!SB) return toast('Supabase belum terhubung.');
+    if(t) t.disabled=true;
+    LS.del('volatile');
+    try{
+      const redirectTo=location.origin+location.pathname;
+      const {data,error}=await SB.auth.signInWithOAuth({
+        provider:'google',
+        options:{redirectTo,queryParams:{prompt:'select_account'}}
+      });
+      if(error) throw error;
+      if(!data||!data.url) throw new Error('URL login Google tidak diterima Supabase.');
+      location.assign(data.url);
+    }catch(e){
+      if(t) t.disabled=false;
+      toast(e.message||'Login Google gagal.');
+    }
   },
   menu(t){ const m=document.getElementById(t.dataset.v), was=m.classList.contains('open'); document.querySelectorAll('.menu.open').forEach(x=>x.classList.remove('open')); if(!was) m.classList.add('open'); },
   'jalur-set'(t){ DATA.profile.jalur=t.dataset.v; save(); route(); },
@@ -3629,6 +3594,14 @@ document.addEventListener('submit',async e=>{
   }catch(e){}
   if(SB){
     try{
+      // PKCE OAuth callback: exchange the returned code before reading the session.
+      const qs=new URLSearchParams(location.search);
+      const oauthCode=qs.get('code');
+      if(oauthCode){
+        const {error}=await SB.auth.exchangeCodeForSession(oauthCode);
+        if(error) throw error;
+        history.replaceState(null,'',location.pathname+(location.hash||''));
+      }
       const {data}=await SB.auth.getSession();
       const sess=data&&data.session, local=LS.get('session',null);
       if(sess){ if(local!==sess.user.id){ const us=sess.user; await pullRemote(us.id,(us.user_metadata&&(us.user_metadata.name||us.user_metadata.full_name))||'',us.email,gpicOf(us)); } }
@@ -3636,7 +3609,7 @@ document.addEventListener('submit',async e=>{
       if(sess){ loadSession(); const gp=gpicOf(sess.user); if(gp&&U&&!U.guest&&DATA&&DATA.profile&&DATA.profile.gpic!==gp){ DATA.profile.gpic=gp; save(); } }
     }catch(e){ console.warn(e); }
   }
-  if(/[?&]code=/.test(location.search)||/[?&]error=/.test(location.search)) history.replaceState(null,'',location.pathname+(location.hash||''));
+  if(/[?&]error=/.test(location.search)) history.replaceState(null,'',location.pathname+(location.hash||''));
   await Promise.all([loadRemoteTryouts(),loadRemoteDrillQuestions(),loadRemoteLessons()]);
   route();
 })();
