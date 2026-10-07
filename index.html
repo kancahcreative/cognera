@@ -1,6 +1,15 @@
 <!doctype html>
 <html lang="id">
 <head>
+<script>
+(function(){
+  var s=location.search,h=location.hash;
+  if(/[?&](code|error|error_description)=/.test(s)||/access_token=|error=/.test(h)){
+    location.replace('app.html'+s+h);
+  }
+})();
+</script>
+
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#f4c62f">
@@ -1156,7 +1165,7 @@ body{background:#fff;color:#191b20}
 @media(max-width:560px){.tm{padding:52px 0 60px}.tm-ctrl{gap:12px}.tm-dots{gap:7px}.tm-dots i{width:8px;height:8px}.tm-dots i.on{width:26px}.tm-track{gap:16px}.tm-card{padding:22px 22px 20px}.tm-card blockquote{min-height:150px;font-size:14.5px}}
 </style></head>
 <body>
-<header class="nav"><div class="container navInner"><a class="brand" href="index.html" aria-label="Cognera beranda"><span class="brandMark">C</span><span>cognera</span></a><nav class="navLinks" id="navLinks" aria-label="Navigasi utama"><a href="#produk">Ekosistem</a><a href="#subjects">Materi</a><a href="#fitur">Cara kerja</a><a href="#packages">Paket belajar</a><a href="#testimonials">Testimoni</a><a href="#faq">Bantuan</a><div class="navMob"><a class="navMobLogin" href="app.html">Login</a><a class="navMobCta" href="app.html">Mulai Latihan</a></div></nav><div class="navCta"><a class="navLogin" href="app.html">Login</a><a class="navAction" href="app.html">Mulai Latihan</a></div><button class="menuBtn" id="menuBtn" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button></div></header>
+<header class="nav"><div class="container navInner"><a class="brand" href="index.html" aria-label="Cognera beranda"><span class="brandMark">C</span><span>cognera</span></a><nav class="navLinks" id="navLinks" aria-label="Navigasi utama"><a href="#produk">Ekosistem</a><a href="#subjects">Materi</a><a href="#fitur">Cara kerja</a><a href="#packages">Paket belajar</a><a href="#testimonials">Testimoni</a><a href="#faq">Bantuan</a><div class="navMob"><a class="navMobLogin" href="app.html#/masuk">Login</a><a class="navMobCta" href="app.html">Mulai Latihan</a></div></nav><div class="navCta"><a class="navLogin" href="app.html#/masuk">Login</a><a class="navAction" href="app.html">Mulai Latihan</a></div><button class="menuBtn" id="menuBtn" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button></div></header>
 <main id="top">
 <section class="hero"><div class="container heroInner"><div class="heroCopy"><div class="heroBrand"><b>C</b> COGNERA · TEMAN PERSIAPAN UJIANMU</div><h1>Siap ujian, tanpa belajar asal-asalan.</h1><p>Kerjakan tryout, pahami hasilnya, lalu tahu materi apa yang perlu kamu kejar berikutnya.</p><div class="heroActions"><a class="primaryBtn" href="app.html">Mulai latihan gratis</a><a class="secondaryBtn" href="#packages">Lihat paket belajar</a></div></div><div class="heroArt">
 <svg class="studyIllustration" viewBox="0 0 860 720" role="img" aria-labelledby="studyTitle studyDesc" xmlns="http://www.w3.org/2000/svg">
