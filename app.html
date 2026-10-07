@@ -1479,6 +1479,11 @@ async function pushRemote(){
 }
 const gpicOf=us=>(us&&us.user_metadata&&(us.user_metadata.avatar_url||us.user_metadata.picture))||'';
 async function pullRemote(uid,name,email,pic,meta={}){
+  // Bootstrap the app profile only after Supabase Auth has created auth.users.
+  // No auth.users trigger is required for Google signup.
+  try{
+    await SB.from('profiles').upsert({id:uid,username:meta.username||('user_'+String(uid).replace(/-/g,'').slice(0,8)),name:name||email.split('@')[0],phone:meta.phone||'',jalur:'utbk',tahun:2027,goal:3,sekolah:meta.sekolah||'',kelas:meta.kelas||'',xp:0,onboarded:false,avatar:pic||null},{onConflict:'id',ignoreDuplicates:true});
+  }catch(profileErr){ console.warn('profile bootstrap gagal',profileErr); }
   const [d,e]=await Promise.all([SB.from('user_data').select('data').eq('user_id',uid).maybeSingle(),
     SB.from('entitlements').select('package_id,ends_at').eq('user_id',uid)]);
   const now=Date.now();
@@ -1581,9 +1586,9 @@ const Auth = {
   },
   async googleToken({credential,nonce}){
     if(SB){
-      const {data,error}=await SB.auth.signInWithIdToken({provider:'google',token:credential,nonce});
+      const {error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+location.pathname,queryParams:{prompt:'select_account'}}});
       if(error) throw new Error(error.message);
-      const us=data.user; await pullRemote(us.id,(us.user_metadata&&(us.user_metadata.name||us.user_metadata.full_name))||us.email.split('@')[0],us.email,gpicOf(us),{username:us.user_metadata?.preferred_username||'',phone:us.user_metadata?.phone||'',sekolah:us.user_metadata?.sekolah||'',kelas:us.user_metadata?.kelas||''}); return U;
+      return null;
     }
     const p=jwtPayload(credential), email=String(p.email||'').toLowerCase();
     if(!email) throw new Error('Gagal membaca akun Google.');
@@ -1773,7 +1778,7 @@ function viewAuth(mode){
     <section class="authForm"><div class="authBox">
       <h2>${reg?'Buat akun Cognera':'Masuk ke Cognera'}</h2>
       <p class="muted" style="margin:0">${reg?'Gratis. Skor dan progres belajarmu tersimpan di akun ini.':'Lanjutkan latihan dan lihat progresmu.'}</p>
-      ${CONFIG.GOOGLE_CLIENT_ID?'<div id="gbtn" class="gbtn"></div>':`<button type="button" class="btn btn-ghost btn-block" data-act="google"><svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.9 6.1C12.4 13.6 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.5 28.7a14.5 14.5 0 010-9.4l-7.9-6.1a24 24 0 000 21.6l7.9-6.1z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.6-4.1-13.5-9.8l-7.9 6.1C6.5 42.6 14.6 48 24 48z"/></svg>Lanjutkan dengan Google</button>`}<div class="orLine"><span>atau pakai email</span></div>
+      <button type="button" class="btn btn-ghost btn-block" data-act="google"><span style="font-weight:800">G</span> Lanjutkan dengan Google</button><div class="orLine"><span>atau pakai email</span></div>
       <form data-form="${reg?'register':'login'}" novalidate>
         ${reg?`<label class="field"><span>Nama panggilan</span><input class="input" name="name" autocomplete="name" required maxlength="40" placeholder="Contoh: Rani"></label><label class="field"><span>Username</span><input class="input" name="username" autocomplete="username" required maxlength="20" pattern="[a-z0-9._-]{3,20}" placeholder="Contoh: rani.123"><small class="muted">3–20 karakter. Huruf kecil, angka, titik, _ atau -. Tampil di leaderboard.</small></label><label class="field"><span>No. HP</span><input class="input" name="phone" autocomplete="tel" required inputmode="tel" maxlength="15" placeholder="08xxxxxxxxxx atau +628xxxxxxxxxx"></label><label class="field"><span>Asal sekolah</span><input class="input" name="sekolah" autocomplete="organization" required maxlength="80" placeholder="Contoh: SMAN 1 Klaten"></label><label class="field"><span>Kelas</span><input class="input" name="kelas" autocomplete="organization-title" required maxlength="30" placeholder="Contoh: XII DKV 1"></label>`:''}
         <label class="field"><span>Email</span><input class="input" name="email" type="email" autocomplete="email" inputmode="email" required placeholder="nama@email.com" value="${fl?esc(fl.email):''}"></label>
@@ -1788,7 +1793,7 @@ function viewAuth(mode){
       <p class="authFoot">© 2026 Cognera</p>
     </div></section>
   </div>`);
-  initGoogleBtn();
+  // Google login uses Supabase OAuth redirect (not Google ID-token exchange).
 }
 function authErr(m){ const e=$('#authErr'); if(e) e.innerHTML=m?`<div class="err">${esc(m)}</div>`:''; }
 const validEmail = e=>/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e);
