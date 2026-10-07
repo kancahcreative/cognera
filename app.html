@@ -2911,7 +2911,6 @@ function ckSide(p){
     <div class="ckSep"></div>${code}</section>
     <section class="ckPanel"><h3>Rincian pembayaran</h3>
       <div class="ckRow"><span>Harga normal</span><b class="strk">${rp(P.normal)}</b></div>
-      <div class="ckRow"><span>Harga promo</span><b>${rp(P.base)}</b></div>
       ${P.pkgDisc>0?`<div class="ckRow ok"><span>Diskon paket</span><b>-${rp(P.pkgDisc)}</b></div>`:''}
       ${P.disc>0?`<div class="ckRow ok"><span>Kode mitra</span><b>-${rp(P.disc)}</b></div>`:''}
       <div class="ckRow"><span>Biaya layanan</span><b>+${rp(P.fee)}</b></div>
@@ -2941,16 +2940,8 @@ async function ckCreate(){
   const p=PACKAGES.find(x=>x.id===CK.pkg), btn=$('#ckGo'), cur=PAYM.find(x=>x.id===CK.method)||{};
   if(btn){ btn.disabled=true; btn.textContent='Membuat pesanan…'; }
   const r=await SB.functions.invoke('create-payment',{body:{package_id:p.id,months:CK.months||12,method:CK.method,partner_code:CK.code?CK.code.code:null}});
-  let msg=null;
-  if(r.error){
-    msg='Gagal membuat pesanan. Coba lagi.';
-    if(r.error.context&&r.error.context.json){
-      try{
-        const j=await r.error.context.json();
-        if(j&&j.error) msg=j.error;
-      }catch(_){}
-    }
-  }
+  let msg=r.error?'Gagal membuat pesanan. Coba lagi.':null;
+  if(r.error&&r.error.context&&r.error.context.json){ try{ const j=await r.error.context.json(); if(j&&j.error) msg=j.error; }catch(_){} }
   const o=r.data&&r.data.order;
   if(msg||!o){ if(btn){ btn.disabled=false; btn.textContent='Bayar dengan '+(cur.n||''); } return toast(msg||'Gagal membuat pesanan.'); }
   const i=MYORD.findIndex(x=>x.id===o.id); if(i>=0) MYORD[i]=o; else MYORD.unshift(o);
