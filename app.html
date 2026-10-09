@@ -618,6 +618,7 @@ a.pa:hover{opacity:.85}
 .ckPanel h3{font-size:15px;margin:0 0 14px}
 .ckM{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;background:#fff;margin-bottom:10px;transition:border-color .12s,background .12s}
 .ckM:hover{border-color:var(--ink)}.ckM.on{border-color:var(--ink);background:var(--yellow-pale)}
+.ckM.soon{opacity:.62;cursor:not-allowed;background:#f8f8f8;border-style:dashed}.ckM.soon .ckMi{filter:grayscale(1)}.ckM.soon b{text-decoration:line-through;text-decoration-thickness:1.5px}.ckM.soon .ckTag{background:#e9edf2;color:#626b78;margin:0 0 0 8px}.ckM.soon .ckRadio{border-color:#cfd5dd}
 .ckMi{width:40px;height:40px;border-radius:12px;background:var(--bg);display:grid;place-items:center;flex:none}.ckM.on .ckMi{background:var(--yellow)}.ckMi svg{width:20px;height:20px}
 .ckM b{font-size:15px}.ckM small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
 .ckTag{font-style:normal;font-size:10.5px;font-weight:800;background:var(--yellow);border-radius:99px;padding:2px 8px;margin-left:8px;vertical-align:middle;display:inline-block}
@@ -685,7 +686,7 @@ a.pa:hover{opacity:.85}
 .dmOpt b.nm{display:block;font-size:15px}.dmOpt .pr{font:800 22px Manrope,system-ui,sans-serif;letter-spacing:-.03em}.dmOpt .sv{font-size:13px;font-weight:700;color:#0a8f5b;margin-left:6px}
 .dmFoot{padding:16px 24px;border-top:1px solid var(--line)}
 @media(max-width:720px){.dmBody{grid-template-columns:1fr}.dmL{display:none}.dmHead,.dmR,.dmFoot{padding-left:16px;padding-right:16px}}
-</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 <style id="cg-align-with-sections">
 /* Cogit mengikuti container .page yang sama dengan Beranda, Tryout, Materi, dan Latihan. */
 .cgWrap{width:100%;max-width:none;margin-left:0;margin-right:0;box-sizing:border-box}
@@ -1260,7 +1261,7 @@ const CONFIG = {
   SUPABASE_URL: 'https://azjseobcambbbllqlqxx.supabase.co',         // isi dari Supabase > Project Settings > API > Project URL
   SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6anNlb2JjYW1iYmJsbHFscXh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwOTYwMzAsImV4cCI6MjEwNjY3MjAzMH0.vZITnNh_K2vy7a78gpZyhHnLdHtzTn5ahe_3ARIMt18',    // isi dengan anon public key (aman dipakai di browser berkat RLS)
   GOOGLE_CLIENT_ID: '49813736921-j31la6fk3efbcdf87vcitkbmlfju8j3f.apps.googleusercontent.com',     // isi Client ID dari Google Cloud Console > APIs & Services > Credentials (OAuth client ID, tipe Web). Dipakai saat Supabase belum diisi.
-  DEMO_MODE: true,          // true = data & login hanya tersimpan di browser (localStorage), pembayaran belum tersambung
+  DEMO_MODE: false,         // mode transaksi Supabase; pembayaran QRIS diverifikasi admin
   NERA_ENDPOINT: '',        // isi URL backend Nera AI, mis. '/api/nera' (POST {message, context} -> {reply})
   PAY: {
     EXPIRE_MIN: 30          // cadangan timer; batas waktu sebenarnya dikirim server (orders.expires_at)
@@ -2824,21 +2825,22 @@ function viewPaket(qs){
     }
   }
 }
-/* Semua e-wallet diarahkan ke satu QRIS dinamis; bank memakai Virtual Account. Dikonfirmasi otomatis oleh webhook. */
-const PAYM=[
-  {id:'qris',n:'QRIS',g:'ew',top:1,l:'qris',d:'Semua e-wallet & m-banking',tag:'Direkomendasikan'},
-  {id:'gopay',n:'GoPay',g:'ew',top:1,l:'gopay'},
-  {id:'shopeepay',n:'ShopeePay',g:'ew',top:1,l:'shopee-pay'},
-  {id:'dana',n:'DANA',g:'ew',l:'dana'},
-  {id:'bca',n:'BCA',g:'bank',l:'bca',d:'Virtual Account'},
-  {id:'bni',n:'BNI',g:'bank',l:'bni',d:'Virtual Account'},
-  {id:'bri',n:'BRI',g:'bank',l:'bri',d:'Virtual Account'},
-  {id:'permata',n:'Permata',g:'bank',l:'permata',d:'Virtual Account'}
+/* Pembayaran tahap awal: QRIS statis Kancah, verifikasi manual oleh admin. */
+const PAYM=[{id:'qris',n:'QRIS Kancah',g:'ew',top:1,l:'qris',d:'Scan QRIS dan masukkan nominal sesuai pesanan',tag:'Aktif · Kancah'}];
+// Metode lain hanya ditampilkan sebagai informasi dan tidak dapat dipilih atau diproses.
+const PAYM_SOON=[
+  {id:'gopay',n:'GoPay',l:'gopay'},
+  {id:'dana',n:'DANA',l:'dana'},
+  {id:'shopee-pay',n:'ShopeePay',l:'shopee-pay'},
+  {id:'bca',n:'Transfer Bank BCA',l:'bca'},
+  {id:'bri',n:'Transfer Bank BRI',l:'bri'},
+  {id:'bni',n:'Transfer Bank BNI',l:'bni'},
+  {id:'permata',n:'Virtual Account Permata',l:'permata'}
 ];
 let FEES={pct:0,flat:4000,vat_pct:11,round_to:1000};   // sama untuk semua metode; nilai asli dari tabel payment_fees
 function feeCalc(base){ const k=1+FEES.vat_pct/100, raw=Math.ceil((base+FEES.flat*k)/(1-(FEES.pct/100)*k)), r=FEES.round_to||1; return Math.max(0,Math.round(raw/r)*r-base); }
 async function loadFees(){ if(!SB) return; try{ const r=await SB.from('payment_fees').select('*').eq('type','all').maybeSingle(); if(!r.error&&r.data){ FEES={pct:Number(r.data.pct),flat:Number(r.data.flat),vat_pct:Number(r.data.vat_pct),round_to:Number(r.data.round_to)||1}; ckRender(); } }catch(_){} }
-let CK={pkg:null,method:null,open:false,draft:'',code:null,err:'',busy:false}, MYORD=[];
+let CK={pkg:null,method:'qris',open:false,draft:'',code:null,err:'',busy:false}, MYORD=[];
 const ckSvg=d=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
 const I_QR=ckSvg('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3M21 14v1M14 21h1M18 18h3v3"/>');
 const I_BANK=ckSvg('<path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/>');
@@ -2890,18 +2892,13 @@ function ckPrice(p){
   const dp=durPrice(p,CK.months||12), c=CK.code; let d=0;
   if(c) d=Math.min(dp.price,(Number(c.discount_amt)||0)+Math.floor(dp.price*(Number(c.discount_pct)||0)/100));
   const normal=dp.strike||dp.price, net=Math.max(dp.price-d,1000), fee=feeCalc(net);
-  return {normal,pkgDisc:normal-dp.price,base:dp.price,disc:d,fee,total:net+fee};
+  return {normal,pkgDisc:normal-dp.price,base:dp.price,disc:d,fee:0,total:net};
 }
 function ckSide(p){
   const P=ckPrice(p), cur=PAYM.find(x=>x.id===CK.method);
   const mBtn=m=>`<button type="button" class="ckM ${CK.method===m.id?'on':''}" role="radio" aria-checked="${CK.method===m.id}" data-act="ck-method" data-v="${m.id}">${payLogo(m)}<span class="grow"><b>${m.n}</b>${m.tag?`<em class="ckTag">${m.tag}</em>`:''}${m.d?`<small>${m.d}</small>`:''}</span><span class="ckRadio"></span></button>`;
   // awal: hanya beberapa metode populer (+ metode yang sedang dipilih); sisanya lewat "Lihat semua opsi"
-  const open=!!CK.showAll;
-  const shown=open?null:PAYM.filter(m=>m.top||m.id===CK.method);
-  const list=g=>(shown||PAYM).filter(m=>m.g===g).map(mBtn).join('');
-  const methods=open
-    ?`<div class="ckGrp">E-Wallet</div>${list('ew')}<div class="ckGrp">Transfer Bank</div>${list('bank')}<button type="button" class="ckMore" data-act="ck-more">Sembunyikan</button>`
-    :`${list('ew')}${list('bank')}<button type="button" class="ckMore" data-act="ck-more">Lihat semua opsi ${ckSvg('<path d="M6 9l6 6 6-6"/>')}</button>`;
+  const methods=PAYM.map(mBtn).join('')+PAYM_SOON.map(m=>`<button type="button" class="ckM soon" disabled aria-disabled="true">${payLogo(m)}<span class="grow"><b>${m.n}</b><em class="ckTag">Segera hadir</em></span><span class="ckRadio"></span></button>`).join('');
   const code=CK.code
     ?`<div class="ckCode ok"><span>${I_TAG}<b>${esc(CK.code.code)}</b> dipakai${CK.code.label?' · '+esc(CK.code.label):''}</span><button type="button" class="ckLink" data-act="ck-code-clear">Hapus</button></div>`
     :CK.open
@@ -2913,10 +2910,10 @@ function ckSide(p){
       <div class="ckRow"><span>Harga normal</span><b class="strk">${rp(P.normal)}</b></div>
       ${P.pkgDisc>0?`<div class="ckRow ok"><span>Diskon paket</span><b>-${rp(P.pkgDisc)}</b></div>`:''}
       ${P.disc>0?`<div class="ckRow ok"><span>Kode mitra</span><b>-${rp(P.disc)}</b></div>`:''}
-      <div class="ckRow"><span>Biaya layanan</span><b>+${rp(P.fee)}</b></div>
+      ${P.fee>0?`<div class="ckRow"><span>Biaya layanan</span><b>+${rp(P.fee)}</b></div>`:''}
       <div class="ckTotal"><span>Total bayar</span><b>${rp(P.total)}</b></div>
-      <p class="ckNote">Biaya layanan adalah biaya pemrosesan pembayaran, sama untuk semua metode. Pembayaran terkonfirmasi otomatis, paket langsung aktif tanpa perlu kirim bukti.</p>
-      <button type="button" class="btn btn-yellow btn-block ckGo" id="ckGo" data-act="ck-pay" ${CK.method?'':'disabled'}>${cur?'Bayar dengan '+cur.n:'Pilih metode dulu'}</button>
+      <p class="ckNote">Pembayaran menggunakan QRIS statis Kancah. Setelah membayar, konfirmasikan pembayaran. Admin akan memeriksa transaksi sebelum paket Premium diaktifkan.</p>
+      <button type="button" class="btn btn-yellow btn-block ckGo" id="ckGo" data-act="ck-pay" ${CK.method?'':'disabled'}>${cur?'Buat pesanan QRIS':'Pilih metode dulu'}</button>
     </section>`;
 }
 function ckRender(){ const p=PACKAGES.find(x=>x.id===CK.pkg), s=$('#ckSide'); if(p&&s) s.innerHTML=ckSide(p); }
@@ -2924,7 +2921,7 @@ function viewCheckout(id,mo){
   const months=DURS.includes(Number(mo))?Number(mo):12;
   const p=PACKAGES.find(x=>x.id===id);
   if(!p||U.guest||CONFIG.DEMO_MODE||DATA.packages.includes(id)) return go('/paket');
-  if(CK.pkg!==id||CK.months!==months) CK={pkg:id,months,showAll:false,method:null,open:false,draft:'',code:null,err:'',busy:false};
+  if(CK.pkg!==id||CK.months!==months) CK={pkg:id,months,showAll:false,method:'qris',open:false,draft:'',code:null,err:'',busy:false};
   loadFees(); loadDurPrices().then(()=>ckRender());
   const f=pkgFeatures(p,months), P=ckPrice(p);
   mount(shell('paket',`<a class="ckBack" href="#/paket">${I_BACK}Kembali ke paket</a>
@@ -2943,9 +2940,9 @@ async function ckCreate(){
   let msg=r.error?'Gagal membuat pesanan. Coba lagi.':null;
   if(r.error&&r.error.context&&r.error.context.json){ try{ const j=await r.error.context.json(); if(j&&j.error) msg=j.error; }catch(_){} }
   const o=r.data&&r.data.order;
-  if(msg||!o){ if(btn){ btn.disabled=false; btn.textContent='Bayar dengan '+(cur.n||''); } return toast(msg||'Gagal membuat pesanan.'); }
+  if(msg||!o){ if(btn){ btn.disabled=false; btn.textContent='Buat pesanan QRIS'; } return toast(msg||'Gagal membuat pesanan.'); }
   const i=MYORD.findIndex(x=>x.id===o.id); if(i>=0) MYORD[i]=o; else MYORD.unshift(o);
-  CK={pkg:null,method:null,open:false,draft:'',code:null,err:'',busy:false}; go('/bayar/'+o.id);
+  CK={pkg:null,method:'qris',open:false,draft:'',code:null,err:'',busy:false}; go('/bayar/'+o.id);
 }
 
 /* ===== HALAMAN PEMBAYARAN ===== */
@@ -2968,13 +2965,12 @@ function paySummary(o,p){
 const amtBox=o=>`<div class="payAmt"><small>Total yang harus dibayar</small><div class="row between"><b>${rp(o.amount)}</b><button type="button" class="btn btn-ghost btn-sm" data-act="pay-copy" data-v="${o.amount}">Salin nominal</button></div></div>`;
 const liveNote=`<div class="ckLive"><i></i>Menunggu pembayaran. Halaman ini otomatis berubah begitu pembayaranmu masuk.</div>`;
 function qrisCard(o,m){
-  const d=o.pay_data||{}, who=m.id==='qris'||!m.n?'e-wallet atau m-banking':m.n;
-  return `<section class="card ckCard"><div class="ckHead"><span class="ckIco">${I_QR}</span><div><h3>Scan QRIS</h3><p>Order ${ordNo(o)} · ${esc(m.n||'QRIS')}</p></div><span class="ckTimer" id="ckTimer">--:--</span></div>
+  return `<section class="card ckCard"><div class="ckHead"><span class="ckIco">${I_QR}</span><div><h3>Bayar dengan QRIS Kancah</h3><p>Order ${ordNo(o)}</p></div></div>
     <div class="ckBody">${amtBox(o)}
-      <div class="qrBox">${d.qr_url?`<img src="${esc(d.qr_url)}" alt="Kode QRIS order ${ordNo(o)}">`:'<div class="qrMiss">QRIS belum tersedia. Muat ulang halaman ini.</div>'}</div>
-      ${liveNote}
-      <div class="row wrapflex" style="gap:10px">${d.qr_url?`<button type="button" class="btn btn-ghost grow" data-act="pay-dl" data-v="${esc(d.qr_url)}" data-n="${o.order_no||''}">Download QRIS</button>`:''}<button type="button" class="btn btn-ghost grow" data-act="pay-check" data-id="${o.id}">Cek status</button></div>
-      <details class="ckHow" open><summary>Cara bayar</summary><ol><li>Buka aplikasi ${esc(who)} dan pilih Scan atau QRIS.</li><li>Scan kode di atas. Nominal akan terisi otomatis: ${rp(o.amount)}.</li><li>Konfirmasi pembayaran di aplikasimu.</li><li>Selesai. Paket aktif otomatis dalam hitungan detik, tidak perlu kirim bukti.</li></ol></details></div></section>`;
+      <div class="qrBox"><img id="qrisImage" src="assets/qris-kancah.jpeg" alt="QRIS statis Kancah" style="width:100%;max-width:340px;image-rendering:auto;border-radius:10px"></div>
+      ${o.status==='waiting_verification'?'<div class="ckLive"><i></i>Konfirmasi pembayaran terkirim. Menunggu pemeriksaan admin.</div>':liveNote}
+      <div class="row wrapflex" style="gap:10px"><button type="button" class="btn btn-ghost grow" data-act="pay-check" data-id="${o.id}">Perbarui status</button>${o.status==='pending'?`<button type="button" class="btn btn-yellow grow" data-act="pay-confirm" data-id="${o.id}">Saya Sudah Bayar</button>`:''}</div>
+      <details class="ckHow" open><summary>Cara bayar</summary><ol><li>Buka aplikasi m-banking atau dompet digital yang mendukung QRIS.</li><li>Scan QRIS Kancah di atas.</li><li>Masukkan nominal persis <b>${rp(o.amount)}</b> secara manual, lalu periksa nama merchant Kancah sebelum membayar.</li><li>Setelah pembayaran berhasil, tekan “Saya Sudah Bayar”.</li><li>Admin akan memeriksa transaksi. Paket aktif setelah pembayaran diverifikasi.</li></ol><p class="muted small">QRIS ini statis, jadi nominal tidak terisi otomatis. Jangan membayar dengan nominal berbeda.</p></details></div></section>`;
 }
 function vaCard(o,m){
   const d=o.pay_data||{};
@@ -3004,8 +3000,9 @@ async function payApply(o,row){
   if(location.hash.indexOf(o.id)>=0) renderBayar(o);
 }
 async function payRefresh(o){
-  try{ const r=await SB.functions.invoke('check-payment',{body:{order_id:o.id}});
-    if(r.data&&r.data.order){ if(r.data.order.status===o.status&&o.status==='pending'&&payExpired(o)){ o.status='expired'; renderBayar(o); } else await payApply(o,r.data.order); } }catch(_){}
+  try{ const r=await SB.from('orders').select('*').eq('id',o.id).eq('user_id',U.id).maybeSingle();
+    if(r.data) await payApply(o,r.data);
+  }catch(_){}
 }
 function payWatch(o){
   payUnwatch();
@@ -3014,7 +3011,7 @@ function payWatch(o){
   timers.push(setInterval(async()=>{
     if(document.hidden&&n%3) { n++; return; }
     n++;
-    if(n%5===0) return payRefresh(o);                 // ~20 dtk: tanya Midtrans langsung (cadangan webhook)
+    if(n%5===0) return payRefresh(o);
     const r=await SB.from('orders').select('*').eq('id',o.id).maybeSingle(); if(r.data) payApply(o,r.data);
   },4000));
 }
@@ -3025,9 +3022,11 @@ function renderBayar(o){
   const step=o.status==='paid'?4:2;
   let main;
   if(o.status==='paid') main=`<section class="card ckCard"><div class="ckBody ckDone"><span class="ckBig ok">${ic('check')}</span><h2>Pembayaran diterima</h2><p class="muted">Order ${ordNo(o)} lunas. Paket ${esc(p.name)} sudah aktif selama ${o.months||12} bulan. Selamat belajar!</p><div class="row mt16 wrapflex" style="justify-content:center"><a class="btn btn-yellow" href="#/tryout">Mulai tryout</a><a class="btn btn-ghost" href="#/paket">Lihat paket belajar</a></div></div></section>`;
+  else if(o.status==='rejected') main=`<section class="card ckCard"><div class="ckBody ckDone"><span class="ckBig bad">!</span><h2>Pembayaran belum cocok</h2><p class="muted">Admin belum dapat mencocokkan pembayaran dengan pesanan ini. Hubungi admin sebelum membuat pembayaran baru.</p><a class="btn btn-ghost" href="bantuan.html">Hubungi admin</a></div></section>`;
   else if(exp) main=`<section class="card ckCard"><div class="ckBody ckDone"><span class="ckBig bad">!</span><h2>${o.status==='failed'?'Pembayaran gagal':'Waktu pembayaran habis'}</h2><p class="muted">Order ${ordNo(o)} tidak bisa dibayar lagi. Sudah terlanjur bayar? Tunggu beberapa menit lalu tekan Cek status, atau hubungi admin dengan menyebut Order ID.</p><div class="row mt16 wrapflex" style="justify-content:center"><a class="btn btn-yellow" href="#/checkout/${esc(o.package_id)}">Buat pesanan baru</a><button type="button" class="btn btn-ghost" data-act="pay-check" data-id="${o.id}">Cek status</button><a class="btn btn-ghost" href="bantuan.html">Hubungi admin</a></div></div></section>`;
-  else main=(o.pay_type||(m.g==='bank'?'va':'qris'))==='va'?vaCard(o,m):qrisCard(o,m);
+  else main=qrisCard(o,m);
   mount(shell('paket',`<a class="ckBack" href="#/paket">${I_BACK}Kembali ke paket</a>${ckSteps(step)}<div class="ckGrid"><div class="ckMain">${main}</div><aside class="ckSide">${paySummary(o,p)}</aside></div>`));
+  
   if(live){ startTimer(o); payWatch(o); }
 }
 async function viewBayar(id){
@@ -3042,12 +3041,12 @@ async function viewBayar(id){
   if(!o){ toast('Pesanan tidak ditemukan'); return go('/paket'); }
   renderBayar(o);
 }
-const payStatus={pending:['Menunggu pembayaran','y'],paid:['Lunas','ok'],rejected:['Ditolak','bad'],expired:['Kedaluwarsa','bad'],failed:['Gagal','bad']};
+const payStatus={pending:['Menunggu pembayaran','y'],waiting_verification:['Menunggu verifikasi','y'],paid:['Lunas','ok'],rejected:['Perlu diperiksa','bad'],expired:['Kedaluwarsa','bad'],failed:['Gagal','bad']};
 function ordersBox(){
   if(!MYORD.length) return '';
   return `<section class="card mb16"><h3>Pesanan kamu</h3><div class="mt12" style="display:grid;gap:10px">${MYORD.slice(0,6).map(o=>{ const p=PACKAGES.find(x=>x.id===o.package_id), st=payStatus[o.status]||['',''], mm=(PAYM.find(x=>x.id===o.method)||{}).n||o.method;
     return `<div class="row between wrapflex" style="gap:10px;padding:10px 0;border-top:1px solid var(--line)"><div class="grow"><b>${esc(p?p.name:o.package_id)}</b><div class="muted small">${ordNo(o)} · ${rp(o.amount)} · ${esc(mm)} · ${new Date(o.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</div></div>
-      <span class="chip ${payExpired(o)&&o.status==='pending'?'bad':st[1]}">${payExpired(o)&&o.status==='pending'?payStatus.expired[0]:st[0]}</span>${o.status==='pending'&&!payExpired(o)?`<button class="btn btn-yellow btn-sm" data-act="pay-resume" data-id="${o.id}">Lanjutkan bayar</button>`:''}${o.status==='rejected'?'<span class="muted small">Hubungi admin jika ini keliru</span>':''}</div>`; }).join('')}</div></section>`;
+      <span class="chip ${payExpired(o)&&o.status==='pending'?'bad':st[1]}">${payExpired(o)&&o.status==='pending'?payStatus.expired[0]:st[0]}</span>${['pending','waiting_verification'].includes(o.status)?`<button class="btn btn-yellow btn-sm" data-act="pay-resume" data-id="${o.id}">Lihat pesanan</button>`:''}${o.status==='rejected'?'<span class="muted small">Hubungi admin jika ini keliru</span>':''}</div>`; }).join('')}</div></section>`;
 }
 async function refreshPay(){
   if(!SB||U.guest) return;
@@ -3463,20 +3462,25 @@ const ACT = {
     return ckCreate();
   },
   'pay-resume'(t){ go('/bayar/'+t.dataset.id); },
+  async 'pay-confirm'(t){
+    t.disabled=true; const old=t.textContent; t.textContent='Mengirim konfirmasi…';
+    try{const r=await SB.functions.invoke('submit-payment-confirmation',{body:{order_id:t.dataset.id}}); if(r.error) throw r.error; const row=r.data&&r.data.order; if(!row) throw new Error('Konfirmasi belum tersimpan.'); const o=MYORD.find(x=>x.id===row.id); if(o) Object.assign(o,row); toast('Konfirmasi terkirim. Menunggu verifikasi admin.'); await viewBayar(row.id);}
+    catch(e){t.disabled=false;t.textContent=old;toast('Gagal mengirim konfirmasi. Coba lagi.');}
+  },
   'pay-copy'(t){ copyTxt(t.dataset.v); },
   async 'pay-check'(t){
     const old=t.textContent; t.disabled=true; t.textContent='Memeriksa…';
     const o=MYORD.find(x=>x.id===t.dataset.id); let row=null;
-    try{ const r=await SB.functions.invoke('check-payment',{body:{order_id:t.dataset.id}}); row=r.data&&r.data.order; }catch(_){}
+    try{ const r=await SB.from('orders').select('*').eq('id',t.dataset.id).eq('user_id',U.id).maybeSingle(); row=r.data||null; }catch(_){}
     t.disabled=false; t.textContent=old;
     if(!row) return toast('Belum bisa memeriksa status. Coba lagi.');
     if(o&&row.status!==o.status){ await payApply(o,row); return; }
     toast(row.status==='pending'?'Pembayaran belum terdeteksi. Halaman ini akan otomatis berubah begitu masuk.':'Status: '+((payStatus[row.status]||[row.status])[0]));
   },
   async 'pay-dl'(t){
-    const url=t.dataset.v, name='QRIS-Cognera-'+(t.dataset.n||'order')+'.png';
-    try{ const b=await (await fetch(url)).blob(), a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
-    catch(_){ window.open(url,'_blank','noopener'); toast('Tekan lama gambar QR untuk menyimpan'); }
+    const name='QRIS-Cognera-'+(t.dataset.n||'order')+'.png';
+    try{ const img=document.getElementById(t.dataset.v); if(!img||!img.src) throw new Error('QR belum siap'); const a=document.createElement('a'); a.href=img.src; a.download=name; document.body.appendChild(a); a.click(); a.remove(); }
+    catch(_){ toast('QR belum siap. Coba lagi sebentar.'); }
   },
   'reset-progress'(){ openModal(`<h3>Reset progres belajar?</h3><p class="muted">XP, riwayat latihan, skor tryout, dan tanda materi selesai akan dihapus. Akun dan paketmu tetap ada.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-ink grow" data-act="reset-ok">Reset</button></div>`); },
   'reset-ok'(){ Object.assign(DATA,{xp:0,activity:{},sub:{},attempts:[],materiDone:[],inprogress:null,neraChat:[]}); save(); closeModal(); toast('Progres direset'); go('/beranda'); },
