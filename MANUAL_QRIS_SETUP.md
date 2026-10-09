@@ -32,3 +32,10 @@ Versi ini menghapus ketergantungan checkout pada pembuatan tagihan Pakasir. Peng
 - Pesanan berlaku 24 jam pada tahap awal. Pengguna yang telanjur membayar setelah kedaluwarsa harus menghubungi admin, jangan membuat pembayaran kedua sebelum transaksi pertama dicek.
 - Edge Function `check-payment` dan webhook Pakasir lama tidak lagi dipakai oleh alur checkout QRIS manual. Jangan menghapusnya sampai dipastikan tidak dipakai alur lain.
 - Kode masih memakai tabel/kolom existing Cognera (`packages`, `package_prices`, `payment_fees`, `orders`, `admins`, `entitlements`) dan RPC `check_partner_code`. Tes staging dulu karena skema live tidak dapat diverifikasi dari arsip kode saja.
+
+
+## Catatan revisi UI
+- Durasi paket di popup diurutkan dari harga termurah ke termahal dan default memilih durasi 1 bulan.
+- Metode pembayaran menampilkan beberapa opsi lebih dulu; opsi lain dibuka melalui tombol **Lihat selengkapnya**. QRIS tetap satu-satunya metode aktif.
+- Setelah bukti dikirim, pengguna mendapat estimasi verifikasi maksimal 1–2 jam dan tombol WhatsApp Contact Cognera di https://wa.me/628924687866 jika melewati waktu tersebut.
+- Form pendaftaran juga mencoba menyimpan nama dan username ke `public.profiles`; jalankan migrasi terbaru sebelum deploy.

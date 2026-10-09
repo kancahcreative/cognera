@@ -1540,9 +1540,10 @@ async function hashPw(pw,salt){
 const Auth = {
   async register({name,username,phone,sekolah,kelas,email,password}){
     if(SB){
-      const {error}=await SB.auth.signUp({email,password,options:{data:{name,username,phone,sekolah,kelas}}});
+      const {data,error}=await SB.auth.signUp({email,password,options:{data:{name,username,phone,sekolah,kelas}}});
       if(error) throw new Error(/already|registered/i.test(error.message)?'Email ini sudah terdaftar. Silakan masuk.':error.message);
-      return {u:{email,name},migrated:false};
+      if(data&&data.user){ const uid=data.user.id; const {error:profileError}=await SB.from('profiles').upsert({id:uid,name,username,phone:phone||'',sekolah:sekolah||'',kelas:kelas||'',jalur:'utbk',tahun:2027,goal:3,xp:0,onboarded:false},{onConflict:'id'}); if(profileError) console.warn('Simpan profil pendaftaran gagal:',profileError.message); }
+      return {u:{email,name,username},migrated:false};
     }
     const users=LS.get('users',[]);
     if(users.some(u=>u.email===email)) throw new Error('Email ini sudah terdaftar. Silakan masuk.');
@@ -2862,14 +2863,14 @@ function openBuy(id){
       <div class="ok-note">Mode demo: pembayaran belum tersambung. Tombol di bawah mengaktifkan paket langsung untuk pengujian.</div>
       <div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-ink grow" data-act="confirm-buy" data-v="${p.id}">Aktifkan paket (demo)</button></div>`);
   }
-  DURSEL={id,m:12}; durModal(id); if(!DUR_LOADED) loadDurPrices().then(()=>{ if($('#overlay .dmR')) durModal(id); });
+  DURSEL={id,m:1}; durModal(id); if(!DUR_LOADED) loadDurPrices().then(()=>{ if($('#overlay .dmR')) durModal(id); });
 }
 let DURSEL={id:null,m:12};
 function durModal(id){
   if(DURSEL.id!==id) DURSEL={id,m:12};
   const p=PACKAGES.find(x=>x.id===id); if(!p) return;
   const feats=pkgFeatures(p,0).list.map(i=>`<div class="dmFeat">${ic('check')}<span>${esc(i)}</span></div>`).join('');
-  const opts=DURS.map(m=>{ const d=durPrice(p,m), sv=d.strike-d.price; return `<button type="button" class="dmOpt ${DURSEL.m===m?'on':''}" role="radio" aria-checked="${DURSEL.m===m}" data-act="dur-pick" data-v="${m}"><span class="grow"><span class="tags"><span class="mo">${m} bulan</span>${m===12?'<span class="rec">Rekomendasi</span>':''}</span><b class="nm">${esc(p.name)}</b><span class="pl"><span class="pr">${rp(d.price)}</span>${sv>0?`<s class="st">${rp(d.strike)}</s><span class="sv">Hemat ${rp(sv)}</span>`:''}</span></span><span class="ckRadio"></span></button>`; }).join('');
+  const opts=[...DURS].sort((a,b)=>durPrice(p,a).price-durPrice(p,b).price).map(m=>{ const d=durPrice(p,m), sv=d.strike-d.price; return `<button type="button" class="dmOpt ${DURSEL.m===m?'on':''}" role="radio" aria-checked="${DURSEL.m===m}" data-act="dur-pick" data-v="${m}"><span class="grow"><span class="tags"><span class="mo">${m} bulan</span>${m===12?'<span class="rec">Rekomendasi</span>':''}</span><b class="nm">${esc(p.name)}</b><span class="pl"><span class="pr">${rp(d.price)}</span>${sv>0?`<s class="st">${rp(d.strike)}</s><span class="sv">Hemat ${rp(sv)}</span>`:''}</span></span><span class="ckRadio"></span></button>`; }).join('');
   const keep=$('#overlay .dmR'); const sc=keep?keep.scrollTop:0;
   openModal(`<div class="dmHead"><h3>Pilih paket ${esc(p.name)}</h3><button type="button" class="dmX" data-act="close" aria-label="Tutup">&times;</button></div>
     <div class="dmBody"><div class="dmL"><span class="chip" style="align-self:flex-start">Ujian PTN</span><h2 class="dmName">${esc(p.name)}</h2>${feats}</div>
@@ -2898,7 +2899,7 @@ function ckSide(p){
   const P=ckPrice(p), cur=PAYM.find(x=>x.id===CK.method);
   const mBtn=m=>`<button type="button" class="ckM ${CK.method===m.id?'on':''}" role="radio" aria-checked="${CK.method===m.id}" data-act="ck-method" data-v="${m.id}">${payLogo(m)}<span class="grow"><b>${m.n}</b>${m.tag?`<em class="ckTag">${m.tag}</em>`:''}${m.d?`<small>${m.d}</small>`:''}</span><span class="ckRadio"></span></button>`;
   // awal: hanya beberapa metode populer (+ metode yang sedang dipilih); sisanya lewat "Lihat semua opsi"
-  const methods=PAYM.map(mBtn).join('')+PAYM_SOON.map(m=>`<button type="button" class="ckM soon" disabled aria-disabled="true">${payLogo(m)}<span class="grow"><b>${m.n}</b><em class="ckTag">Segera hadir</em></span><span class="ckRadio"></span></button>`).join('');
+  const soonBtns=PAYM_SOON.map(m=>`<button type="button" class="ckM soon" disabled aria-disabled="true">${payLogo(m)}<span class="grow"><b>${m.n}</b><em class="ckTag">Segera hadir</em></span><span class="ckRadio"></span></button>`); const methods=PAYM.map(mBtn).join('')+soonBtns.slice(0,CK.showAll?soonBtns.length:2).join('')+`<button type="button" class="ckLink big" data-act="ck-more">${CK.showAll?'Tampilkan lebih sedikit':'Lihat selengkapnya'}</button>`;
   const code=CK.code
     ?`<div class="ckCode ok"><span>${I_TAG}<b>${esc(CK.code.code)}</b> dipakai${CK.code.label?' · '+esc(CK.code.label):''}</span><button type="button" class="ckLink" data-act="ck-code-clear">Hapus</button></div>`
     :CK.open
@@ -2965,13 +2966,13 @@ function paySummary(o,p){
 const amtBox=o=>`<div class="payAmt"><small>Total yang harus dibayar</small><div class="row between"><b>${rp(o.amount)}</b><button type="button" class="btn btn-ghost btn-sm" data-act="pay-copy" data-v="${o.amount}">Salin nominal</button></div></div>`;
 const liveNote=`<div class="ckLive"><i></i>Menunggu pembayaran. Halaman ini otomatis berubah begitu pembayaranmu masuk.</div>`;
 function qrisCard(o,m){
-  return `<section class="card ckCard"><div class="ckHead"><span class="ckIco">${I_QR}</span><div><h3>Bayar dengan QRIS</h3><p>Order ${ordNo(o)}</p></div></div>
+  return `<section class="card ckCard"><div class="ckHead"><span class="ckIco">${I_QR}</span><div><h3>Bayar dengan QRIS</h3><p>Order ${ordNo(o)}</p></div>${o.status==='pending'?'<span class="ckTimer" id="ckTimer" role="timer" aria-label="Sisa waktu pembayaran">--:--</span>':''}</div>
     <div class="ckBody">${amtBox(o)}
       <div class="qrBox"><img id="qrisImage" src="assets/qris-kancah.jpeg" alt="QRIS" style="width:100%;max-width:340px;image-rendering:auto;border-radius:10px"></div>
-      ${o.status==='waiting_verification'?'<div class="ckLive"><i></i>Bukti pembayaran terkirim. Menunggu pemeriksaan admin.</div>':liveNote}
+      ${o.status==='waiting_verification'?'<div class="ckLive"><i></i>Bukti pembayaran berhasil dikirim. Verifikasi maksimal 1–2 jam.</div><div style="margin:12px 0;padding:14px;border:1px solid var(--line,#ddd);border-radius:12px"><p style="margin:0 0 10px">Jika lebih dari 2 jam belum diverifikasi, silakan hubungi Contact Cognera.</p><a class="btn btn-yellow btn-block" href="https://wa.me/628924687866" target="_blank" rel="noopener noreferrer">Hubungi Contact Cognera via WhatsApp</a></div>':liveNote}
       ${o.status==='pending'?`<div class="proofUpload" style="margin:16px 0;padding:14px;border:1px solid var(--line,#ddd);border-radius:12px"><label for="paymentProof-${o.id}" style="display:block;font-weight:600;margin-bottom:8px">Unggah bukti pembayaran <span style="color:#d33">*</span></label><input id="paymentProof-${o.id}" data-proof-order="${o.id}" type="file" accept="image/jpeg,image/png,image/webp" style="display:block;width:100%;margin-bottom:8px"><small class="muted">Format JPG, PNG, atau WebP. Maksimal 5 MB.</small></div>`:''}
       <div class="row wrapflex" style="gap:10px"><button type="button" class="btn btn-ghost grow" data-act="pay-check" data-id="${o.id}">Perbarui status</button>${o.status==='pending'?`<button type="button" class="btn btn-yellow grow" data-act="pay-confirm" data-id="${o.id}">Kirim Bukti Pembayaran</button>`:''}</div>
-      <details class="ckHow" open><summary>Cara bayar</summary><ol><li>Buka aplikasi m-banking atau dompet digital yang mendukung QRIS.</li><li>Scan QRIS di atas.</li><li>Masukkan nominal persis <b>${rp(o.amount)}</b> secara manual, lalu periksa nama merchant yang muncul sebelum membayar.</li><li>Setelah pembayaran berhasil, unggah bukti pembayaran lalu tekan “Kirim Bukti Pembayaran”.</li><li>Admin akan memeriksa transaksi. Paket aktif setelah pembayaran diverifikasi.</li></ol><p class="muted small">QRIS ini statis, jadi nominal tidak terisi otomatis. Jangan membayar dengan nominal berbeda.</p></details></div></section>`;
+      <details class="ckHow" open><summary>Cara bayar</summary><ol><li>Buka aplikasi m-banking atau dompet digital yang mendukung QRIS.</li><li>Scan QRIS di atas.</li><li>Masukkan nominal persis <b>${rp(o.amount)}</b> secara manual, lalu periksa nama merchant yang muncul sebelum membayar.</li><li>Setelah pembayaran berhasil, unggah bukti pembayaran lalu tekan “Kirim Bukti Pembayaran”.</li><li>Admin akan memeriksa transaksi. Paket aktif setelah pembayaran diverifikasi.</li></ol></details></div></section>`;
 }
 function vaCard(o,m){
   const d=o.pay_data||{};
