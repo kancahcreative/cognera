@@ -2825,8 +2825,8 @@ function viewPaket(qs){
     }
   }
 }
-/* Pembayaran tahap awal: QRIS statis Kancah, verifikasi manual oleh admin. */
-const PAYM=[{id:'qris',n:'QRIS Kancah',g:'ew',top:1,l:'qris',d:'Scan QRIS dan masukkan nominal sesuai pesanan',tag:'Aktif · Kancah'}];
+/* Pembayaran tahap awal: QRIS statis, verifikasi manual oleh admin. */
+const PAYM=[{id:'qris',n:'QRIS',g:'ew',top:1,l:'qris',d:'Scan QRIS dan masukkan nominal sesuai pesanan',tag:'Aktif'}];
 // Metode lain hanya ditampilkan sebagai informasi dan tidak dapat dipilih atau diproses.
 const PAYM_SOON=[
   {id:'gopay',n:'GoPay',l:'gopay'},
@@ -2912,7 +2912,7 @@ function ckSide(p){
       ${P.disc>0?`<div class="ckRow ok"><span>Kode mitra</span><b>-${rp(P.disc)}</b></div>`:''}
       ${P.fee>0?`<div class="ckRow"><span>Biaya layanan</span><b>+${rp(P.fee)}</b></div>`:''}
       <div class="ckTotal"><span>Total bayar</span><b>${rp(P.total)}</b></div>
-      <p class="ckNote">Pembayaran menggunakan QRIS statis Kancah. Setelah membayar, konfirmasikan pembayaran. Admin akan memeriksa transaksi sebelum paket Premium diaktifkan.</p>
+      <p class="ckNote">Pembayaran menggunakan QRIS statis. Setelah membayar, konfirmasikan pembayaran. Admin akan memeriksa transaksi sebelum paket Premium diaktifkan.</p>
       <button type="button" class="btn btn-yellow btn-block ckGo" id="ckGo" data-act="ck-pay" ${CK.method?'':'disabled'}>${cur?'Buat pesanan QRIS':'Pilih metode dulu'}</button>
     </section>`;
 }
@@ -2965,12 +2965,13 @@ function paySummary(o,p){
 const amtBox=o=>`<div class="payAmt"><small>Total yang harus dibayar</small><div class="row between"><b>${rp(o.amount)}</b><button type="button" class="btn btn-ghost btn-sm" data-act="pay-copy" data-v="${o.amount}">Salin nominal</button></div></div>`;
 const liveNote=`<div class="ckLive"><i></i>Menunggu pembayaran. Halaman ini otomatis berubah begitu pembayaranmu masuk.</div>`;
 function qrisCard(o,m){
-  return `<section class="card ckCard"><div class="ckHead"><span class="ckIco">${I_QR}</span><div><h3>Bayar dengan QRIS Kancah</h3><p>Order ${ordNo(o)}</p></div></div>
+  return `<section class="card ckCard"><div class="ckHead"><span class="ckIco">${I_QR}</span><div><h3>Bayar dengan QRIS</h3><p>Order ${ordNo(o)}</p></div></div>
     <div class="ckBody">${amtBox(o)}
-      <div class="qrBox"><img id="qrisImage" src="assets/qris-kancah.jpeg" alt="QRIS statis Kancah" style="width:100%;max-width:340px;image-rendering:auto;border-radius:10px"></div>
-      ${o.status==='waiting_verification'?'<div class="ckLive"><i></i>Konfirmasi pembayaran terkirim. Menunggu pemeriksaan admin.</div>':liveNote}
-      <div class="row wrapflex" style="gap:10px"><button type="button" class="btn btn-ghost grow" data-act="pay-check" data-id="${o.id}">Perbarui status</button>${o.status==='pending'?`<button type="button" class="btn btn-yellow grow" data-act="pay-confirm" data-id="${o.id}">Saya Sudah Bayar</button>`:''}</div>
-      <details class="ckHow" open><summary>Cara bayar</summary><ol><li>Buka aplikasi m-banking atau dompet digital yang mendukung QRIS.</li><li>Scan QRIS Kancah di atas.</li><li>Masukkan nominal persis <b>${rp(o.amount)}</b> secara manual, lalu periksa nama merchant Kancah sebelum membayar.</li><li>Setelah pembayaran berhasil, tekan “Saya Sudah Bayar”.</li><li>Admin akan memeriksa transaksi. Paket aktif setelah pembayaran diverifikasi.</li></ol><p class="muted small">QRIS ini statis, jadi nominal tidak terisi otomatis. Jangan membayar dengan nominal berbeda.</p></details></div></section>`;
+      <div class="qrBox"><img id="qrisImage" src="assets/qris-kancah.jpeg" alt="QRIS" style="width:100%;max-width:340px;image-rendering:auto;border-radius:10px"></div>
+      ${o.status==='waiting_verification'?'<div class="ckLive"><i></i>Bukti pembayaran terkirim. Menunggu pemeriksaan admin.</div>':liveNote}
+      ${o.status==='pending'?`<div class="proofUpload" style="margin:16px 0;padding:14px;border:1px solid var(--line,#ddd);border-radius:12px"><label for="paymentProof-${o.id}" style="display:block;font-weight:600;margin-bottom:8px">Unggah bukti pembayaran <span style="color:#d33">*</span></label><input id="paymentProof-${o.id}" data-proof-order="${o.id}" type="file" accept="image/jpeg,image/png,image/webp" style="display:block;width:100%;margin-bottom:8px"><small class="muted">Format JPG, PNG, atau WebP. Maksimal 5 MB.</small></div>`:''}
+      <div class="row wrapflex" style="gap:10px"><button type="button" class="btn btn-ghost grow" data-act="pay-check" data-id="${o.id}">Perbarui status</button>${o.status==='pending'?`<button type="button" class="btn btn-yellow grow" data-act="pay-confirm" data-id="${o.id}">Kirim Bukti Pembayaran</button>`:''}</div>
+      <details class="ckHow" open><summary>Cara bayar</summary><ol><li>Buka aplikasi m-banking atau dompet digital yang mendukung QRIS.</li><li>Scan QRIS di atas.</li><li>Masukkan nominal persis <b>${rp(o.amount)}</b> secara manual, lalu periksa nama merchant yang muncul sebelum membayar.</li><li>Setelah pembayaran berhasil, unggah bukti pembayaran lalu tekan “Kirim Bukti Pembayaran”.</li><li>Admin akan memeriksa transaksi. Paket aktif setelah pembayaran diverifikasi.</li></ol><p class="muted small">QRIS ini statis, jadi nominal tidak terisi otomatis. Jangan membayar dengan nominal berbeda.</p></details></div></section>`;
 }
 function vaCard(o,m){
   const d=o.pay_data||{};
@@ -3463,9 +3464,25 @@ const ACT = {
   },
   'pay-resume'(t){ go('/bayar/'+t.dataset.id); },
   async 'pay-confirm'(t){
-    t.disabled=true; const old=t.textContent; t.textContent='Mengirim konfirmasi…';
-    try{const r=await SB.functions.invoke('submit-payment-confirmation',{body:{order_id:t.dataset.id}}); if(r.error) throw r.error; const row=r.data&&r.data.order; if(!row) throw new Error('Konfirmasi belum tersimpan.'); const o=MYORD.find(x=>x.id===row.id); if(o) Object.assign(o,row); toast('Konfirmasi terkirim. Menunggu verifikasi admin.'); await viewBayar(row.id);}
-    catch(e){t.disabled=false;t.textContent=old;toast('Gagal mengirim konfirmasi. Coba lagi.');}
+    const orderId=t.dataset.id;
+    const input=document.querySelector(`[data-proof-order="${orderId}"]`);
+    const file=input?.files?.[0];
+    if(!file) return toast('Unggah bukti pembayaran terlebih dahulu.');
+    if(!['image/jpeg','image/png','image/webp'].includes(file.type)) return toast('Format bukti harus JPG, PNG, atau WebP.');
+    if(file.size>5*1024*1024) return toast('Ukuran bukti maksimal 5 MB.');
+    t.disabled=true; const old=t.textContent; t.textContent='Mengunggah bukti…';
+    try{
+      const safeName=file.name.replace(/[^a-zA-Z0-9._-]/g,'_').slice(-90)||'bukti-pembayaran';
+      const path=`${U.id}/${orderId}/${Date.now()}-${safeName}`;
+      const up=await SB.storage.from('payment-proofs').upload(path,file,{contentType:file.type,upsert:false});
+      if(up.error) throw up.error;
+      t.textContent='Mengirim konfirmasi…';
+      const r=await SB.functions.invoke('submit-payment-confirmation',{body:{order_id:orderId,proof_path:path}});
+      if(r.error||r.data?.error) throw (r.error||new Error(r.data.error));
+      const row=r.data&&r.data.order; if(!row) throw new Error('Konfirmasi belum tersimpan.');
+      const o=MYORD.find(x=>x.id===row.id); if(o) Object.assign(o,row);
+      toast('Bukti terkirim. Menunggu verifikasi admin.'); await viewBayar(row.id);
+    }catch(e){console.error(e);t.disabled=false;t.textContent=old;toast('Gagal mengirim bukti. Periksa koneksi lalu coba lagi.');}
   },
   'pay-copy'(t){ copyTxt(t.dataset.v); },
   async 'pay-check'(t){
