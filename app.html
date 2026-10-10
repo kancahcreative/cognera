@@ -1642,9 +1642,16 @@ function jalurAliases(jalur){
 }
 function hasSubscriptionAccess(t){
   if(U.guest) return false;
-  const activeIds=new Set([...(DATA.packages||[]),...(MYENT||[]).filter(e=>!e.ends_at||Date.parse(e.ends_at)>Date.now()).map(e=>e.package_id)].map(String));
+  const norm=v=>String(v||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'');
+  const activeEnt=(MYENT||[]).filter(e=>!e.ends_at || (Number.isFinite(Date.parse(e.ends_at)) && Date.parse(e.ends_at)>Date.now()));
+  const activeIds=new Set([...(DATA.packages||[]).map(String),...activeEnt.map(e=>String(e.package_id||''))]);
   const aliases=jalurAliases(t.jalur);
-  return [...activeIds].some(pid=>{ const p=PACKAGES.find(x=>String(x.id)===pid); return p&&(p.covers||[]).some(c=>aliases.includes(String(c).toLowerCase())||jalurAliases(c).some(a=>aliases.includes(a))); });
+  return [...activeIds].some(pid=>{
+    const p=PACKAGES.find(x=>String(x.id)===pid || norm(x.id)===norm(pid) || norm(x.name)===norm(pid));
+    if(!p) return false;
+    return (p.covers||[]).some(c=>aliases.includes(String(c).toLowerCase())||jalurAliases(c).some(a=>aliases.includes(a)))
+      || aliases.some(a=>norm(p.id).includes(norm(a)) || norm(p.name).includes(norm(a)));
+  });
 }
 function inTryoutTimeline(t){
   if(!t.openAt || !t.closeAt) return true;
@@ -2993,11 +3000,10 @@ async function neraAsk(text,qid,mode){
 
 /* ===== PAKET ===== */
 function viewPaket(qs){
-  mount(shell('paket',`<div class="pageHead"><h1>Paket belajar</h1><p>Pilih akses yang sesuai dengan target persiapan SNBT-mu.</p></div>
+  mount(shell('paket',`<div class="pageHead"><div class="row between wrapflex" style="gap:12px;align-items:center"><div><h1>Paket belajar</h1><p>Pilih akses yang sesuai dengan target persiapan SNBT-mu.</p></div>${!U.guest?`<button class="btn btn-ghost btn-sm" data-act="my-transactions">Transaksi saya</button>`:''}</div></div>
     ${!U.guest && MYENT.length ? `<section class="card mb16" style="border:1px solid var(--yellow)"><div class="row between wrapflex"><div><span class="chip ok">Paket aktif</span><h2 class="mt8">${esc(PACKAGES.find(p=>p.id===MYENT[0].package_id)?.name||MYENT[0].package_id)}</h2><p class="muted small">Status: aktif · Fitur Premium tersedia selama masa berlangganan.</p></div><div class="text-right"><b>Berakhir</b><div>${MYENT[0].ends_at?new Date(MYENT[0].ends_at).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}):'Tidak ada tanggal kedaluwarsa'}</div><div class="muted small">${MYENT[0].ends_at?`Sisa ${Math.max(0,Math.ceil((new Date(MYENT[0].ends_at).getTime()-Date.now())/86400000))} hari`:''}</div></div></div></section>` : `<section class="card mb16"><h3>Belum ada paket aktif</h3><p class="muted">${U.guest?'Masuk atau daftar untuk menyimpan status paket.':'Paket yang sudah dibayar dan diverifikasi akan tampil di sini beserta tanggal kedaluwarsanya.'}</p></section>`}
     <div id="paket-list" class="pageHead"><h2>Pilih paket belajar</h2><p>Paket dan masa aktif yang tersedia.</p></div>
-    <div class="grid g2 mb12" style="gap:12px;align-items:stretch"><article class="card" style="padding:16px;display:flex;flex-direction:column;gap:8px"><div class="row between"><span class="chip">FREE</span><span class="muted small">Rp0</span></div><h3 style="margin:0">Mulai belajar</h3><ul style="padding-left:18px;line-height:1.65;margin:0;font-size:13px"><li>Latihan gratis</li><li>Tryout gratis</li><li>Leaderboard 10 besar + posisi pribadi</li><li>Nera: 3 kesempatan</li></ul></article><article class="card" style="padding:16px;display:flex;flex-direction:column;gap:8px;border:1.5px solid var(--yellow);position:relative"><div class="row between"><span class="chip y">PREMIUM</span><span class="muted small">Akses lengkap</span></div><h3 style="margin:0">Persiapan lebih terarah</h3><div style="background:var(--yellow);color:#191919;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:800">TRYOUT PREMIUM + PEMBAHASAN SOAL</div><ul style="padding-left:18px;line-height:1.65;margin:0;font-size:13px"><li>Semua tryout Premium sesuai paket dan masa aktif</li><li>Pembahasan lengkap untuk soal tryout yang tersedia</li><li>Seluruh materi belajar Premium dan latihan drill</li><li>Analisis kelemahan pada setiap tryout dan tren performa</li><li>Prediksi kampus dan prodi berdasarkan skor tryout</li><li>Analisis kecocokan prodi berdasarkan minat dan asesmen kepribadian</li><li>Rencana belajar terarah sesuai target dan kelemahan</li><li>Leaderboard lengkap tanpa batas 10 besar</li><li>Nera AI: 3 kesempatan gratis, akses lebih luas untuk Premium</li><li>Error Notebook dan Retry Salah Saja</li><li>Personal Study Plan dan Smart Flashcards</li><li>Ekspor laporan belajar PDF</li></ul></article></div>
-    <div id="myOrders">${ordersBox()}</div>
+    <div class="grid g2" style="gap:12px;align-items:stretch;margin-bottom:24px"><article class="card" style="padding:16px;display:flex;flex-direction:column;gap:8px"><div class="row between"><span class="chip">FREE</span><span class="muted small">Rp0</span></div><h3 style="margin:0">Mulai belajar</h3><ul style="padding-left:18px;line-height:1.65;margin:0;font-size:13px"><li>Latihan gratis</li><li>Tryout gratis</li><li>Leaderboard 10 besar + posisi pribadi</li><li>Nera: 3 kesempatan</li></ul></article><article class="card" style="padding:16px;display:flex;flex-direction:column;gap:8px;border:1.5px solid var(--yellow);position:relative"><div class="row between"><span class="chip y">PREMIUM</span><span class="muted small">Akses lengkap</span></div><h3 style="margin:0">Persiapan lebih terarah</h3><div style="background:var(--yellow);color:#191919;border-radius:8px;padding:8px 10px;font-size:12px;font-weight:800">TRYOUT PREMIUM + PEMBAHASAN SOAL</div><ul style="padding-left:18px;line-height:1.65;margin:0;font-size:13px"><li>Semua tryout Premium sesuai paket dan masa aktif</li><li>Pembahasan lengkap untuk soal tryout yang tersedia</li><li>Seluruh materi belajar Premium dan latihan drill</li><li>Analisis kelemahan pada setiap tryout dan tren performa</li><li>Prediksi kampus dan prodi berdasarkan skor tryout</li><li>Analisis kecocokan prodi berdasarkan minat dan asesmen kepribadian</li><li>Rencana belajar terarah sesuai target dan kelemahan</li><li>Leaderboard lengkap tanpa batas 10 besar</li><li>Nera AI: 3 kesempatan gratis, akses lebih luas untuk Premium</li><li>Error Notebook dan Retry Salah Saja</li><li>Personal Study Plan dan Smart Flashcards</li><li>Ekspor laporan belajar PDF</li></ul></article></div>
     <div class="grid g3">${PACKAGES.map(p=>{const own=DATA.packages.includes(p.id);return `<article class="card pk ${own?'owned':''}" style="display:flex;flex-direction:column;gap:10px">
       <div class="row between">${p.tag?`<span class="chip dark">${p.tag}</span>`:'<span></span>'}${own?'<span class="chip ok">Aktif</span>':''}</div>
       <h3>${p.name}</h3>${startFrom(p)}
@@ -3236,22 +3242,26 @@ async function viewBayar(id){
 }
 const payStatus={pending:['Menunggu pembayaran','y'],waiting_verification:['Menunggu verifikasi','y'],paid:['Lunas','ok'],rejected:['Perlu diperiksa','bad'],expired:['Kedaluwarsa','bad'],failed:['Gagal','bad']};
 function ordersBox(){
-  if(!MYORD.length) return '';
-  return `<section class="card mb16"><h3>Pesanan kamu</h3><div class="mt12" style="display:grid;gap:10px">${MYORD.slice(0,6).map(o=>{ const p=PACKAGES.find(x=>x.id===o.package_id), st=payStatus[o.status]||['',''], mm=(PAYM.find(x=>x.id===o.method)||{}).n||o.method;
-    return `<div class="row between wrapflex" style="gap:10px;padding:10px 0;border-top:1px solid var(--line)"><div class="grow"><b>${esc(p?p.name:o.package_id)}</b><div class="muted small">${ordNo(o)} · ${rp(o.amount)} · ${esc(mm)} · ${new Date(o.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</div></div>
-      <span class="chip ${payExpired(o)&&o.status==='pending'?'bad':st[1]}">${payExpired(o)&&o.status==='pending'?payStatus.expired[0]:st[0]}</span>${['pending','waiting_verification'].includes(o.status)?`<button class="btn btn-yellow btn-sm" data-act="pay-resume" data-id="${o.id}">Lihat pesanan</button>`:''}${o.status==='rejected'?'<span class="muted small">Hubungi admin jika ini keliru</span>':''}</div>`; }).join('')}</div></section>`;
+  if(!MYORD.length) return `<section class="card mb16"><div class="row between wrapflex" style="gap:12px"><div><h3 style="margin:0">Rincian transaksi</h3><p class="muted small" style="margin:4px 0 0">Lihat status pembayaran dan riwayat pesananmu.</p></div><button class="btn btn-ghost btn-sm" data-act="my-transactions">Transaksi saya</button></div></section>`;
+  return `<section class="card mb16"><div class="row between wrapflex" style="gap:12px"><div><h3 style="margin:0">Rincian transaksi</h3><p class="muted small" style="margin:4px 0 0">${MYORD.length} transaksi terbaru · lihat detail pembayaran.</p></div><button class="btn btn-ink btn-sm" data-act="my-transactions">Transaksi saya</button></div></section>`;
+}
+function openMyTransactions(){
+  const rows=MYORD.length?MYORD.map(o=>{const p=PACKAGES.find(x=>x.id===o.package_id),st=payStatus[o.status]||['Status tidak diketahui',''],mm=(PAYM.find(x=>x.id===o.method)||{}).n||o.method||'—';const expired=payExpired(o)&&o.status==='pending';const status=expired?payStatus.expired[0]:st[0];const tone=expired?'bad':st[1];
+    return `<div class="row between wrapflex" style="gap:12px;padding:14px 0;border-top:1px solid var(--line);align-items:flex-start"><div class="grow" style="min-width:180px"><b>${esc(p?p.name:o.package_id)}</b><div class="muted small" style="margin-top:4px">${ordNo(o)} · ${rp(o.amount)} · ${esc(mm)} · ${new Date(o.created_at).toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'})}</div>${o.status==='rejected'?'<div class="muted small">Hubungi admin jika status ini tidak sesuai.</div>':''}</div><div class="row wrapflex" style="gap:8px;align-items:center"><span class="chip ${tone}">${esc(status)}</span>${['pending','waiting_verification'].includes(o.status)&&!expired?`<button class="btn btn-yellow btn-sm" data-act="pay-resume" data-id="${o.id}">Lihat pesanan</button>`:''}</div></div>`;
+  }).join(''):'<div class="empty muted" style="padding:24px 0;text-align:center">Belum ada transaksi.</div>';
+  openModal(`<div class="row between" style="gap:12px"><div><h2 style="margin:0">Transaksi saya</h2><p class="muted small" style="margin:5px 0 0">Riwayat pesanan dan status pembayaran.</p></div><button class="btn btn-ghost btn-sm" data-act="close" aria-label="Tutup">Tutup</button></div><div style="margin-top:14px;max-height:65vh;overflow:auto">${rows}</div>`,'transactionModal');
 }
 async function refreshPay(){
   if(!SB||U.guest) return;
   try{
     const [o,e]=await Promise.all([SB.from('orders').select('*').eq('user_id',U.id).order('created_at',{ascending:false}).limit(20),
       SB.from('entitlements').select('package_id,ends_at').eq('user_id',U.id)]);
-    if(!o.error){ MYORD=o.data||[]; const el=$('#myOrders'); if(el) el.innerHTML=ordersBox(); }
+    if(!o.error){ MYORD=o.data||[]; }
     if(!e.error){ MYENT=(e.data||[]).filter(x=>!x.ends_at||new Date(x.ends_at).getTime()>Date.now()); const now=Date.now(), pk=MYENT.map(x=>x.package_id);
       const changed=pk.slice().sort().join()!==(DATA.packages||[]).slice().sort().join();
       DATA.packages=pk; LS.set('data:'+U.id,DATA);
       if(changed && location.hash.indexOf('/paket')>=0){ viewPaket(); toast('Status paket diperbarui.'); }
-      else if(location.hash.indexOf('/paket')>=0){ const el=$('#myOrders'); if(el) el.innerHTML=ordersBox(); }
+      else if(location.hash.indexOf('/paket')>=0){ /* transaksi tersedia lewat tombol di header paket */ }
     }
   }catch(err){ console.warn('refreshPay',err); }
 }
@@ -3665,6 +3675,7 @@ const ACT = {
     if(!CK.method||!CK.pkg) return;
     return ckCreate();
   },
+  'my-transactions'(){ openMyTransactions(); },
   'pay-resume'(t){ go('/bayar/'+t.dataset.id); },
   async 'pay-confirm'(t){
     const orderId=t.dataset.id;
