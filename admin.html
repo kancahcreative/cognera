@@ -166,11 +166,11 @@ async function tryoutsPage(){
  const ids=(rows||[]).map(x=>x.id).filter(Boolean);let counts={};if(ids.length){const q=await SB.from('questions').select('tryout_id').in('tryout_id',ids);if(q.error)return toast(q.error.message);(q.data||[]).forEach(x=>counts[x.tryout_id]=(counts[x.tryout_id]||0)+1)}
  state.rows=rows||[];state.table='tryouts';
  page.innerHTML=`<div class="section-head"><div><h2>📝 Tryout</h2><div class="muted">Kelola tryout dan soal yang terhubung langsung ke database.</div></div><button class="btn y" id="addTryout">+ Tambah</button></div><div class="card"><div class="cardbody"><div class="toolbar"><input class="grow" id="filter" placeholder="Cari nama, jalur, atau ID…"><button class="btn" id="refresh">↻ Refresh</button><button class="btn" id="export">Export CSV</button></div><div class="tablewrap"><table id="dataTable"><thead><tr><th>Nama</th><th>Jalur</th><th>Akses</th><th>Soal</th><th>Percobaan</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table></div></div></div>`;
- const render=()=>{const q=(document.querySelector('#filter').value||'').toLowerCase();const rr=state.rows.filter(r=>!q||JSON.stringify(r).toLowerCase().includes(q));document.querySelector('#dataTable tbody').innerHTML=rr.slice(0,500).map(r=>`<tr><td><b>${esc(r.title||'—')}</b><div class="muted small">${esc(r.id)}</div></td><td>${esc(JAL[r.jalur]||r.jalur||'—')}</td><td>${esc(r.access||'free')}</td><td><b>${counts[r.id]||0}</b></td><td>${Number(r.max_tries??3)}</td><td>${r.active?'<span class="badge g">Aktif</span>':'<span class="badge">Nonaktif</span>'}</td><td><button class="btn sm" data-qfor="${esc(r.id)}">Kelola soal</button> <button class="btn sm" data-tedit="${esc(r.id)}">Edit</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">Belum ada tryout.</td></tr>'};
+ const render=()=>{const q=(document.querySelector('#filter').value||'').toLowerCase();const rr=state.rows.filter(r=>!q||JSON.stringify(r).toLowerCase().includes(q));document.querySelector('#dataTable tbody').innerHTML=rr.slice(0,500).map(r=>`<tr><td><b>${esc(r.title||'—')}</b><div class="muted small">${esc(r.id)}</div></td><td>${esc(JAL[r.jalur]||r.jalur||'—')}</td><td>${esc(r.access||'free')}</td><td><b>${counts[r.id]||0}</b></td><td>${Number(r.access==='free'?1:(r.max_tries??1))}</td><td>${r.active?'<span class="badge g">Aktif</span>':'<span class="badge">Nonaktif</span>'}</td><td><button class="btn sm" data-qfor="${esc(r.id)}">Kelola soal</button> <button class="btn sm" data-tedit="${esc(r.id)}">Edit</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">Belum ada tryout.</td></tr>'};
  render();document.querySelector('#filter').oninput=render;document.querySelector('#refresh').onclick=()=>tryoutsPage();document.querySelector('#export').onclick=()=>downloadCSV(state.rows,'tryouts.csv');document.querySelector('#addTryout').onclick=()=>editTryout(null);
  document.querySelector('#dataTable').onclick=e=>{const b=e.target.closest('button');if(!b)return;const r=state.rows.find(x=>String(x.id)===String(b.dataset.qfor||b.dataset.tedit));if(b.dataset.qfor){return questionsForTryout(r)}if(b.dataset.tedit)return editTryout(r)};
 }
-async function editTryout(row){const m=modal(row?'Edit tryout':'Tambah tryout',`<form id="tEdit"><div class="formgrid"><div class="field full"><label>Nama tryout</label><input name="title" value="${esc(row?.title||'')}"></div><div class="field"><label>Jalur</label><select name="jalur">${['utbk','mandiri','kedinasan'].map(x=>`<option value="${x}" ${row?.jalur===x?'selected':''}>${JAL[x]}</option>`).join('')}</select></div><div class="field"><label>Akses</label><select name="access"><option value="free" ${row?.access==='free'?'selected':''}>Gratis</option><option value="premium" ${row?.access==='premium'?'selected':''}>Premium</option></select></div><div class="field"><label>Durasi (menit)</label><input type="number" name="minutes" value="${esc(row?.minutes??'')}"></div><div class="field"><label>Maks. percobaan</label><input type="number" name="max_tries" value="${esc(row?.max_tries??3)}"></div><div class="field"><label>Aktif</label><select name="active"><option value="true" ${row?.active!==false?'selected':''}>Aktif</option><option value="false" ${row?.active===false?'selected':''}>Nonaktif</option></select></div></div></form>`,`<button type="button" class="btn" data-close>Batal</button><button type="button" class="btn y" id="saveT">Simpan</button>`);m.querySelector('#saveT').onclick=async()=>{const f=m.querySelector('#tEdit');const o={title:f.elements.title.value.trim(),jalur:f.elements.jalur.value,access:f.elements.access.value,minutes:f.elements.minutes.value?Number(f.elements.minutes.value):null,max_tries:Number(f.elements.max_tries.value||3),active:f.elements.active.value==='true'};if(!o.title)return toast('Nama tryout wajib diisi.');let q=row?SB.from('tryouts').update(o).eq('id',row.id):SB.from('tryouts').insert({id:crypto.randomUUID(),...o});const r=await q;if(r.error)return toast(r.error.message);m.remove();toast('Tryout tersimpan');tryoutsPage()}}
+async function editTryout(row){const m=modal(row?'Edit tryout':'Tambah tryout',`<form id="tEdit"><div class="formgrid"><div class="field full"><label>Nama tryout</label><input name="title" value="${esc(row?.title||'')}"></div><div class="field"><label>Jalur</label><select name="jalur">${['utbk','mandiri','kedinasan'].map(x=>`<option value="${x}" ${row?.jalur===x?'selected':''}>${JAL[x]}</option>`).join('')}</select></div><div class="field"><label>Akses</label><select name="access"><option value="free" ${row?.access==='free'?'selected':''}>Gratis</option><option value="premium" ${row?.access==='premium'?'selected':''}>Premium</option></select></div><div class="field"><label>Durasi (menit)</label><input type="number" name="minutes" value="${esc(row?.minutes??'')}"></div><div class="field"><label>Maks. percobaan</label><input type="number" name="max_tries" value="${esc(row?.max_tries??1)}"></div><div class="field"><label>Aktif</label><select name="active"><option value="true" ${row?.active!==false?'selected':''}>Aktif</option><option value="false" ${row?.active===false?'selected':''}>Nonaktif</option></select></div></div></form>`,`<button type="button" class="btn" data-close>Batal</button><button type="button" class="btn y" id="saveT">Simpan</button>`);m.querySelector('#saveT').onclick=async()=>{const f=m.querySelector('#tEdit');const o={title:f.elements.title.value.trim(),jalur:f.elements.jalur.value,access:f.elements.access.value,minutes:f.elements.minutes.value?Number(f.elements.minutes.value):null,max_tries:(f.elements.access.value==='free'?1:Number(f.elements.max_tries.value||1)),active:f.elements.active.value==='true'};if(!o.title)return toast('Nama tryout wajib diisi.');let q=row?SB.from('tryouts').update(o).eq('id',row.id):SB.from('tryouts').insert({id:crypto.randomUUID(),...o});const r=await q;if(r.error)return toast(r.error.message);m.remove();toast('Tryout tersimpan');tryoutsPage()}}
 function cleanQuestionText(v){return String(v??'').replace(/\r/g,'').replace(/\n[ \t]*\n+/g,'\n').trim()}
 async function uploadQuestionImage(file){
  if(!file)return '';
@@ -311,7 +311,7 @@ async function importPdfPage(){
    const review=parsed.filter(x=>x.status!=='valid');
    if(review.length&&!confirm(`${review.length} soal masih berstatus Review. Tetap simpan?`))return;
    const tryoutId=crypto.randomUUID();
-   const tr=await SB.from('tryouts').insert({id:tryoutId,title,jalur,access:'free',max_tries:3,active:true,subs:[...new Set(parsed.map(x=>x.subtest))]}).select('id').single();
+   const tr=await SB.from('tryouts').insert({id:tryoutId,title,jalur,access:'free',max_tries:1,active:true,subs:[...new Set(parsed.map(x=>x.subtest))]}).select('id').single();
    if(tr.error)return toast('Gagal membuat tryout: '+tr.error.message);
    const payload=parsed.map(x=>questionPayload(x,'tryout',tryoutId,type));
    const r=await SB.from('questions').insert(payload);
@@ -338,41 +338,16 @@ function questionPayload(x,kind,tryoutId,typeOverride){
 }
 async function parsePdfQuestions(file,keyFile){
  if(!window.pdfjsLib)throw new Error('PDF parser belum siap. Pastikan koneksi internet tersedia untuk memuat PDF.js.');
- async function readPdf(f){
-  const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
-  const pages=[];
-  for(let i=1;i<=pdf.numPages;i++){
-    const pg=await pdf.getPage(i), tc=await pg.getTextContent();
-    // Rebuild visual lines from PDF coordinates so wrapped stems/options stay together.
-    const rows=[];
-    for(const item of tc.items){
-      const value=String(item.str||'').replace(/\s+/g,' ').trim();
-      if(!value)continue;
-      const y=Math.round((item.transform&&item.transform[5])||0);
-      let row=rows.find(r=>Math.abs(r.y-y)<=2);
-      if(!row){row={y,items:[]};rows.push(row);}
-      row.items.push({x:(item.transform&&item.transform[4])||0,value});
-    }
-    rows.sort((a,b)=>b.y-a.y);
-    pages.push(rows.map(r=>r.items.sort((a,b)=>a.x-b.x).map(x=>x.value).join(' ').replace(/\s+/g,' ').trim()).join('\n'));
-  }
-  return pages.join('\n');
-}
-const text=await readPdf(file);let keyText='';if(keyFile){keyText=/\.pdf$/i.test(keyFile.name)?await readPdf(keyFile):await keyFile.text();}
- const answers={};const answerSource=(keyText||text);
- // Heading must be a standalone uppercase section title. Do not mistake the cover subtitle for the answer-key section.
- const keySection=(answerSource.match(/(?:^|\n)\s*(?:KUNCI JAWABAN|DAFTAR JAWABAN|ANSWER KEY)\b[\s\S]*/)||[])[0]||answerSource;
- // Supports both numbered inline keys (1. B) and table-style PDF extraction (1 C 2 D ...).
- for(const m of keySection.matchAll(/(?:^|\s)(\d{1,3})\s*[:.)-]?\s*([ABCDE])(?=\s|$)/g))answers[Number(m[1])]=m[2].toUpperCase();
- const explanationByNo={};const expSource=(keyText||text);const expSection=(expSource.match(/(?:^|\n)\s*(?:PEMBAHASAN|PENJELASAN JAWABAN)\b[\s\S]*/)||[])[0]||'';
- if(expSection){const er=/(?:^|\s)(\d{1,3})[.)]\s*([\s\S]*?)(?=\s\d{1,3}[.)]\s|$)/g;for(const m of expSection.matchAll(er)){const val=m[2].replace(/^Kunci:\s*[ABCDE]\s*/i,'').replace(/\s+/g,' ').trim();if(val)explanationByNo[Number(m[1])]=val;}}
- const questionText=text.replace(/(?:^|\n)\s*(?:KUNCI JAWABAN|DAFTAR JAWABAN|ANSWER KEY|PEMBAHASAN|PENJELASAN JAWABAN)\b[\s\S]*$/,'');
- // The marked Cognera PDF puts an explicit section marker before each subtest.
- // Resolve the last marker preceding each question, then let the normal import validation check it against Supabase.
- const subtestMarkers=[...questionText.matchAll(/COGNERA_SUBTES\s*:\s*(PU|PPU|PBM|PK|LBI|LBE|PM)\b/gi)].map(x=>({index:x.index,code:x[1].toLowerCase()}));
- const re=/(?:^|\n)\s*(\d{1,3})[.)]\s+([\s\S]*?)(?=(?:\n)\s*\d{1,3}[.)]\s+|$)/g;let out=[],m;
- while((m=re.exec(questionText))){let block=m[2].replace(/COGNERA_SUBTES\s*:\s*(?:PU|PPU|PBM|PK|LBI|LBE|PM)\b[^\n]*/gi,' ').replace(/\s+/g,' ').trim();const opts={};for(const l of ['A','B','C','D','E']){const next=String.fromCharCode(l.charCodeAt(0)+1);const rx=new RegExp('\\b'+l+'[.)]\\s+([\\s\\S]*?)(?=\\s'+next+'[.)]\\s+|$)','i');const mm=block.match(rx);if(mm)opts[l.toLowerCase()]=mm[1].trim();}
- block=block.replace(/(?:COGNERA\s*•\s*Paket Latihan Orisinal\s*Halaman\s*\d+|Jumlah soal:\s*\d+[^\n]*)/gi,' ').replace(/\s+/g,' ').trim();let q=block.replace(/\s+A[.)]\s+[\s\S]*$/i,'').trim();if(q.length<8)continue;const no=Number(m[1]);const ans=answers[no]||'';const marker=[...subtestMarkers].reverse().find(x=>x.index<m.index);const subtest=marker?marker.code:'';const complete=q.length>12&&opts.a&&opts.b&&opts.c&&opts.d&&opts.e;const candidate={no,text:q,subtest,a:opts.a||'',b:opts.b||'',c:opts.c||'',d:opts.d||'',e:opts.e||'',answer:ans,explanation:explanationByNo[no]||'',status:complete&&ans?'valid':'warn'};const prev=out.findIndex(x=>x.no===no);if(prev<0)out.push(candidate);else{const old=out[prev];const count=x=>['a','b','c','d','e'].filter(k=>x[k]).length;if(count(candidate)>count(old))out[prev]=candidate;}
+ async function readPdf(f){const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;const pages=[];for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i);const tc=await p.getTextContent();pages.push(tc.items.map(x=>x.str).join(' '));}return pages.join('\n');}
+ const text=await readPdf(file);let keyText='';if(keyFile){keyText=/\.pdf$/i.test(keyFile.name)?await readPdf(keyFile):await keyFile.text();}
+ const answers={};const answerSource=(keyText||text);const keySection=(answerSource.match(/(?:kunci\s+jawaban|daftar\s+jawaban|answer\s+key)[\s\S]*/i)||[])[0]||answerSource;
+ for(const m of keySection.matchAll(/(?:^|\s)(\d{1,3})\s*[:.)-]?\s*([ABCDE])(?=\s|$)/gi))answers[Number(m[1])]=m[2].toUpperCase();
+ const explanationByNo={};const expSource=(keyText||text);const expSection=(expSource.match(/(?:pembahasan|penjelasan\s+jawaban)[\s\S]*/i)||[])[0]||'';
+ if(expSection){const er=/(?:^|\s)(\d{1,3})[.)]\s*([\s\S]*?)(?=\s\d{1,3}[.)]\s|$)/g;for(const m of expSection.matchAll(er)){const val=m[2].replace(/\s+/g,' ').trim();if(val)explanationByNo[Number(m[1])]=val;}}
+ const questionText=text.replace(/(?:kunci\s+jawaban|daftar\s+jawaban|answer\s+key|pembahasan|penjelasan\s+jawaban)[\s\S]*$/i,'');
+ const re=/(?:^|\n|\s)(\d{1,3})[.)]\s+([\s\S]*?)(?=(?:\n|\s)\d{1,3}[.)]\s+|$)/g;let out=[],m;
+ while((m=re.exec(questionText))){let block=m[2].replace(/\s+/g,' ').trim();const opts={};for(const l of ['A','B','C','D','E']){const next=String.fromCharCode(l.charCodeAt(0)+1);const rx=new RegExp('\\b'+l+'[.)]\\s+([\\s\\S]*?)(?=\\s'+next+'[.)]\\s+|$)','i');const mm=block.match(rx);if(mm)opts[l.toLowerCase()]=mm[1].trim();}
+ let q=block.replace(/\s+[ABCDE][.)]\s+[\s\S]*$/i,'').trim();if(q.length<8)continue;const no=Number(m[1]);const ans=answers[no]||'';const complete=q.length>12&&opts.a&&opts.b&&opts.c&&opts.d&&opts.e;out.push({no,text:q,a:opts.a||'',b:opts.b||'',c:opts.c||'',d:opts.d||'',e:opts.e||'',answer:ans,explanation:explanationByNo[no]||'',status:complete&&ans?'valid':'warn'});
  }
  if(!out.length)throw new Error('Soal belum terbaca. Pastikan PDF berisi teks yang bisa diseleksi, nomor soal seperti “1.”, dan opsi A–E. PDF hasil scan perlu OCR terlebih dahulu.');
  return out;

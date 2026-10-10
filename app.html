@@ -1339,7 +1339,7 @@ async function loadRemoteTryouts(){
     rows.forEach(x=>{
       if(TRYOUTS.some(t=>String(t.id)===String(x.id))) return;
       const subs=Array.isArray(x.subs)?x.subs.map(v=>String(v).toLowerCase()).filter(Boolean):[...new Set(qs.filter(q=>String(q.tryout_id)===String(x.id)).map(q=>String(q.subtest||'').toLowerCase()).filter(Boolean))];
-      TRYOUTS.push({id:String(x.id),title:x.title||'Tryout',jalur:x.jalur||'utbk',access:x.access||'free',subs,tries:Number(x.max_tries??3),openAt:x.open_at||null,closeAt:x.close_at||null,minutes:x.minutes||null,image_url:x.image_url||'',remote:true});
+      TRYOUTS.push({id:String(x.id),title:x.title||'Tryout',jalur:x.jalur||'utbk',access:x.access||'free',subs,tries:(String(x.access||'free').toLowerCase()==='free'?1:Number(x.max_tries??1)),openAt:x.open_at||null,closeAt:x.close_at||null,minutes:x.minutes||null,image_url:x.image_url||'',remote:true});
     });
     REMOTE_TRYOUTS_LOADED=true;
   }catch(e){ console.warn('Gagal memuat tryout Supabase:',e); }
@@ -2036,7 +2036,7 @@ function startTryout(tid){
   if(!tryoutQids(t).length) return toast('Soal tryout belum tersedia.');
   if(DATA.inprogress && DATA.inprogress.tid===tid){ return go('/tryout/'+tid+'/kerjakan'); }
   if(DATA.inprogress){ return openModal(`<h3>Ada tryout yang belum selesai</h3><p class="muted">Selesaikan atau lepas dulu tryout sebelumnya sebelum memulai yang baru. Jawaban tryout yang dilepas tidak dinilai.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-ink grow" data-act="drop-start" data-v="${tid}">Lepas dan mulai baru</button></div>`); }
-  if(t.access==='free' && triesUsed(t)>=t.tries) return toast('Percobaan untuk tryout ini sudah habis.');
+  if(t.access==='free' && triesUsed(t)>=1) return openModal(`<h3>Percobaan gratis sudah habis</h3><p class="muted">Setiap akun mendapat satu kali percobaan gratis untuk tryout ini. Beli paket agar bisa mengakses tryout premium selama masa berlangganan.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Nanti</button><a class="btn btn-yellow grow" href="#/paket">Lihat paket</a></div>`);
   const now=Date.now();
   DATA.inprogress={id:uid(), tid, startedAt:now, endsAt:now+tryoutMinutes(t)*60000, qids:tryoutQids(t), answers:{}, flags:{}, cur:0};
   save(); go('/tryout/'+tid+'/kerjakan');
