@@ -1479,11 +1479,13 @@ async function pushRemote(){
   }catch(e){ console.warn('sync gagal',e); }
 }
 const gpicOf=us=>(us&&us.user_metadata&&(us.user_metadata.avatar_url||us.user_metadata.picture))||'';
+// Username awal mengikuti nama pengguna, bukan user_XXXXXXXX.
+const usernameFromName=name=>String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim().replace(/[^a-z0-9._]+/g,'_').replace(/^[._]+|[._]+$/g,'').slice(0,20).replace(/[._]+$/g,'');
 async function pullRemote(uid,name,email,pic,meta={}){
   // IMPORTANT: Supabase Auth is the source of truth. Set the local session
   // immediately so a temporary profiles/user_data query error can NEVER turn
   // an authenticated Google user back into Guest.
-  const u={id:uid,name:name||email?.split('@')[0]||'User',email:email||'',username:meta.username||'',phone:meta.phone||'',sekolah:meta.sekolah||'',kelas:meta.kelas||''};
+  const u={id:uid,name:name||email?.split('@')[0]||'User',email:email||'',username:meta.username||usernameFromName(name||email?.split('@')[0]||''),phone:meta.phone||'',sekolah:meta.sekolah||'',kelas:meta.kelas||''};
   const users=LS.get('users',[]).filter(x=>x.id!==uid); users.push(u); LS.set('users',users);
   LS.set('session',uid);
   const existing=LS.get('data:'+uid,null)||(LS.get('data:guest',null));
@@ -1502,7 +1504,9 @@ async function pullRemote(uid,name,email,pic,meta={}){
 
   // Remote profile/data are enrichment only. Authentication must not depend on them.
   try{
-    const profileRes=await SB.from('profiles').upsert({id:uid,username:u.username||('user_'+String(uid).replace(/-/g,'').slice(0,8)),name:u.name,phone:u.phone||'',jalur:'utbk',tahun:2027,goal:3,sekolah:u.sekolah||'',kelas:u.kelas||'',xp:0,onboarded:false,avatar:pic||null},{onConflict:'id',ignoreDuplicates:true});
+    let profileRes=await SB.from('profiles').upsert({id:uid,username:u.username||null,name:u.name,phone:u.phone||'',jalur:'utbk',tahun:2027,goal:3,sekolah:u.sekolah||'',kelas:u.kelas||'',xp:0,onboarded:false,avatar:pic||null},{onConflict:'id',ignoreDuplicates:true});
+    // Jika nama yang dijadikan username sudah dipakai, jangan membuat user_...; simpan profil tanpa username agar pengguna bisa memilih handle lain.
+    if(profileRes.error && /duplicate key|unique constraint/i.test(profileRes.error.message||'')){profileRes=await SB.from('profiles').upsert({id:uid,username:null,name:u.name,phone:u.phone||'',jalur:'utbk',tahun:2027,goal:3,sekolah:u.sekolah||'',kelas:u.kelas||'',xp:0,onboarded:false,avatar:pic||null},{onConflict:'id',ignoreDuplicates:true});}
     if(profileRes.error) console.warn('profile bootstrap gagal',profileRes.error);
   }catch(profileErr){ console.warn('profile bootstrap gagal',profileErr); }
 
