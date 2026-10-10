@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="id">
 <head>
-<link rel="icon" type="image/png" href="/favicon.png?v=2">
-<link rel="shortcut icon" type="image/png" href="/favicon.png?v=2">
-<link rel="apple-touch-icon" href="/favicon.png?v=2">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="shortcut icon" type="image/png" href="/favicon.png">
+<link rel="apple-touch-icon" href="/favicon.png">
 
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cognera — Admin</title>
@@ -69,14 +69,6 @@ h1,h2,h3,h4,.brand,.top h1,.stat strong,.cardhead b{font-family:Manrope,"DM Sans
 
 .statLink{font:inherit;text-align:left;color:inherit;cursor:pointer;transition:transform .15s,box-shadow .15s}.statLink:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.08)}
 </style>
-
-<style id="cognera-admin-responsive-logo-fix">
-.side .brandLogo, .authBrand .brandLogo, .mobileLogo .brandLogo { width: 188px; max-width: 100%; max-height: 52px; height: auto; }
-@media (max-width: 700px) { .side .brandLogo, .authBrand .brandLogo, .mobileLogo .brandLogo { width: 164px; max-height: 44px; } }
-html, body { max-width: 100%; overflow-x: clip; }
-img, svg, video, canvas { max-width: 100%; }
-</style>
-
 </head><body><div id="root"></div>
 <script>
 const CFG={URL:'https://azjseobcambbbllqlqxx.supabase.co',KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6anNlb2JjYW1iYmJsbHFscXh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwOTYwMzAsImV4cCI6MjEwNjY3MjAzMH0.vZITnNh_K2vy7a78gpZyhHnLdHtzTn5ahe_3ARIMt18'};
@@ -280,24 +272,27 @@ async function latihanPage(){
 }
 async function simpleManagerPage(table){const probe=await SB.from(table).select('*',{count:'exact',head:true});if(probe.error){page.innerHTML=`<div class="section-head"><div><h2>${tables[table]?.icon||'⚙️'} ${tables[table]?.label||table}</h2><div class="muted">Fitur ini membutuhkan tabel <code>public.${table}</code>.</div></div></div><div class="card"><div class="cardbody"><div class="notice danger"><b>Tabel belum tersedia.</b><br>${esc(probe.error.message)}<br><br>Jalankan migration <code>supabase/migrations/20261007_admin_control_tables.sql</code> yang disertakan di project ini, lalu klik Refresh.</div></div></div>`;return}page.innerHTML=await managerHTML(table);bindManager(table)}
 async function importPdfPage(){
- page.innerHTML=`<div class="section-head"><div><h2>Import soal dari PDF</h2><div class="muted">Upload satu PDF. Soal dan kunci dianalisis otomatis, lalu bisa diedit sebelum disimpan.</div></div></div>
+ page.innerHTML=`<div class="section-head"><div><h2>Import Konten PDF</h2><div class="muted">Pilih jenis konten: impor soal ke Tryout/Latihan atau unggah PDF sebagai Materi pembelajaran.</div></div></div>
  <div class="grid2"><div class="card"><div class="cardhead"><b>1. Upload dokumen</b><span class="badge y">1 PDF</span></div><div class="cardbody">
- <div class="dropzone" id="pdfDrop"><div style="font-size:36px">↥</div><b>Tarik PDF ke sini</b><div class="muted small">atau pilih file dari komputer</div><div class="muted small">PDF asli · maksimal 25 MB · maksimal 300 halaman</div><input id="pdfFile" type="file" accept=".pdf,application/pdf" style="margin-top:14px"></div>
- <div class="field" style="margin-top:12px"><label>PDF kunci jawaban / pembahasan (opsional)</label><input id="keyPdfFile" type="file" accept=".pdf,application/pdf,.txt,.csv"><small class="muted">Gunakan jika kunci dan pembahasan terpisah dari PDF soal.</small></div><div class="formgrid" style="margin-top:15px"><div class="field"><label>Nama</label><input id="impTitle" placeholder="Tryout UTBK 2027 / Latihan PU"></div><div class="field"><label>Dipakai untuk</label><select id="impMode"><option value="tryout">Tryout</option><option value="drill">Latihan</option></select></div><div class="field"><label>Jalur</label><select id="impJalur"><option value="utbk">UTBK</option><option value="kedinasan">Kedinasan</option><option value="mandiri">Mandiri</option></select></div><div class="field"><label>Subtes default</label><select id="impSub"><option value="all">Semua soal (otomatis)</option></select></div><div class="field"><label>Jenis soal</label><select id="impType"><option value="auto">Otomatis</option><option value="single_choice">Pilihan ganda</option><option value="multiple_choice">Pilihan ganda kompleks</option><option value="short_text">Isian singkat</option><option value="essay">Isian panjang / uraian</option></select></div></div>
- <div class="notice" style="margin-top:12px">Kunci jawaban dan pembahasan bisa diambil dari PDF soal atau file kunci terpisah. Pilih apakah PDF ini untuk <b>Tryout</b> atau <b>Latihan</b>; jenis soal bisa PG, PG kompleks, isian singkat, atau uraian.</div>
- <button class="btn y" id="analyzePdf" style="margin-top:14px">Analisis PDF</button></div></div>
- <div class="card"><div class="cardhead"><b>2. Status parser</b><span id="parseBadge" class="badge">Belum ada file</span></div><div class="cardbody" id="parseStatus"><div class="empty">Belum ada PDF yang dianalisis.</div></div></div></div>
+ <div class="dropzone" id="pdfDrop"><div style="font-size:36px">↥</div><b>Tarik PDF ke sini</b><div class="muted small">atau pilih file dari komputer</div><input id="pdfFile" type="file" accept="application/pdf" style="margin-top:14px"></div>
+ <div class="formgrid" style="margin-top:15px"><div class="field"><label>Nama</label><input id="impTitle" placeholder="Tryout UTBK 2027 / Latihan PU"></div><div class="field"><label>Dipakai untuk</label><select id="impMode"><option value="tryout">Tryout</option><option value="drill">Latihan</option><option value="material">Materi PDF</option></select></div><div class="field" id="impJalurWrap"><label>Jalur</label><select id="impJalur"><option value="utbk">UTBK</option><option value="kedinasan">Kedinasan</option><option value="mandiri">Mandiri</option></select></div><div class="field" id="impSubWrap"><label>Subtes default</label><select id="impSub"><option value="all">Semua soal (otomatis)</option></select></div><div class="field" id="impTypeWrap"><label>Jenis soal</label><select id="impType"><option value="auto">Otomatis</option><option value="single_choice">Pilihan ganda</option><option value="multiple_choice">Pilihan ganda kompleks</option><option value="short_text">Isian singkat</option><option value="essay">Isian panjang / uraian</option></select></div></div>
+ <div class="notice" style="margin-top:12px">Untuk <b>Tryout/Latihan</b>, PDF akan dianalisis menjadi soal. Untuk <b>Materi PDF</b>, file disimpan sebagai modul dan tidak diproses oleh parser soal.</div>
+ <button class="btn y" id="analyzePdf" style="margin-top:14px">Analisis PDF</button><button class="btn y" id="uploadMaterial" style="margin-top:14px;display:none">Upload Materi PDF</button></div></div>
+ <div class="card"><div class="cardhead"><b>2. Status proses</b><span id="parseBadge" class="badge">Belum ada file</span></div><div class="cardbody" id="parseStatus"><div class="empty">Belum ada PDF yang dianalisis.</div></div></div></div>
  <div class="card" style="margin-top:16px"><div class="cardhead"><div><b>3. Review soal</b><div class="muted small">Edit soal yang ditandai review sebelum menyimpan.</div></div><div style="display:flex;gap:8px"><button class="btn sm" id="exportParsed">Export CSV</button><button class="btn y sm" id="saveParsed">Simpan & Publish Tryout</button></div></div><div class="cardbody"><div class="toolbar"><input class="grow" id="parsedSearch" placeholder="Cari nomor, teks, atau kunci…"><select id="parsedFilter"><option value="all">Semua status</option><option value="valid">Valid</option><option value="warn">Perlu review</option></select></div><div class="tablewrap"><table id="parsedTable"><thead><tr><th>No</th><th>Soal</th><th>A</th><th>B</th><th>C</th><th>D</th><th>E</th><th>Kunci</th><th>Status</th><th>Aksi</th></tr></thead><tbody><tr><td colspan="10" class="empty">Hasil analisis akan muncul di sini.</td></tr></tbody></table></div></div></div>`;
  let parsed=[];
  try{await loadValidSubtests();}catch(e){console.error(e);toast('Daftar subtes gagal dimuat: '+e.message)}
  document.querySelector('#impSub').innerHTML=subtestOptions();
  const status=msg=>{document.querySelector('#parseStatus').innerHTML=msg};
+ const modeSelect=document.querySelector('#impMode');const syncImportMode=()=>{const material=modeSelect.value==='material';document.querySelector('#impJalurWrap').style.display=material?'none':'';document.querySelector('#impSubWrap').style.display=material?'none':'';document.querySelector('#impTypeWrap').style.display=material?'none':'';document.querySelector('#analyzePdf').style.display=material?'none':'';document.querySelector('#uploadMaterial').style.display=material?'':'none';document.querySelector('#saveParsed').style.display=material?'none':'';document.querySelector('#exportParsed').style.display=material?'none':'';document.querySelector('#parsedTable').closest('.card').style.display=material?'none':'';document.querySelector('#parseStatus').innerHTML=material?'<div class="empty">PDF materi akan disimpan sebagai modul, tanpa ekstraksi soal.</div>':'<div class="empty">Pilih PDF untuk dianalisis.</div>';document.querySelector('#parseBadge').textContent=material?'Mode materi':'Belum ada file'};modeSelect.addEventListener('change',syncImportMode);syncImportMode();
+ document.querySelector('#uploadMaterial').onclick=async()=>{const file=document.querySelector('#pdfFile').files[0];const title=document.querySelector('#impTitle').value.trim()||file?.name?.replace(/\.pdf$/i,'')||'';if(!file)return toast('Pilih PDF materi terlebih dahulu.');if(!title)return toast('Judul materi wajib diisi.');if(!/\.pdf$/i.test(file.name)||file.type!=='application/pdf')return toast('File harus berupa PDF.');if(file.size>25*1024*1024)return toast('Ukuran PDF maksimal 25 MB.');const head=new Uint8Array(await file.slice(0,5).arrayBuffer());if(new TextDecoder().decode(head)!=='%PDF-')return toast('Signature file tidak valid sebagai PDF.');if(file.size===0)return toast('File PDF kosong.');const btn=document.querySelector('#uploadMaterial');btn.disabled=true;btn.textContent='Mengunggah…';document.querySelector('#parseBadge').textContent='Mengunggah';status('<div class="activity"><div class="ico">↥</div><div><b>Mengunggah materi…</b><small>File akan disimpan ke Supabase Storage.</small></div></div>');try{const userRes=await SB.auth.getUser();if(userRes.error||!userRes.data?.user)throw new Error('Sesi admin tidak valid. Silakan masuk ulang.');const uid=userRes.data.user.id;const safeName=file.name.normalize('NFKD').replace(/[^a-zA-Z0-9._-]+/g,'-').replace(/-+/g,'-').slice(-100)||'materi.pdf';const path=`${uid}/${crypto.randomUUID()}-${safeName}`;const up=await SB.storage.from('learning-materials').upload(path,file,{contentType:'application/pdf',upsert:false});if(up.error)throw new Error('Upload Storage gagal: '+up.error.message);const row={title,description:'',category:'Umum',storage_path:path,file_name:file.name,file_size:file.size,mime_type:'application/pdf',published:false,created_by:uid};const ins=await SB.from('learning_materials').insert(row).select('id').single();if(ins.error){await SB.storage.from('learning-materials').remove([path]);throw new Error('File terunggah tetapi metadata gagal disimpan. Jalankan migration SQL yang disertakan. Detail: '+ins.error.message)}toast('Materi PDF berhasil diunggah sebagai draft.');document.querySelector('#parseBadge').textContent='Berhasil';status('<div class="notice">Materi berhasil disimpan sebagai draft. Publikasikan dari menu Materi setelah melengkapi metadata.</div>');}catch(e){console.error(e);document.querySelector('#parseBadge').textContent='Gagal';status(`<div class="notice danger">${esc(e.message||e)}</div>`);toast(e.message||'Upload gagal.')}finally{btn.disabled=false;btn.textContent='Upload Materi PDF'};
+
  const refreshStatus=()=>{const valid=parsed.filter(x=>x.status==='valid').length;const warn=parsed.length-valid;document.querySelector('#parseBadge').textContent=`${parsed.length} soal`;status(`<div class="grid3"><div><b>${parsed.length}</b><div class="muted">soal terdeteksi</div></div><div><b>${valid}</b><div class="muted">siap disimpan</div></div><div><b>${warn}</b><div class="muted">perlu review</div></div></div>`)};
  const renderParsed=()=>{const q=(document.querySelector('#parsedSearch').value||'').toLowerCase(),f=document.querySelector('#parsedFilter').value;const rows=parsed.filter(x=>(f==='all'||x.status===f)&&(!q||JSON.stringify(x).toLowerCase().includes(q)));document.querySelector('#parsedTable tbody').innerHTML=rows.length?rows.map(x=>`<tr><td>${x.no}</td><td style="min-width:280px">${esc(x.text.slice(0,260))}${x.text.length>260?'…':''}</td><td>${esc(x.a)}</td><td>${esc(x.b)}</td><td>${esc(x.c)}</td><td>${esc(x.d)}</td><td>${esc(x.e)}</td><td><b>${esc(x.answer||'—')}</b></td><td>${x.status==='valid'?'<span class="badge g">Siap</span>':'<span class="badge y">Perlu review</span>'}</td><td><button class="btn sm" data-edit-pdf="${x.no}">Edit soal</button></td></tr>`).join(''):'<tr><td colspan="10" class="empty">Tidak ada hasil.</td></tr>'};
  document.querySelector('#parsedSearch').oninput=renderParsed;document.querySelector('#parsedFilter').onchange=renderParsed;
- document.querySelector('#parsedTable').onclick=e=>{const b=e.target.closest('[data-edit-pdf]');if(!b)return;const item=parsed.find(x=>x.no===Number(b.dataset.editPdf));if(!item)return;const m=modal(`Edit soal #${item.no}`,`<div class="formgrid"><div class="field full"><label>Pertanyaan</label><textarea id="edText" rows="6">${esc(item.text)}</textarea></div>${['a','b','c','d','e'].map(k=>`<div class="field"><label>Opsi ${k.toUpperCase()}</label><textarea id="ed${k}" rows="3">${esc(item[k])}</textarea></div>`).join('')}<div class="field"><label>Kunci jawaban</label><select id="edAns">${['A','B','C','D','E'].map(k=>`<option ${item.answer===k?'selected':''}>${k}</option>`).join('')}</select></div><div class="field"><label>Subtes</label><select id="edSub">${subtestOptions(item.subtest)}</select></div><div class="field full"><label>Pembahasan</label><textarea id="edExplanation" rows="5">${esc(item.explanation||'')}</textarea></div></div>`,`<button class="btn" data-close>Batal</button><button class="btn y" id="saveEdited">Simpan perubahan</button>`);m.querySelector('#saveEdited').onclick=()=>{item.text=m.querySelector('#edText').value.trim();['a','b','c','d','e'].forEach(k=>item[k]=m.querySelector('#ed'+k).value.trim());item.answer=m.querySelector('#edAns').value;item.subtest=m.querySelector('#edSub').value;item.explanation=m.querySelector('#edExplanation').value.trim();item.status=item.text.length>12&&item.a&&item.b&&item.c&&item.d&&item.answer?'valid':'warn';m.remove();refreshStatus();renderParsed();};};
- document.querySelector('#analyzePdf').onclick=async()=>{const file=document.querySelector('#pdfFile').files[0];if(!file)return toast('Pilih PDF terlebih dahulu.');document.querySelector('#parseBadge').textContent='Menganalisis';status('<div class="activity"><div class="ico">↻</div><div><b>Membaca PDF…</b><small>Parser akan mengambil soal dan kunci dari satu file.</small></div></div>');try{const keyFile=document.querySelector('#keyPdfFile').files[0]||null;parsed=await parsePdfQuestions(file,keyFile);const defaultSub=document.querySelector('#impSub').value;const selectedType=document.querySelector('#impType').value;const detected=validSubtest(detectSubtestFromText(file.name));parsed.forEach(x=>{x.subtest=validSubtest(x.subtest)||detected||(defaultSub==='all'?'':validSubtest(defaultSub));x.type=selectedType==='auto'?(x.a&&x.b?'single_choice':'short_text'):selectedType;});refreshStatus();renderParsed();}catch(e){console.error(e);document.querySelector('#parseBadge').textContent='Gagal';status(`<div class="notice danger">${esc(e.message||e)}</div>`)} };
- document.querySelector('#exportParsed').onclick=()=>downloadCSV(parsed.map(x=>({no:x.no,question:x.text,A:x.a,B:x.b,C:x.c,D:x.d,E:x.e,answer:x.answer,subtest:x.subtest,explanation:x.explanation||'',status:x.status})),'import-pdf-soal.csv');
+ document.querySelector('#parsedTable').onclick=e=>{const b=e.target.closest('[data-edit-pdf]');if(!b)return;const item=parsed.find(x=>x.no===Number(b.dataset.editPdf));if(!item)return;const m=modal(`Edit soal #${item.no}`,`<div class="formgrid"><div class="field full"><label>Pertanyaan</label><textarea id="edText" rows="6">${esc(item.text)}</textarea></div>${['a','b','c','d','e'].map(k=>`<div class="field"><label>Opsi ${k.toUpperCase()}</label><textarea id="ed${k}" rows="3">${esc(item[k])}</textarea></div>`).join('')}<div class="field"><label>Kunci jawaban</label><select id="edAns">${['A','B','C','D','E'].map(k=>`<option ${item.answer===k?'selected':''}>${k}</option>`).join('')}</select></div><div class="field"><label>Subtes</label><select id="edSub">${subtestOptions(item.subtest)}</select></div></div>`,`<button class="btn" data-close>Batal</button><button class="btn y" id="saveEdited">Simpan perubahan</button>`);m.querySelector('#saveEdited').onclick=()=>{item.text=m.querySelector('#edText').value.trim();['a','b','c','d','e'].forEach(k=>item[k]=m.querySelector('#ed'+k).value.trim());item.answer=m.querySelector('#edAns').value;item.subtest=m.querySelector('#edSub').value;item.status=item.text.length>12&&item.a&&item.b&&item.c&&item.d&&item.answer?'valid':'warn';m.remove();refreshStatus();renderParsed();};};
+ document.querySelector('#analyzePdf').onclick=async()=>{const file=document.querySelector('#pdfFile').files[0];if(!file)return toast('Pilih PDF terlebih dahulu.');document.querySelector('#parseBadge').textContent='Menganalisis';status('<div class="activity"><div class="ico">↻</div><div><b>Membaca PDF…</b><small>Parser akan mengambil soal dan kunci dari satu file.</small></div></div>');try{parsed=await parsePdfQuestions(file,null);const defaultSub=document.querySelector('#impSub').value;const selectedType=document.querySelector('#impType').value;const detected=validSubtest(detectSubtestFromText(file.name));parsed.forEach(x=>{x.subtest=validSubtest(x.subtest)||detected||(defaultSub==='all'?'':validSubtest(defaultSub));x.type=selectedType==='auto'?(x.a&&x.b?'single_choice':'short_text'):selectedType;});refreshStatus();renderParsed();}catch(e){console.error(e);document.querySelector('#parseBadge').textContent='Gagal';status(`<div class="notice danger">${esc(e.message||e)}</div>`)} };
+ document.querySelector('#exportParsed').onclick=()=>downloadCSV(parsed.map(x=>({no:x.no,question:x.text,A:x.a,B:x.b,C:x.c,D:x.d,E:x.e,answer:x.answer,subtest:x.subtest,status:x.status})),'import-pdf-soal.csv');
  document.querySelector('#saveParsed').onclick=async()=>{
  if(!parsed.length)return toast('Belum ada soal hasil analisis.');
  if(!VALID_SUBTESTS.length){try{await loadValidSubtests();}catch(e){return toast('Gagal membaca daftar subtes: '+e.message)}}
@@ -337,64 +332,11 @@ function questionPayload(x,kind,tryoutId,typeOverride){
  return {subtest:validSubtest(x.subtest),kind,tryout_id:tryoutId,body:cleanQuestionText(x.text),text:cleanQuestionText(x.text),options,answer,correct_answer:correct||null,passage:x.passage||null,explanation:x.explanation||'',points:x.points||null,active:true};
 }
 async function parsePdfQuestions(file,keyFile){
- if(!window.pdfjsLib)throw new Error('PDF parser belum siap. Pastikan koneksi internet tersedia untuk memuat PDF.js.');
- // Defense-in-depth for browser-side parsing. These checks do not replace server-side validation.
- const MAX_PDF_BYTES=25*1024*1024, MAX_TEXT_BYTES=5*1024*1024, MAX_PAGES=300;
- async function validateUpload(f,{allowText=false}={}){
-  if(!f)throw new Error('File tidak ditemukan.');
-  const name=String(f.name||'').toLowerCase();
-  if(allowText && /\.(txt|csv)$/.test(name)){
-   if(f.size>MAX_TEXT_BYTES)throw new Error('File kunci TXT/CSV maksimal 5 MB.');
-   return 'text';
-  }
-  if(!name.endsWith('.pdf'))throw new Error('File harus berekstensi .pdf.');
-  if(!f.size||f.size>MAX_PDF_BYTES)throw new Error('Ukuran setiap PDF harus lebih dari 0 byte dan maksimal 25 MB.');
-  const head=new Uint8Array(await f.slice(0,1024).arrayBuffer());
-  const signature=String.fromCharCode(...head.slice(0,5));
-  if(signature!=='%PDF-')throw new Error('Signature PDF tidak valid. File mungkin bukan PDF asli atau rusak.');
-  return 'pdf';
- }
- await validateUpload(file);
- if(keyFile)await validateUpload(keyFile,{allowText:true});
- async function readPdf(f){
-  await validateUpload(f);
-  const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer(),isEvalSupported:false,stopAtErrors:true}).promise;
-  if(!Number.isInteger(pdf.numPages)||pdf.numPages<1||pdf.numPages>MAX_PAGES){try{await pdf.destroy()}catch(_){};throw new Error(`PDF harus memiliki 1–${MAX_PAGES} halaman. File ini memiliki ${pdf.numPages} halaman.`)}
-  const pages=[];
-  for(let i=1;i<=pdf.numPages;i++){
-    const pg=await pdf.getPage(i), tc=await pg.getTextContent();
-    // Rebuild visual lines from PDF coordinates so wrapped stems/options stay together.
-    const rows=[];
-    for(const item of tc.items){
-      const value=String(item.str||'').replace(/\s+/g,' ').trim();
-      if(!value)continue;
-      const y=Math.round((item.transform&&item.transform[5])||0);
-      let row=rows.find(r=>Math.abs(r.y-y)<=2);
-      if(!row){row={y,items:[]};rows.push(row);}
-      row.items.push({x:(item.transform&&item.transform[4])||0,value});
-    }
-    rows.sort((a,b)=>b.y-a.y);
-    pages.push(rows.map(r=>r.items.sort((a,b)=>a.x-b.x).map(x=>x.value).join(' ').replace(/\s+/g,' ').trim()).join('\n'));
-  }
-  return pages.join('\n');
-}
-const text=await readPdf(file);let keyText='';if(keyFile){keyText=/\.pdf$/i.test(keyFile.name)?await readPdf(keyFile):await keyFile.text();}
- const answers={};const answerSource=(keyText||text);
- // Heading must be a standalone uppercase section title. Do not mistake the cover subtitle for the answer-key section.
- const keySection=(answerSource.match(/(?:^|\n)\s*(?:KUNCI JAWABAN|DAFTAR JAWABAN|ANSWER KEY)\b[\s\S]*/)||[])[0]||answerSource;
- // Supports both numbered inline keys (1. B) and table-style PDF extraction (1 C 2 D ...).
- for(const m of keySection.matchAll(/(?:^|\s)(\d{1,3})\s*[:.)-]?\s*([ABCDE])(?=\s|$)/g))answers[Number(m[1])]=m[2].toUpperCase();
- const explanationByNo={};const expSource=(keyText||text);const expSection=(expSource.match(/(?:^|\n)\s*(?:PEMBAHASAN|PENJELASAN JAWABAN)\b[\s\S]*/)||[])[0]||'';
- if(expSection){const er=/(?:^|\s)(\d{1,3})[.)]\s*([\s\S]*?)(?=\s\d{1,3}[.)]\s|$)/g;for(const m of expSection.matchAll(er)){const val=m[2].replace(/^Kunci:\s*[ABCDE]\s*/i,'').replace(/\s+/g,' ').trim();if(val)explanationByNo[Number(m[1])]=val;}}
- const questionText=text.replace(/(?:^|\n)\s*(?:KUNCI JAWABAN|DAFTAR JAWABAN|ANSWER KEY|PEMBAHASAN|PENJELASAN JAWABAN)\b[\s\S]*$/,'');
- // The marked Cognera PDF puts an explicit section marker before each subtest.
- // Resolve the last marker preceding each question, then let the normal import validation check it against Supabase.
- const subtestMarkers=[...questionText.matchAll(/COGNERA_SUBTES\s*:\s*(PU|PPU|PBM|PK|LBI|LBE|PM)\b/gi)].map(x=>({index:x.index,code:x[1].toLowerCase()}));
- const re=/(?:^|\n)\s*(\d{1,3})[.)]\s+([\s\S]*?)(?=(?:\n)\s*\d{1,3}[.)]\s+|$)/g;let out=[],m;
- while((m=re.exec(questionText))){let block=m[2].replace(/COGNERA_SUBTES\s*:\s*(?:PU|PPU|PBM|PK|LBI|LBE|PM)\b[^\n]*/gi,' ').replace(/\s+/g,' ').trim();const opts={};for(const l of ['A','B','C','D','E']){const next=String.fromCharCode(l.charCodeAt(0)+1);const rx=new RegExp('\\b'+l+'[.)]\\s+([\\s\\S]*?)(?=\\s'+next+'[.)]\\s+|$)','i');const mm=block.match(rx);if(mm)opts[l.toLowerCase()]=mm[1].trim();}
- block=block.replace(/(?:COGNERA\s*•\s*Paket Latihan Orisinal\s*Halaman\s*\d+|Jumlah soal:\s*\d+[^\n]*)/gi,' ').replace(/\s+/g,' ').trim();let q=block.replace(/\s+A[.)]\s+[\s\S]*$/i,'').trim();if(q.length<8)continue;const no=Number(m[1]);const ans=answers[no]||'';const marker=[...subtestMarkers].reverse().find(x=>x.index<m.index);const subtest=marker?marker.code:'';const complete=q.length>12&&opts.a&&opts.b&&opts.c&&opts.d&&opts.e;const candidate={no,text:q,subtest,a:opts.a||'',b:opts.b||'',c:opts.c||'',d:opts.d||'',e:opts.e||'',answer:ans,explanation:explanationByNo[no]||'',status:complete&&ans?'valid':'warn'};const prev=out.findIndex(x=>x.no===no);if(prev<0)out.push(candidate);else{const old=out[prev];const count=x=>['a','b','c','d','e'].filter(k=>x[k]).length;if(count(candidate)>count(old))out[prev]=candidate;}
- }
- if(!out.length)throw new Error('Soal belum terbaca. Pastikan PDF berisi teks yang bisa diseleksi, nomor soal seperti “1.”, dan opsi A–E. PDF hasil scan perlu OCR terlebih dahulu.');
+ if(!window.pdfjsLib){throw new Error('PDF parser belum siap. Pastikan koneksi internet tersedia untuk memuat PDF.js.')}
+ const buf=await file.arrayBuffer();const pdf=await pdfjsLib.getDocument({data:buf}).promise;let pages=[];for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i);const tc=await p.getTextContent();pages.push(tc.items.map(x=>x.str).join(' '))}let text=pages.join('\n');let keyText='';if(keyFile){if(keyFile.type==='application/pdf'){const kb=await keyFile.arrayBuffer();const kp=await pdfjsLib.getDocument({data:kb}).promise;for(let i=1;i<=kp.numPages;i++){const p=await kp.getPage(i);const tc=await p.getTextContent();keyText+='\n'+tc.items.map(x=>x.str).join(' ')}}else keyText=await keyFile.text()}
+ const answers={};const km=keyText.matchAll(/(?:^|\s)(\d{1,3})\s*[:.)-]?\s*([ABCDE])(?=\s|$)/gi);for(const m of km)answers[Number(m[1])]=m[2].toUpperCase();
+ const re=/(?:^|\n|\s)(\d{1,3})[.)]\s+([\s\S]*?)(?=(?:\n|\s)\d{1,3}[.)]\s+|$)/g;let out=[],m;while((m=re.exec(text))){let block=m[2].replace(/\s+/g,' ').trim();const opts={};for(const l of ['A','B','C','D','E']){const next=String.fromCharCode(l.charCodeAt(0)+1);const rx=new RegExp('\\b'+l+'[.)]\\s+([\\s\\S]*?)(?=\\s'+next+'[.)]\\s+|$)','i');const mm=block.match(rx);if(mm)opts[l.toLowerCase()]=mm[1].trim()}let q=block.replace(/\s+[ABCDE][.)]\s+[\s\S]*$/i,'').trim();let ans=answers[Number(m[1])]||'';const complete=q.length>12&&opts.a&&opts.b&&opts.c&&opts.d&&(opts.e||true);out.push({no:Number(m[1]),text:q,a:opts.a||'',b:opts.b||'',c:opts.c||'',d:opts.d||'',e:opts.e||'',answer:ans,status:complete&&ans?'valid':'warn'});}
+ if(!out.length){const lines=text.split(/\n+/).map(x=>x.trim()).filter(Boolean);let no=0;for(let i=0;i<lines.length;i++){const mm=lines[i].match(/^(\d{1,3})[.)]\s*(.+)$/);if(mm){no=Number(mm[1]);out.push({no,text:mm[2],a:'',b:'',c:'',d:'',e:'',answer:answers[no]||'',status:answers[no]?'valid':'warn'})}}}
  return out;
 }
 async function promosPage(){return simpleManagerPage('promos')}
