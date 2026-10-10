@@ -2070,24 +2070,51 @@ async function requestFreeTryoutProof(tid){
   if(U.guest||!U.id){openModal(`<h3>Login untuk mengikuti tryout gratis</h3><p class="muted">Bukti promosi perlu dikaitkan dengan akun agar dapat diverifikasi dan mencegah penyalahgunaan.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Nanti</button><a class="btn btn-yellow grow" href="#/masuk">Masuk / daftar</a></div>`);return;}
   if(await isTryoutBlocked()){openModal(`<h3>Pendaftaran tryout dibatasi</h3><p class="muted">Akun ini sedang dibatasi dari pendaftaran tryout karena bukti promosi atau aktivitas yang perlu ditinjau. Hubungi tim Cognera jika merasa ini keliru.</p><div class="row mt16"><button class="btn btn-ink grow" data-act="close">Mengerti</button></div>`);return;}
   if(await hasSocialProof(tid)){window.__proofGatePass=true;startTryout(tid);window.__proofGatePass=false;return;}
-  const postUrl=t.promoPostUrl||'';openModal(`<h3>Syarat tryout gratis</h3><p class="muted">Selesaikan semua langkah berikut untuk <b>${esc(t.title||'tryout ini')}</b>, lalu unggah screenshot bukti sebelum mulai mengerjakan.</p><ol style="padding-left:22px;line-height:1.8"><li><a href="https://www.instagram.com/cognera.id/" target="_blank" rel="noopener noreferrer">Follow Instagram resmi @cognera.id ↗</a></li><li>Like <a href="${esc(postUrl||'https://www.instagram.com/cognera.id/') }" target="_blank" rel="noopener noreferrer">postingan promosi untuk tryout ini ↗</a>${postUrl?'':' <span class="muted">(link postingan belum diatur admin)</span>'}.</li><li>Mention 3 teman di kolom komentar pada postingan tersebut.</li><li>Bagikan postingan tersebut ke Instagram Story.</li></ol><p class="small muted">Pastikan username dan aktivitas terlihat jelas. Bukti palsu dapat menyebabkan pendaftaran tryout diblokir setelah ditinjau.</p><label for="tryoutProofFile" style="display:block;font-weight:700;margin:12px 0 6px">Screenshot bukti (JPG/PNG/WebP, maks. 8 MB)</label><input id="tryoutProofFile" type="file" accept="image/jpeg,image/png,image/webp" style="width:100%"><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-yellow grow" data-act="submit-tryout-proof" data-v="${esc(String(tid))}">Unggah & mulai tryout</button></div>`,'proofModal');
+  const postUrl=t.promoPostUrl||'';openModal(`<h3>Syarat tryout gratis</h3><p class="muted">Selesaikan 3 syarat berikut untuk <b>${esc(t.title||'tryout ini')}</b>, lalu unggah 3 screenshot bukti sebelum mulai mengerjakan.</p><ol style="padding-left:22px;line-height:1.8"><li><a href="https://www.instagram.com/cognera.id/" target="_blank" rel="noopener noreferrer">Follow Instagram resmi @cognera.id ↗</a></li><li>Like <a href="${esc(postUrl||'https://www.instagram.com/cognera.id/') }" target="_blank" rel="noopener noreferrer">postingan promosi untuk tryout ini ↗</a>${postUrl?'':' <span class="muted">(link postingan belum diatur admin)</span>'}.</li><li>Mention 3 teman di kolom komentar pada postingan tersebut.</li></ol><p class="small muted">Story tidak lagi menjadi syarat. Pastikan username dan aktivitas terlihat jelas. Bukti palsu dapat menyebabkan pendaftaran tryout diblokir setelah ditinjau.</p><label for="proofFollow" style="display:block;font-weight:700;margin:12px 0 6px">1. Screenshot bukti Follow</label><input id="proofFollow" type="file" accept="image/jpeg,image/png,image/webp" style="width:100%"><label for="proofLike" style="display:block;font-weight:700;margin:12px 0 6px">2. Screenshot bukti Like</label><input id="proofLike" type="file" accept="image/jpeg,image/png,image/webp" style="width:100%"><label for="proofMention" style="display:block;font-weight:700;margin:12px 0 6px">3. Screenshot bukti Mention 3 teman</label><input id="proofMention" type="file" accept="image/jpeg,image/png,image/webp" style="width:100%"><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-yellow grow" data-act="submit-tryout-proof" data-v="${esc(String(tid))}">Unggah bukti & mulai tryout</button></div>`,'proofModal');
 }
 async function submitTryoutProof(tid,button){
-  const input=document.getElementById('tryoutProofFile'),file=input&&input.files&&input.files[0];
-  if(!file)return toast('Pilih screenshot bukti terlebih dahulu.');
-  if(!/^image\/(jpeg|png|webp)$/.test(file.type)||file.size>8*1024*1024)return toast('Gunakan gambar JPG, PNG, atau WebP maksimal 8 MB.');
+  const proofInputs=[
+    {id:'proofFollow',kind:'follow',label:'Follow'},
+    {id:'proofLike',kind:'like',label:'Like'},
+    {id:'proofMention',kind:'mention',label:'Mention 3 teman'}
+  ];
+  const files=proofInputs.map(x=>({ ...x, file:document.getElementById(x.id)?.files?.[0] }));
+  const missing=files.filter(x=>!x.file);
+  if(missing.length)return toast('Lengkapi 3 screenshot: Follow, Like, dan Mention 3 teman.');
+  for(const item of files){
+    if(!/^image\/(jpeg|png|webp)$/.test(item.file.type)||item.file.size>8*1024*1024)return toast(`Screenshot ${item.label} harus JPG, PNG, atau WebP maksimal 8 MB.`);
+  }
   if(!SB||U.guest||!U.id)return toast('Login diperlukan untuk mengunggah bukti.');
-  if(button){button.disabled=true;button.textContent='Mengunggah…';}
+  if(button){button.disabled=true;button.textContent='Mengunggah 3 bukti…';}
+  const uploaded=[];
   try{
     if(await isTryoutBlocked()) throw new Error('Akun ini dibatasi dari pendaftaran tryout. Hubungi tim Cognera.');
-    const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
-    const path=`${U.id}/${String(tid).replace(/[^a-zA-Z0-9_-]/g,'_')}-${uid()}.${ext}`;
-    const {error:upErr}=await SB.storage.from('tryout-proofs').upload(path,file,{upsert:false,contentType:file.type,cacheControl:'3600'});
-    if(upErr) throw upErr;
-    const {error:dbErr}=await SB.from('tryout_social_proofs').insert({user_id:U.id,tryout_id:String(tid),storage_path:path,status:'submitted'});
-    if(dbErr){try{await SB.storage.from('tryout-proofs').remove([path]);}catch(_){} throw dbErr;}
-    closeModal();toast('Bukti berhasil diunggah. Tryout dimulai.');window.__proofGatePass=true;startTryout(tid);window.__proofGatePass=false;
-  }catch(e){console.error(e);toast('Bukti gagal dikirim: '+(e.message||'periksa koneksi dan konfigurasi Supabase.'));if(button){button.disabled=false;button.textContent='Unggah & mulai tryout';}}
+    const paths={};
+    for(const item of files){
+      const ext=item.file.type==='image/png'?'png':item.file.type==='image/webp'?'webp':'jpg';
+      const path=`${U.id}/${String(tid).replace(/[^a-zA-Z0-9_-]/g,'_')}-${item.kind}-${uid()}.${ext}`;
+      const {error}=await SB.storage.from('tryout-proofs').upload(path,item.file,{upsert:false,contentType:item.file.type,cacheControl:'3600'});
+      if(error)throw error;
+      uploaded.push(path);paths[item.kind]=path;
+    }
+    const {error:dbErr}=await SB.from('tryout_social_proofs').upsert({
+      user_id:U.id,tryout_id:String(tid),storage_path:paths.follow,
+      follow_path:paths.follow,like_path:paths.like,mention_path:paths.mention,status:'submitted'
+    },{onConflict:'user_id,tryout_id'});
+    if(dbErr)throw dbErr;
+    closeModal();
+    toast('Tiga bukti berhasil diunggah. Tryout dimulai.');
+    window.__proofGatePass=true;
+    await startTryout(tid);
+    window.__proofGatePass=false;
+  }catch(e){
+    for(const path of uploaded){try{await SB.storage.from('tryout-proofs').remove([path]);}catch(_){}}
+    console.error('Gagal mengunggah bukti tryout:',e);
+    toast(e?.message||'Bukti gagal diunggah. Coba lagi.');
+  }finally{
+    window.__proofGatePass=false;
+    if(button){button.disabled=false;button.textContent='Unggah bukti & mulai tryout';}
+  }
 }
 /* ===== TRYOUT RUNNER ===== */
 function startTryout(tid){
