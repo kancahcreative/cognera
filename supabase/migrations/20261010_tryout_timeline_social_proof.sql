@@ -5,6 +5,10 @@ create table if not exists public.tryout_social_proofs (
   user_id uuid not null references auth.users(id) on delete cascade,
   tryout_id text not null,
   storage_path text not null,
+  follow_screenshot_path text,
+  like_screenshot_path text,
+  comment_screenshot_path text,
+  story_screenshot_path text,
   status text not null default 'submitted' check (status in ('submitted','approved','rejected','flagged')),
   review_note text,
   reviewed_by uuid references auth.users(id),
@@ -12,6 +16,12 @@ create table if not exists public.tryout_social_proofs (
   created_at timestamptz not null default now(),
   unique (user_id, tryout_id)
 );
+-- Add separate required-proof path fields for existing deployments.
+alter table public.tryout_social_proofs add column if not exists follow_screenshot_path text;
+alter table public.tryout_social_proofs add column if not exists like_screenshot_path text;
+alter table public.tryout_social_proofs add column if not exists comment_screenshot_path text;
+alter table public.tryout_social_proofs add column if not exists story_screenshot_path text;
+
 create index if not exists tryout_social_proofs_user_tryout_idx on public.tryout_social_proofs(user_id, tryout_id);
 alter table public.tryout_social_proofs enable row level security;
 drop policy if exists "Users can view own tryout proof" on public.tryout_social_proofs;
@@ -30,7 +40,7 @@ create table if not exists public.tryout_user_blocks (
   created_by uuid references auth.users(id),
   created_at timestamptz not null default now(),
   expires_at timestamptz,
-  lifted_at timestamptz,
+  lifted_at timestamptz
   -- Multiple historical block records per user are allowed.
 );
 create index if not exists tryout_user_blocks_user_active_idx on public.tryout_user_blocks(user_id, active);

@@ -2067,24 +2067,36 @@ async function requestFreeTryoutProof(tid){
   if(U.guest||!U.id){openModal(`<h3>Login untuk mengikuti tryout gratis</h3><p class="muted">Bukti promosi perlu dikaitkan dengan akun agar dapat diverifikasi dan mencegah penyalahgunaan.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Nanti</button><a class="btn btn-yellow grow" href="#/masuk">Masuk / daftar</a></div>`);return;}
   if(await isTryoutBlocked()){openModal(`<h3>Pendaftaran tryout dibatasi</h3><p class="muted">Akun ini sedang dibatasi dari pendaftaran tryout karena bukti promosi atau aktivitas yang perlu ditinjau. Hubungi tim Cognera jika merasa ini keliru.</p><div class="row mt16"><button class="btn btn-ink grow" data-act="close">Mengerti</button></div>`);return;}
   if(await hasSocialProof(tid)){window.__proofGatePass=true;startTryout(tid);window.__proofGatePass=false;return;}
-  openModal(`<h3>Syarat tryout gratis</h3><p class="muted">Selesaikan semua langkah berikut, lalu unggah screenshot bukti sebelum mulai mengerjakan.</p><ol style="padding-left:22px;line-height:1.8"><li>Follow Instagram resmi Cognera.</li><li>Like postingan promosi yang ditentukan.</li><li>Mention 3 teman di kolom komentar.</li><li>Bagikan postingan ke Instagram Story.</li></ol><p class="small muted">Pastikan username dan aktivitas terlihat jelas. Bukti palsu dapat menyebabkan pendaftaran tryout diblokir setelah ditinjau.</p><label for="tryoutProofFile" style="display:block;font-weight:700;margin:12px 0 6px">Screenshot bukti (JPG/PNG/WebP, maks. 8 MB)</label><input id="tryoutProofFile" type="file" accept="image/jpeg,image/png,image/webp" style="width:100%"><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-yellow grow" data-act="submit-tryout-proof" data-v="${esc(String(tid))}">Unggah & mulai tryout</button></div>`,'proofModal');
+  let campaign={instagram_handle:'@cognera.id',profile_url:'https://www.instagram.com/cognera.id/',post_url:'',comment_url:'',story_guide_url:'',active:true};
+  if(SB){try{const {data}=await SB.from('tryout_campaigns').select('instagram_handle,profile_url,post_url,comment_url,story_guide_url,active').eq('tryout_id',String(tid)).eq('active',true).maybeSingle();if(data)campaign={...campaign,...data};}catch(e){console.warn('Tautan kampanye belum dapat dimuat',e);}}
+  const safeLink=(url,label)=>url&&/^https:\/\//i.test(url)?`<a href="${url.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer" style="display:inline-block;margin:4px 6px 4px 0;padding:8px 11px;border:1px solid var(--line,#e5e7eb);border-radius:10px;font-weight:700">${label} ↗</a>`:'';
+  const campaignLinks=`<div style="margin:10px 0 14px">${safeLink(campaign.profile_url||'https://www.instagram.com/cognera.id/','Profil '+(campaign.instagram_handle||'@cognera.id'))}</div>`;
+  const proofInput=(id,label,desc)=>`<div style="padding:12px;border:1px solid var(--line,#e5e7eb);border-radius:12px;margin:10px 0"><label for="${id}" style="display:block;font-weight:700;margin-bottom:5px">${label} <span style="color:#d97706">*</span></label><p class="small muted" style="margin:0 0 8px">${desc}</p><input id="${id}" type="file" accept="image/jpeg,image/png,image/webp" required style="width:100%"></div>`;
+  const postLink=campaign.post_url&&/^https:\/\//i.test(campaign.post_url)?`<a href="${campaign.post_url.replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" target="_blank" rel="noopener noreferrer">menuju postingan</a>`:'menuju postingan';
+  openModal(`<h3>Syarat tryout gratis</h3>${campaignLinks}<p class="muted">Unggah <b>3 screenshot terpisah</b> sebagai bukti setiap langkah. Semua bukti wajib diisi sebelum tombol mulai dapat diproses.</p><ol style="padding-left:22px;line-height:1.8"><li>Follow Instagram resmi @cognera.id</li><li>Like postingan Instagram ini ${postLink}.</li><li>Mention 3 teman di kolom komentar.</li></ol><p class="small muted">Pastikan username dan aktivitas terlihat jelas. Bukti hanya menjadi dokumentasi, bukan jaminan aktivitas benar-benar dilakukan. Setelah bukti diunggah, tryout langsung bisa dimulai. Jika kemudian terbukti palsu, hasil dapat dibatalkan atau akun diblokir.</p>${proofInput('proofFollow','1. Screenshot Follow','Tampilkan akun @cognera.id dan status mengikuti.')}${proofInput('proofLike','2. Screenshot Like postingan','Tampilkan postingan yang ditentukan dan status like.')}${proofInput('proofComment','3. Screenshot Komentar','Tampilkan komentar yang menyebutkan minimal 3 teman.') }<p class="small muted">Format JPG/PNG/WebP, maksimal 8 MB per file.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-yellow grow" data-act="submit-tryout-proof" data-v="${esc(String(tid))}">Unggah bukti & mulai tryout</button></div>`,'proofModal');
 }
 async function submitTryoutProof(tid,button){
-  const input=document.getElementById('tryoutProofFile'),file=input&&input.files&&input.files[0];
-  if(!file)return toast('Pilih screenshot bukti terlebih dahulu.');
-  if(!/^image\/(jpeg|png|webp)$/.test(file.type)||file.size>8*1024*1024)return toast('Gunakan gambar JPG, PNG, atau WebP maksimal 8 MB.');
+  const specs=[['follow','proofFollow'],['like','proofLike'],['comment','proofComment']];
+  const files=specs.map(([kind,id])=>({kind,file:(document.getElementById(id)?.files||[])[0]}));
+  if(files.some(x=>!x.file))return toast('Lengkapi ketiga screenshot: Follow, Like, dan Komentar.');
+  for(const {file} of files){if(!/^image\/(jpeg|png|webp)$/.test(file.type)||file.size>8*1024*1024)return toast('Semua bukti harus berupa JPG, PNG, atau WebP maksimal 8 MB per file.');}
   if(!SB||U.guest||!U.id)return toast('Login diperlukan untuk mengunggah bukti.');
-  if(button){button.disabled=true;button.textContent='Mengunggah…';}
+  if(button){button.disabled=true;button.textContent='Mengunggah 3 bukti…';}
+  const uploaded=[];
   try{
     if(await isTryoutBlocked()) throw new Error('Akun ini dibatasi dari pendaftaran tryout. Hubungi tim Cognera.');
-    const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
-    const path=`${U.id}/${String(tid).replace(/[^a-zA-Z0-9_-]/g,'_')}-${uid()}.${ext}`;
-    const {error:upErr}=await SB.storage.from('tryout-proofs').upload(path,file,{upsert:false,contentType:file.type,cacheControl:'3600'});
-    if(upErr) throw upErr;
-    const {error:dbErr}=await SB.from('tryout_social_proofs').insert({user_id:U.id,tryout_id:String(tid),storage_path:path,status:'submitted'});
-    if(dbErr){try{await SB.storage.from('tryout-proofs').remove([path]);}catch(_){} throw dbErr;}
-    closeModal();toast('Bukti berhasil diunggah. Tryout dimulai.');window.__proofGatePass=true;startTryout(tid);window.__proofGatePass=false;
-  }catch(e){console.error(e);toast('Bukti gagal dikirim: '+(e.message||'periksa koneksi dan konfigurasi Supabase.'));if(button){button.disabled=false;button.textContent='Unggah & mulai tryout';}}
+    const paths={};
+    for(const {kind,file} of files){
+      const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
+      const path=`${U.id}/${String(tid).replace(/[^a-zA-Z0-9_-]/g,'_')}-${kind}-${uid()}.${ext}`;
+      const {error}=await SB.storage.from('tryout-proofs').upload(path,file,{upsert:false,contentType:file.type,cacheControl:'3600'});
+      if(error) throw error;
+      uploaded.push(path); paths[kind]=path;
+    }
+    const {error:dbErr}=await SB.from('tryout_social_proofs').insert({user_id:U.id,tryout_id:String(tid),storage_path:paths.follow,follow_screenshot_path:paths.follow,like_screenshot_path:paths.like,comment_screenshot_path:paths.comment,status:'submitted'});
+    if(dbErr) throw dbErr;
+    closeModal();toast('Ketiga bukti berhasil diunggah. Tryout dimulai.');window.__proofGatePass=true;startTryout(tid);window.__proofGatePass=false;
+  }catch(e){console.error(e);if(uploaded.length){try{await SB.storage.from('tryout-proofs').remove(uploaded);}catch(_){}}toast('Bukti gagal dikirim: '+(e.message||'periksa koneksi dan migrasi Supabase.'));if(button){button.disabled=false;button.textContent='Unggah bukti & mulai tryout';}}
 }
 /* ===== TRYOUT RUNNER ===== */
 function startTryout(tid){
