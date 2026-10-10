@@ -222,7 +222,20 @@ async function questionsForTryout(t){
  };
 }
 
-async function contentPage(){page.innerHTML=await managerHTML('blog_posts');bindManager('blog_posts')}
+async function contentPage(){
+ page.innerHTML=`<div class="section-head"><div><h2>📚 Materi</h2><div class="muted">Kelola artikel dan PDF pembelajaran. PDF draft perlu diterbitkan agar terlihat oleh siswa.</div></div><button class="btn" id="refreshMaterials">↻ Refresh</button></div><div class="pillnav"><button class="on" data-mtab="pdf">Materi PDF</button><button data-mtab="blog">Artikel / Materi teks</button></div><div id="materialAdminList"></div>`;
+ const load=async tab=>{document.querySelectorAll('[data-mtab]').forEach(b=>b.classList.toggle('on',b.dataset.mtab===tab));const el=document.querySelector('#materialAdminList');if(tab==='blog'){el.innerHTML=await managerHTML('blog_posts');bindManager('blog_posts');return;}el.innerHTML='<div class="card"><div class="cardbody">Memuat materi PDF…</div></div>';
+ const {data,error}=await SB.from('learning_materials').select('*').order('created_at',{ascending:false});
+ if(error){el.innerHTML=`<div class="notice danger">Gagal memuat materi PDF: ${esc(error.message)}<br>Pastikan migration learning_materials sudah dijalankan.</div>`;return;}
+ el.innerHTML=`<div class="card"><div class="cardbody"><div class="tablewrap"><table><thead><tr><th>Judul</th><th>File</th><th>Ukuran</th><th>Status</th><th>Dibuat</th><th>Aksi</th></tr></thead><tbody>${(data||[]).map(r=>`<tr><td><b>${esc(r.title||'Tanpa judul')}</b><div class="muted small">${esc(r.category||'Umum')}</div></td><td>${esc(r.file_name||'PDF')}</td><td>${(Number(r.file_size||0)/1024/1024).toFixed(2)} MB</td><td><span class="badge ${r.published?'g':'y'}">${r.published?'Terbit':'Draft'}</span></td><td>${fmt(r.created_at)}</td><td><button class="btn sm" data-mpreview="${esc(r.id)}">Lihat</button> <button class="btn sm y" data-mpublish="${esc(r.id)}">${r.published?'Jadikan draft':'Terbitkan'}</button> <button class="btn sm red" data-mdelete="${esc(r.id)}">Hapus</button></td></tr>`).join('')||'<tr><td colspan="6" class="empty">Belum ada PDF. Unggah melalui menu Import PDF → Materi PDF.</td></tr>'}</tbody></table></div></div></div>`;
+ el.onclick=async e=>{const b=e.target.closest('button');if(!b)return;const row=(data||[]).find(x=>String(x.id)===String(b.dataset.mpublish||b.dataset.mdelete||b.dataset.mpreview));if(!row)return;
+ if(b.dataset.mpublish){b.disabled=true;const {error}=await SB.from('learning_materials').update({published:!row.published,published_at:!row.published?new Date().toISOString():null}).eq('id',row.id);if(error){b.disabled=false;return toast('Gagal mengubah status: '+error.message)}toast(row.published?'Materi dikembalikan menjadi draft.':'Materi diterbitkan.');load('pdf');return;}
+ if(b.dataset.mpreview){const {data:u,error}=await SB.storage.from('learning-materials').createSignedUrl(row.storage_path,300);if(error||!u?.signedUrl)return toast('PDF tidak bisa dibuka: '+(error?.message||'URL tidak tersedia'));modal('Pratinjau materi',`<iframe src="${esc(u.signedUrl)}" title="Pratinjau PDF" style="width:100%;height:70vh;border:0"></iframe>`,'<button class="btn" data-close>Tutup</button>');return;}
+ if(b.dataset.mdelete){if(!confirm('Hapus materi PDF ini beserta file yang tersimpan?'))return;const del=await SB.from('learning_materials').delete().eq('id',row.id);if(del.error)return toast('Gagal menghapus metadata: '+del.error.message);await SB.storage.from('learning-materials').remove([row.storage_path]);toast('Materi dihapus.');load('pdf');}
+ };
+ };
+ document.querySelectorAll('[data-mtab]').forEach(b=>b.onclick=()=>load(b.dataset.mtab));document.querySelector('#refreshMaterials').onclick=()=>load(document.querySelector('[data-mtab].on')?.dataset.mtab||'pdf');await load('pdf');
+}
 async function communityPage(){page.innerHTML=await managerHTML('community_posts');bindManager('community_posts')}
 async function usersPage(){page.innerHTML=await managerHTML('profiles');bindManager('profiles')}
 async function transactionsPage(){

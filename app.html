@@ -1348,6 +1348,9 @@ async function loadRemoteTryouts(){
 /* ===== DATA LATIHAN & MATERI DARI SUPABASE ===== */
 let REMOTE_DRILL_LOADED=false;
 let REMOTE_LESSONS_LOADED=false;
+let REMOTE_PDF_MATERIALS_LOADED=false;
+const PDF_MATERIALS=[];
+async function loadRemotePdfMaterials(){if(!SB||REMOTE_PDF_MATERIALS_LOADED)return;try{const {data,error}=await SB.from('learning_materials').select('id,title,description,category,file_name,file_size,storage_path,created_at,published,published_at').eq('published',true).order('published_at',{ascending:false});if(error)throw error;(data||[]).forEach(x=>{if(!PDF_MATERIALS.some(y=>String(y.id)===String(x.id)))PDF_MATERIALS.push({...x,isPdfMaterial:true});});REMOTE_PDF_MATERIALS_LOADED=true;}catch(e){console.warn('Gagal memuat materi PDF:',e)}}
 async function loadRemoteDrillQuestions(){
   if(!SB || REMOTE_DRILL_LOADED) return;
   try{
@@ -2242,15 +2245,18 @@ function drillCheck(){
 /* ===== MATERI ===== */
 let MF='all';
 function viewMateri(load=true){
-  if(load) loadRemoteLessons().then(()=>{ if(LESSONS.length && location.hash.replace(/^#/,'').split('/')[1]==='materi') viewMateri(false); }).catch(()=>{});
+  if(load) Promise.all([loadRemoteLessons(),loadRemotePdfMaterials()]).then(()=>{ if(location.hash.replace(/^#/,'').split('/')[1]==='materi') viewMateri(false); }).catch(()=>{});
   const target=activeProgram();
   const list=LESSONS.filter(l=>lessonMatchesTarget(l,target) && (MF==='all'||l.j.includes(MF))), done=DATA.materiDone.length;
+  const pdfList=PDF_MATERIALS;
   mount(shell('materi',`
     <div class="pageHead"><h1>Materi</h1><p>Ringkasan konsep dan tips mengerjakan untuk tiap subtes. ${done} dari ${LESSONS.length} materi selesai.</p></div>
     <div class="seg mb16">${[['all','Semua'],...Object.entries(JALUR).map(([k,v])=>[k,v.name])].map(([k,l])=>`<button class="${MF===k?'on':''}" data-act="mf" data-v="${k}">${l}</button>`).join('')}</div>
-    <div class="grid g2">${list.map(l=>{const d=DATA.materiDone.includes(l.id);return `<a class="card" href="#/materi/${l.id}"><div class="row between"><span class="chip y">${SUB[l.s].n}</span>${d?'<span class="chip ok">Selesai</span>':''}</div><h3 class="mt12">${l.t}</h3><p class="muted small" style="margin:6px 0 0">Bacaan sekitar ${l.min} menit</p></a>`}).join('')}</div>`));
+    <div class="grid g2">${list.map(l=>{const d=DATA.materiDone.includes(l.id);return `<a class="card" href="#/materi/${l.id}"><div class="row between"><span class="chip y">${SUB[l.s]?.n||'Materi'}</span>${d?'<span class="chip ok">Selesai</span>':''}</div><h3 class="mt12">${l.t}</h3><p class="muted small" style="margin:6px 0 0">Bacaan sekitar ${l.min} menit</p></a>`}).join('')}${pdfList.map(l=>`<a class="card" href="#/materi/pdf-${l.id}"><div class="row between"><span class="chip y">${esc(l.category||'Materi PDF')}</span><span class="chip">PDF</span></div><h3 class="mt12">${esc(l.title||l.file_name||'Materi PDF')}</h3><p class="muted small" style="margin:6px 0 0">${(Number(l.file_size||0)/1024/1024).toFixed(2)} MB · Buka materi</p></a>`).join('')}</div>`));
 }
 function viewLesson(id){
+  const pdfId=String(id||'').startsWith('pdf-')?String(id).slice(4):null;
+  if(pdfId){loadRemotePdfMaterials().then(async()=>{const item=PDF_MATERIALS.find(x=>String(x.id)===pdfId);if(!item)return go('/materi');const {data,error}=await SB.storage.from('learning-materials').createSignedUrl(item.storage_path,300);if(error||!data?.signedUrl){mount(shell('materi',`<a class="link small" href="#/materi">Kembali ke materi</a><div class="card mt12"><h2>${esc(item.title||'Materi PDF')}</h2><p class="muted">PDF belum bisa dibuka. Periksa kebijakan akses Supabase Storage.</p></div>`));return;}mount(shell('materi',`<a class="link small" href="#/materi">← Kembali ke materi</a><article class="card mt12"><div class="row between wrapflex"><div><span class="chip y">PDF · ${esc(item.category||'Materi')}</span><h1 class="mt12">${esc(item.title||item.file_name||'Materi PDF')}</h1></div><a class="btn btn-yellow" href="${esc(data.signedUrl)}" target="_blank" rel="noopener">Buka PDF ↗</a></div><iframe src="${esc(data.signedUrl)}" title="${esc(item.title||'Materi PDF')}" style="width:100%;height:75vh;border:0;border-radius:12px;margin-top:16px"></iframe></article>`));});return;}
   const l=LESSONS.find(x=>x.id===id); if(!l) return go('/materi');
   const d=DATA.materiDone.includes(l.id);
   mount(shell('materi',`<a class="link small" href="#/materi">Kembali ke materi</a>
