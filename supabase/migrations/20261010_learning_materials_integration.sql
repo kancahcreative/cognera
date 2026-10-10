@@ -1,3 +1,10 @@
+
+-- Pengaturan periode dan link promosi khusus untuk setiap tryout.
+ALTER TABLE public.tryouts
+  ADD COLUMN IF NOT EXISTS open_at timestamptz,
+  ADD COLUMN IF NOT EXISTS close_at timestamptz,
+  ADD COLUMN IF NOT EXISTS promo_post_url text;
+
 -- Cognera: PDF learning materials and publication access
 create table if not exists public.learning_materials (
   id uuid primary key default gen_random_uuid(),
