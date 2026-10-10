@@ -1955,7 +1955,7 @@ function tryoutCard(t){
   const reason=accessReason(t);
   const outside=reason==='outside-timeline';
   const badge=prem?'Premium':outside?'Berlangganan':'Gratis';
-  const exhausted=!prem && used>=Number(t.tries||1);
+  const exhausted=!hasSubscriptionAccess(t) && !prem && used>=Number(t.tries||1);
   const action=exhausted?`<a class="btn btn-yellow btn-sm grow" href="#/paket">Upgrade paket untuk mengerjakan lagi</a>`:ok?`<a class="btn btn-ink btn-sm grow" href="#/tryout/${t.id}">${prog?'Lanjutkan':'Lihat detail'}</a>`:`<a class="btn btn-yellow btn-sm grow" href="#/paket">${outside?'Berlangganan untuk mengerjakan':'Buka dengan paket'}</a>`;
   return `<article class="tcard ${prem?'prem':''}"><div class="art"><span class="chip ${prem||outside?'':'y'}" style="${prem||outside?'background:#f4c62f;color:#191b20;border:0':''}">${badge}</span>${ok?'':ic('lock')}</div>
     <div class="body"><h3>${esc(tryoutDisplayTitle(t))}</h3>
@@ -2006,7 +2006,7 @@ function viewTryoutIntro(id){
   const hist=DATA.attempts.filter(a=>a.tid===t.id).slice().reverse();
   const currentAccess=hasAccess(t);
   if(!currentAccess && !hist.length) return viewLocked(t);
-  const n=tryoutQids(t).length, used=triesUsed(t), prem=t.access==='premium', out=!prem&&used>=t.tries;
+  const n=tryoutQids(t).length, used=triesUsed(t), prem=t.access==='premium', out=!hasSubscriptionAccess(t) && !prem && used>=Number(t.tries||1);
   const prog=DATA.inprogress&&DATA.inprogress.tid===t.id;
   mount(shell('tryout',`
     <a class="link small" href="#/tryout">Kembali ke daftar tryout</a>
