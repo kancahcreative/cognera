@@ -1388,14 +1388,6 @@ const TRYOUTS = [];
 /* ===== PAKET (harga dari landing page) ===== */
 const PACKAGES = [
   {id:'utbk27', name:'UTBK SNBT 2027', tag:'Paling lengkap', covers:['utbk'], price:79000, strike:399000, items:['Akses semua tryout Premium UTBK selama masa paket aktif','Materi belajar Premium dan latihan drill per subtes','Pembahasan soal tryout lengkap untuk konten yang tersedia','Analisis kelemahan setelah setiap tryout dan laporan progres subtes','Prediksi kampus dan program studi berdasarkan skor serta data pembanding tersedia','Analisis kecocokan prodi berdasarkan hasil asesmen kepribadian dan minat','Rencana belajar terarah sesuai target, waktu, dan kelemahan','Leaderboard penuh, Nera AI dengan akses Premium, Error Notebook, Retry Salah Saja, Smart Flashcards, dan ekspor PDF']},
-  {id:'ssu-itb', name:'SSU ITB 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi tryout SSU ITB selama paket aktif','Latihan drill Matematika dan Fisika','Pembahasan soal berbasis teks','Riwayat hasil untuk mengevaluasi progres']},
-  {id:'simak-ui', name:'SIMAK UI 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi tryout SIMAK UI selama paket aktif','Latihan drill TKD dan PEKA','Pembahasan soal berbasis teks','Riwayat hasil untuk mengevaluasi progres']},
-  {id:'cbt-ugm', name:'CBT-UM UGM 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi tryout CBT-UM UGM selama paket aktif','Latihan drill TKDU, TPA, dan TKA','Pembahasan soal berbasis teks','Riwayat hasil untuk mengevaluasi progres']},
-  {id:'um-undip', name:'UM UNDIP 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi tryout UM UNDIP selama paket aktif','Latihan drill sesuai pola soal UM UNDIP','Pembahasan soal berbasis teks','Riwayat hasil untuk mengevaluasi progres']},
-  {id:'smua-unair', name:'SMUA UNAIR 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi tryout SMUA UNAIR selama paket aktif','Latihan drill TPA dan mata pelajaran pilihan','Pembahasan soal berbasis teks','Riwayat hasil untuk mengevaluasi progres']},
-  {id:'smup-unpad', name:'SMUP UNPAD 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi tryout SMUP UNPAD selama paket aktif','Latihan drill Tes Skolastik dan Literasi SMUP','Pembahasan soal berbasis teks','Riwayat hasil untuk mengevaluasi progres']},
-  {id:'smits-its', name:'SMITS ITS 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi tryout SMITS ACE ITS selama paket aktif','Latihan drill Tes Skolastik, Matematika, dan materi bidang','Pembahasan soal berbasis teks','Riwayat hasil untuk mengevaluasi progres']},
-  {id:'um-uny', name:'UM UNY 2026', covers:['mandiri'], price:59000, strike:79000, items:['Simulasi tryout UM UNY selama paket aktif','Latihan drill sesuai pola soal UM UNY','Pembahasan soal berbasis teks','Riwayat hasil untuk mengevaluasi progres']},
   {id:'tka-sma', name:'TKA SMA 2026', covers:['tka'], price:39000, strike:49000, items:['Simulasi tryout TKA SMA selama paket aktif','Latihan drill mata pelajaran wajib dan pilihan','Pembahasan soal berbasis teks','Riwayat hasil untuk mengevaluasi progres']},
   {id:'skd-2026', name:'SKD Kedinasan 2026', tag:'Semua jalur', covers:['kedinasan','utbk','mandiri'], price:59000, strike:79000, items:['Akses program UTBK, TKA, Kedinasan, dan jalur Mandiri PTN sesuai paket','Semua tryout Premium dan materi belajar yang termasuk paket','Pembahasan soal tryout lengkap untuk konten yang tersedia','Analisis kelemahan di setiap tryout dan laporan skor lintas latihan','Prediksi kampus/prodi berdasarkan skor dan data pembanding yang tersedia','Analisis kecocokan prodi melalui asesmen kepribadian dan minat','Rencana belajar terarah, leaderboard penuh, Nera AI Premium, Error Notebook, Retry Salah Saja, Smart Flashcards, dan ekspor PDF']}
 ];
@@ -1656,7 +1648,15 @@ function hasSubscriptionAccess(t){
 function inTryoutTimeline(t){
   if(!t.openAt || !t.closeAt) return true;
   const now=Date.now(), open=Date.parse(t.openAt), close=Date.parse(t.closeAt);
-  return now>=open && now<=close;
+  return Number.isFinite(open)&&Number.isFinite(close)&&now>=open&&now<=close;
+}
+function timelineStatus(t){
+  if(!t.openAt||!t.closeAt) return 'Jadwal belum ditentukan';
+  const now=Date.now(),open=Date.parse(t.openAt),close=Date.parse(t.closeAt);
+  const f=new Intl.DateTimeFormat('id-ID',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  if(now<open) return `Dibuka ${f.format(new Date(open))}`;
+  if(now>close) return `Ditutup ${f.format(new Date(close))}`;
+  return `Terbuka sampai ${f.format(new Date(close))}`;
 }
 function timelineLabel(t){
   if(!t.openAt || !t.closeAt) return 'Terbuka dengan paket';
@@ -1961,7 +1961,7 @@ function tryoutCard(t){
     <div class="body"><h3>${esc(tryoutDisplayTitle(t))}</h3>
     <div class="meta"><span>${n} soal</span><span>${tryoutMinutes(t)} menit</span><span>${JALUR[t.jalur].name}</span></div>
     <div class="small muted">${exhausted?'Percobaan gratis habis · upgrade untuk melanjutkan':ok?`Sisa: ${left}`:outside?'Timeline sudah berakhir · akses dengan langganan':'Butuh paket belajar'}</div>
-    ${t.openAt?`<div class="small muted mt8">Timeline: ${timelineLabel(t)}</div>`:''}
+    ${t.openAt&&t.closeAt?`<div class="small muted mt8">Jadwal: ${timelineLabel(t)} · ${esc(timelineStatus(t))}</div>`:''}
     <div class="foot">${action}</div></div></article>`;
 }
 
@@ -1998,7 +1998,7 @@ function viewTryoutList(){
     <div class="pageHead"><h1>Tryout</h1><p>Simulasi dengan timer dan navigasi soal seperti ujian sungguhan. Skor dan pembahasan langsung tersedia setelah selesai.</p></div>
     ${DATA.inprogress?`<div class="card row between wrapflex mb16" ><div><b>Ada tryout yang belum selesai</b><div class="muted small">${esc(TRYOUTS.find(x=>x.id===DATA.inprogress.tid).title)}</div></div><a class="btn btn-yellow btn-sm" href="#/tryout/${DATA.inprogress.tid}/kerjakan">Lanjutkan</a></div>`:''}
     <div class="seg mb16" role="tablist">${[['all','Semua'],['free','Gratis'],['utbk','UTBK-SNBT'],['mandiri','Mandiri PTN'],['kedinasan','Kedinasan'],...(target?[['target',target.name.replace(/^Ujian\s+/,'')]]:[])].map(([k,l])=>`<button role="tab" class="${TF===k?'on':''}" data-act="tf" data-v="${k}">${esc(l)}</button>`).join('')}</div>
-    <section class="card mb16"><div class="row between wrapflex"><div><h3>Timeline tryout</h3><p class="muted small" style="margin:4px 0 0">Tryout gratis bisa dikerjakan selama timeline terbuka. Setelah timeline berakhir, akses tetap tersedia untuk pelanggan paket.</p></div><span class="chip y">Akses di luar timeline = Premium</span></div><div class="grid g3 mt16">${TRYOUTS.filter(t=>t.access==='free').map(t=>`<div style="border-left:3px solid var(--yellow);padding-left:12px"><b>${esc(tryoutDisplayTitle(t))}</b><div class="muted small mt8">${timelineLabel(t)}</div><div class="small mt8">${inTryoutTimeline(t)?'<span class="chip ok">Sedang dibuka</span>':'<span class="chip">Timeline selesai</span>'}</div></div>`).join('')}</div></section>
+    <section class="card mb16"><div class="row between wrapflex"><div><h3>Timeline tryout</h3><p class="muted small" style="margin:4px 0 0">Setiap tryout dapat dijadwalkan dari tanggal buka hingga tanggal tutup. Tryout gratis wajib mengunggah bukti mengikuti syarat promosi sebelum mulai.</p></div><span class="chip y">Akses di luar timeline = Premium</span></div><div class="grid g3 mt16">${TRYOUTS.filter(t=>t.access==='free').map(t=>`<div style="border-left:3px solid var(--yellow);padding-left:12px"><b>${esc(tryoutDisplayTitle(t))}</b><div class="muted small mt8">${timelineLabel(t)}</div><div class="small mt8">${inTryoutTimeline(t)?'<span class="chip ok">Sedang dibuka</span>':'<span class="chip">Timeline selesai</span>'}</div></div>`).join('')}</div></section>
     ${list.length?`<div class="grid g3">${list.map(tryoutCard).join('')}</div>`:'<div class="empty">Belum ada tryout untuk filter ini.</div>'}`));
 }
 function viewTryoutIntro(id){
@@ -2049,15 +2049,54 @@ function questionInput(q,pick,disabled=false){
   return `<div class="opts" role="radiogroup" aria-label="Pilihan jawaban">${q.o.map((o,i)=>`<button class="opt ${pick===i?'sel':''}" ${disabled?'disabled':''} data-act="run-pick" data-v="${i}"><span class="k">${LETTERS[i]}</span><span>${esc(o)}</span></button>`).join('')}</div>`;
 }
 
+/* ===== BUKTI PROMOSI TRYOUT GRATIS & BLOKIR PENYALAHGUNAAN ===== */
+async function isTryoutBlocked(){
+  if(!SB||U.guest||!U.id) return false;
+  try{
+    const {data,error}=await SB.from('tryout_user_blocks').select('id').eq('user_id',U.id).eq('active',true).limit(1);
+    if(error){ console.warn('Gagal memeriksa blokir tryout:',error); return false; }
+    return Array.isArray(data)&&data.length>0;
+  }catch(e){ console.warn('Gagal memeriksa blokir tryout:',e); return false; }
+}
+async function hasSocialProof(tid){
+  if(!SB||U.guest||!U.id) return false;
+  try{const {data,error}=await SB.from('tryout_social_proofs').select('id').eq('user_id',U.id).eq('tryout_id',String(tid)).limit(1);if(error){console.warn('Cek bukti promosi:',error);return false;}return Array.isArray(data)&&data.length>0;}catch(e){return false;}
+}
+async function requestFreeTryoutProof(tid){
+  const t=TRYOUTS.find(x=>String(x.id)===String(tid)); if(!t)return;
+  if(U.guest||!U.id){openModal(`<h3>Login untuk mengikuti tryout gratis</h3><p class="muted">Bukti promosi perlu dikaitkan dengan akun agar dapat diverifikasi dan mencegah penyalahgunaan.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Nanti</button><a class="btn btn-yellow grow" href="#/masuk">Masuk / daftar</a></div>`);return;}
+  if(await isTryoutBlocked()){openModal(`<h3>Pendaftaran tryout dibatasi</h3><p class="muted">Akun ini sedang dibatasi dari pendaftaran tryout karena bukti promosi atau aktivitas yang perlu ditinjau. Hubungi tim Cognera jika merasa ini keliru.</p><div class="row mt16"><button class="btn btn-ink grow" data-act="close">Mengerti</button></div>`);return;}
+  if(await hasSocialProof(tid)){window.__proofGatePass=true;startTryout(tid);window.__proofGatePass=false;return;}
+  openModal(`<h3>Syarat tryout gratis</h3><p class="muted">Selesaikan semua langkah berikut, lalu unggah screenshot bukti sebelum mulai mengerjakan.</p><ol style="padding-left:22px;line-height:1.8"><li>Follow Instagram resmi Cognera.</li><li>Like postingan promosi yang ditentukan.</li><li>Mention 3 teman di kolom komentar.</li><li>Bagikan postingan ke Instagram Story.</li></ol><p class="small muted">Pastikan username dan aktivitas terlihat jelas. Bukti palsu dapat menyebabkan pendaftaran tryout diblokir setelah ditinjau.</p><label for="tryoutProofFile" style="display:block;font-weight:700;margin:12px 0 6px">Screenshot bukti (JPG/PNG/WebP, maks. 8 MB)</label><input id="tryoutProofFile" type="file" accept="image/jpeg,image/png,image/webp" style="width:100%"><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-yellow grow" data-act="submit-tryout-proof" data-v="${esc(String(tid))}">Unggah & mulai tryout</button></div>`,'proofModal');
+}
+async function submitTryoutProof(tid,button){
+  const input=document.getElementById('tryoutProofFile'),file=input&&input.files&&input.files[0];
+  if(!file)return toast('Pilih screenshot bukti terlebih dahulu.');
+  if(!/^image\/(jpeg|png|webp)$/.test(file.type)||file.size>8*1024*1024)return toast('Gunakan gambar JPG, PNG, atau WebP maksimal 8 MB.');
+  if(!SB||U.guest||!U.id)return toast('Login diperlukan untuk mengunggah bukti.');
+  if(button){button.disabled=true;button.textContent='Mengunggah…';}
+  try{
+    if(await isTryoutBlocked()) throw new Error('Akun ini dibatasi dari pendaftaran tryout. Hubungi tim Cognera.');
+    const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';
+    const path=`${U.id}/${String(tid).replace(/[^a-zA-Z0-9_-]/g,'_')}-${uid()}.${ext}`;
+    const {error:upErr}=await SB.storage.from('tryout-proofs').upload(path,file,{upsert:false,contentType:file.type,cacheControl:'3600'});
+    if(upErr) throw upErr;
+    const {error:dbErr}=await SB.from('tryout_social_proofs').insert({user_id:U.id,tryout_id:String(tid),storage_path:path,status:'submitted'});
+    if(dbErr){try{await SB.storage.from('tryout-proofs').remove([path]);}catch(_){} throw dbErr;}
+    closeModal();toast('Bukti berhasil diunggah. Tryout dimulai.');window.__proofGatePass=true;startTryout(tid);window.__proofGatePass=false;
+  }catch(e){console.error(e);toast('Bukti gagal dikirim: '+(e.message||'periksa koneksi dan konfigurasi Supabase.'));if(button){button.disabled=false;button.textContent='Unggah & mulai tryout';}}
+}
 /* ===== TRYOUT RUNNER ===== */
 function startTryout(tid){
   const t=TRYOUTS.find(x=>x.id===tid);
   if(!t) return go('/tryout');
   if(!hasAccess(t)) return go('/paket');
+  if(U.guest && t.access==='free') return requestFreeTryoutProof(tid);
+  if(t.access==='free' && !window.__proofGatePass){ return requestFreeTryoutProof(tid); }
   if(!tryoutQids(t).length) return toast('Soal tryout belum tersedia.');
   if(DATA.inprogress && DATA.inprogress.tid===tid){ return go('/tryout/'+tid+'/kerjakan'); }
   if(DATA.inprogress){ return openModal(`<h3>Ada tryout yang belum selesai</h3><p class="muted">Selesaikan atau lepas dulu tryout sebelumnya sebelum memulai yang baru. Jawaban tryout yang dilepas tidak dinilai.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Batal</button><button class="btn btn-ink grow" data-act="drop-start" data-v="${tid}">Lepas dan mulai baru</button></div>`); }
-  if(t.access==='free' && triesUsed(t)>=1) return openModal(`<h3>Percobaan gratis sudah habis</h3><p class="muted">Setiap akun mendapat satu kali percobaan gratis untuk tryout ini. Beli paket agar bisa mengakses tryout premium selama masa berlangganan.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Nanti</button><a class="btn btn-yellow grow" href="#/paket">Lihat paket</a></div>`);
+  if(t.access==='free' && !hasSubscriptionAccess(t) && triesUsed(t)>=1) return openModal(`<h3>Percobaan gratis sudah habis</h3><p class="muted">Setiap akun mendapat satu kali percobaan gratis untuk tryout ini. Beli paket agar bisa mengakses tryout premium selama masa berlangganan.</p><div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Nanti</button><a class="btn btn-yellow grow" href="#/paket">Lihat paket</a></div>`);
   const now=Date.now();
   DATA.inprogress={id:uid(), tid, startedAt:now, endsAt:now+tryoutMinutes(t)*60000, qids:tryoutQids(t), answers:{}, flags:{}, cur:0};
   save(); go('/tryout/'+tid+'/kerjakan');
@@ -3009,7 +3048,7 @@ function viewPaket(qs){
       <h3>${p.name}</h3>${startFrom(p)}
       <ul style="margin:0;padding-left:18px;font-size:14px;line-height:1.7">${p.items.map(i=>`<li>${i}</li>`).join('')}</ul>
       <button class="btn ${own?'btn-ghost':'btn-yellow'} mt8" style="margin-top:auto" data-act="buy" data-v="${p.id}" ${own?'disabled':''}>${own?'Sudah aktif':'Pilih paket'}</button></article>`}).join('')}
-      <article class="card" style="border-style:dashed"><span class="chip">Segera hadir</span><h3 class="mt12">SKD CPNS 2026</h3><p class="muted">Latihan TWK, TIU, dan TKP untuk seleksi CPNS. Harga tampil saat dibuka.</p></article></div>`));
+      <article class="card" style="border-style:dashed"><span class="chip">Segera hadir</span><h3 class="mt12">Paket Mandiri PTN</h3><p class="muted">Paket tryout mandiri universitas seperti SIMAK UI, SSU ITB, CBT-UM UGM, UM UNDIP, SMUA UNAIR, SMUP UNPAD, SMITS ITS, dan UM UNY sedang disiapkan.</p></article><article class="card" style="border-style:dashed"><span class="chip">Segera hadir</span><h3 class="mt12">SKD Kedinasan</h3><p class="muted">Paket latihan TWK, TIU, dan TKP akan dibuka setelah jadwal dan materi siap.</p></article></div>`));
   refreshPay();
   if(!DUR_LOADED) loadDurPrices().then(()=>{ if(DUR_LOADED&&/^#\/paket\/?$/.test(location.hash)) viewPaket(); });
   const pq=new URLSearchParams(qs||''), bid=pq.get('buy');
@@ -3438,7 +3477,8 @@ const ACT = {
   'ob-back'(){ OB.step=1; viewOnboarding(); },
   'ob-done'(){ DATA.profile.jalur=OB.jalur; DATA.profile.goal=OB.goal; DATA.onboarded=true; save(); OB={step:1,jalur:'utbk',goal:3}; go('/beranda'); },
   tf(t){ TF=t.dataset.v; viewTryoutList(); },
-  'start-to'(t){ startTryout(t.dataset.v); },
+  async 'start-to'(t){ const tid=t.dataset.v; if(await isTryoutBlocked()){openModal(`<h3>Pendaftaran tryout dibatasi</h3><p class="muted">Akun ini sedang dibatasi dari pendaftaran tryout. Hubungi tim Cognera jika merasa ini keliru.</p><button class="btn btn-ink" data-act="close">Mengerti</button>`);return;} const x=TRYOUTS.find(y=>String(y.id)===String(tid)); if(x&&x.access==='free'){ requestFreeTryoutProof(tid); } else startTryout(tid); },
+  'submit-tryout-proof'(t){ submitTryoutProof(t.dataset.v,t); },
   'drop-start'(t){ DATA.inprogress=null; save(); closeModal(); startTryout(t.dataset.v); },
   'run-pick'(t){ const A=DATA.inprogress; A.answers[A.qids[A.cur]]=+t.dataset.v; save(); renderRun(); },
   'run-multi-pick'(t){ const A=DATA.inprogress,id=A.qids[A.cur],arr=Array.isArray(A.answers[id])?[...A.answers[id]]:[],v=+t.dataset.v,i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else arr.push(v);A.answers[id]=arr;save();renderRun(); },
