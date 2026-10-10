@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="id">
 <head>
-<link rel="icon" type="image/png" href="/favicon.png">
-<link rel="shortcut icon" type="image/png" href="/favicon.png">
-<link rel="apple-touch-icon" href="/favicon.png">
+<link rel="icon" type="image/png" href="/favicon.png?v=2">
+<link rel="shortcut icon" type="image/png" href="/favicon.png?v=2">
+<link rel="apple-touch-icon" href="/favicon.png?v=2">
 
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Cognera — Admin</title>
@@ -69,6 +69,14 @@ h1,h2,h3,h4,.brand,.top h1,.stat strong,.cardhead b{font-family:Manrope,"DM Sans
 
 .statLink{font:inherit;text-align:left;color:inherit;cursor:pointer;transition:transform .15s,box-shadow .15s}.statLink:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.08)}
 </style>
+
+<style id="cognera-admin-responsive-logo-fix">
+.side .brandLogo, .authBrand .brandLogo, .mobileLogo .brandLogo { width: 188px; max-width: 100%; max-height: 52px; height: auto; }
+@media (max-width: 700px) { .side .brandLogo, .authBrand .brandLogo, .mobileLogo .brandLogo { width: 164px; max-height: 44px; } }
+html, body { max-width: 100%; overflow-x: clip; }
+img, svg, video, canvas { max-width: 100%; }
+</style>
+
 </head><body><div id="root"></div>
 <script>
 const CFG={URL:'https://azjseobcambbbllqlqxx.supabase.co',KEY:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6anNlb2JjYW1iYmJsbHFscXh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTEwOTYwMzAsImV4cCI6MjEwNjY3MjAzMH0.vZITnNh_K2vy7a78gpZyhHnLdHtzTn5ahe_3ARIMt18'};

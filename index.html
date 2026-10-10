@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="id">
 <head>
-<link rel="icon" type="image/png" href="/favicon.png">
-<link rel="shortcut icon" type="image/png" href="/favicon.png">
-<link rel="apple-touch-icon" href="/favicon.png">
+<link rel="icon" type="image/png" href="/favicon.png?v=2">
+<link rel="shortcut icon" type="image/png" href="/favicon.png?v=2">
+<link rel="apple-touch-icon" href="/favicon.png?v=2">
 
 <script>
 (function(){
@@ -1167,11 +1167,30 @@ body{background:#fff;color:#191b20}
 .tm-dots i:after{content:"";position:absolute;top:-12px;bottom:-12px;left:-5px;right:-5px}
 @media(prefers-reduced-motion:reduce){.tm-track,.tm-card{transition:none!important}}
 @media(max-width:560px){.tm{padding:52px 0 60px}.tm-ctrl{gap:12px}.tm-dots{gap:7px}.tm-dots i{width:8px;height:8px}.tm-dots i.on{width:26px}.tm-track{gap:16px}.tm-card{padding:22px 22px 20px}.tm-card blockquote{min-height:150px;font-size:14.5px}}
-</style></head>
+</style>
+<style id="cognera-responsive-logo-fix">
+/* Logo diperbesar dengan batas responsif */
+header.nav .brandLogo, .nav .brandLogo, .brandLogo { width: 184px; max-width: min(184px, 42vw); max-height: 50px; height: auto; }
+@media (max-width: 768px) {
+  header.nav .brandLogo, .nav .brandLogo, .brandLogo { width: 158px; max-width: 40vw; max-height: 42px; }
+}
+@media (max-width: 480px) {
+  header.nav .brandLogo, .nav .brandLogo, .brandLogo { width: 142px; max-width: 38vw; max-height: 36px; }
+  .navInner { min-width: 0; }
+  .neural-section .container { width: calc(100% - 24px); }
+  .neuralLayout { grid-template-columns: minmax(0, 1fr); }
+  .neuralWrap, .neural-network { min-width: 0; max-width: 100%; }
+}
+html, body { max-width: 100%; overflow-x: clip; }
+img, svg, video, canvas { max-width: 100%; }
+button, a { -webkit-tap-highlight-color: transparent; }
+</style>
+
+</head>
 <body>
 <header class="nav"><div class="container navInner"><a class="brand" href="index.html" aria-label="Cognera beranda"><img class="brandLogo" src="assets/cognera.png" alt="Cognera"></a><nav class="navLinks" id="navLinks" aria-label="Navigasi utama"><a href="#produk">Ekosistem</a><a href="#subjects">Materi</a><a href="#fitur">Cara kerja</a><a href="#packages">Paket belajar</a><a href="#testimonials">Testimoni</a><a href="#faq">Bantuan</a><div class="navMob"><a class="navMobLogin" href="app.html#/masuk">Login</a><a class="navMobCta" href="app.html">Mulai Latihan</a></div></nav><div class="navCta"><a class="navLogin" href="app.html#/masuk">Login</a><a class="navAction" href="app.html">Mulai Latihan</a></div><button class="menuBtn" id="menuBtn" type="button" aria-label="Buka menu" aria-expanded="false" aria-controls="navLinks"><span></span><span></span><span></span></button></div></header>
 <main id="top">
-<section class="hero"><div class="container heroInner"><div class="heroCopy"><div class="heroBrand"><b>C</b> COGNERA · TEMAN PERSIAPAN UJIANMU</div><h1>Siap ujian, tanpa belajar asal-asalan.</h1><p>Kerjakan tryout, pahami hasilnya, lalu tahu materi apa yang perlu kamu kejar berikutnya.</p><div class="heroActions"><a class="primaryBtn" href="app.html">Mulai latihan gratis</a><a class="secondaryBtn" href="#packages">Lihat paket belajar</a></div></div><div class="heroArt">
+<section class="hero"><div class="container heroInner"><div class="heroCopy"><h1>Siap ujian, tanpa belajar asal-asalan.</h1><p>Kerjakan tryout, pahami hasilnya, lalu tahu materi apa yang perlu kamu kejar berikutnya.</p><div class="heroActions"><a class="primaryBtn" href="app.html">Mulai latihan gratis</a><a class="secondaryBtn" href="#packages">Lihat paket belajar</a></div></div><div class="heroArt">
 <svg class="studyIllustration" viewBox="0 0 860 720" role="img" aria-labelledby="studyTitle studyDesc" xmlns="http://www.w3.org/2000/svg">
 <title id="studyTitle">Siswa Cognera belajar dengan buku dan laptop</title>
 <desc id="studyDesc">Ilustrasi editorial dua dimensi seorang siswa sedang belajar di meja, dikelilingi buku dan tanaman, dengan warna kuning, putih, dan hitam.</desc>
@@ -1264,11 +1283,11 @@ body{background:#fff;color:#191b20}
 </svg>
 
 <div class="node center"><h3>COGNERA</h3><span>Learning Ecosystem</span></div>
-<div class="node nera"><h4><svg class="nodeIco" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="4"/><rect x="11" y="4" width="2" height="5"/><circle cx="12" cy="3.6" r="1.9"/><circle cx="9" cy="14" r="1.7" fill="#fff"/><circle cx="15" cy="14" r="1.7" fill="#fff"/><rect x="1" y="12" width="2.2" height="4.4" rx="1.1"/><rect x="20.8" y="12" width="2.2" height="4.4" rx="1.1"/></svg><span class="nodeTitle">Nera AI</span></h4><p>Asisten AI yang menjelaskan materi dan soal secara bertahap, siap membantu saat kamu merasa buntu.</p><a class="nodeBtn" href="#fitur">Pelajari Lebih</a></div>
+<div class="node nera"><h4><svg class="nodeIco" viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="4"/><rect x="11" y="4" width="2" height="5"/><circle cx="12" cy="3.6" r="1.9"/><circle cx="9" cy="14" r="1.7" fill="#fff"/><circle cx="15" cy="14" r="1.7" fill="#fff"/><rect x="1" y="12" width="2.2" height="4.4" rx="1.1"/><rect x="20.8" y="12" width="2.2" height="4.4" rx="1.1"/></svg><span class="nodeTitle">Nera AI</span></h4><p>Asisten AI yang menjelaskan materi dan soal secara bertahap, siap membantu saat kamu merasa buntu.</p><a class="nodeBtn" href="app.html">Pelajari Lebih</a></div>
 <div class="node tryout"><h4><svg class="nodeIco" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="4" width="15" height="18" rx="3"/><rect x="9" y="1.5" width="6" height="4.5" rx="1.6"/><path d="M8.5 14l2.6 2.6 4.6-5.2" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg><span class="nodeTitle">Tryout Gratis</span></h4><p>Coba soal bergaya ujian sungguhan, lalu lihat skor dan hasilmu langsung setelah selesai.</p><a class="nodeBtn" href="app.html">Pelajari Lebih</a></div>
-<div class="node laporan"><h4><svg class="nodeIco" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="13" width="5" height="8.5" rx="1.4"/><rect x="9.5" y="8" width="5" height="13.5" rx="1.4"/><rect x="16.5" y="2.5" width="5" height="19" rx="1.4"/></svg><span class="nodeTitle">Laporan Belajar</span></h4><p>Pantau skor dan progresmu, lalu temukan materi yang perlu dikejar agar belajar makin terarah.</p><a class="nodeBtn" href="#fitur">Pelajari Lebih</a></div>
-<div class="node latihan"><h4><svg class="nodeIco" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="19" rx="3"/><path d="M6.5 8h7M6.5 12h7M6.5 16h4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M21.6 9.4l1.6 1.6-8 8-2.6.9.9-2.6z" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg><span class="nodeTitle">Latihan Soal</span></h4><p>Asah kemampuan lewat latihan soal dengan pembahasan yang mudah dipahami, kapan saja.</p><a class="nodeBtn" href="#fitur">Pelajari Lebih</a></div>
-<div class="node komunitas"><h4><svg class="nodeIco" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.8"/><path d="M1.5 21c0-4.4 3.2-6.8 7.5-6.8s7.5 2.4 7.5 6.8z"/><circle cx="17.6" cy="9" r="3"/><path d="M17.6 14c3.2 0 5.4 1.9 5.4 5.6v1.4h-4.6c0-2.6-.8-4.6-2.3-5.9a7 7 0 0 1 1.5-1.1z"/></svg><span class="nodeTitle">Komunitas</span></h4><p>Diskusikan soal, berbagi tips, dan saling menyemangati bersama pelajar lain agar belajar makin seru.</p><a class="nodeBtn" href="#fitur">Pelajari Lebih</a></div>
+<div class="node laporan"><h4><svg class="nodeIco" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="13" width="5" height="8.5" rx="1.4"/><rect x="9.5" y="8" width="5" height="13.5" rx="1.4"/><rect x="16.5" y="2.5" width="5" height="19" rx="1.4"/></svg><span class="nodeTitle">Laporan Belajar</span></h4><p>Pantau skor dan progresmu, lalu temukan materi yang perlu dikejar agar belajar makin terarah.</p><a class="nodeBtn" href="app.html">Pelajari Lebih</a></div>
+<div class="node latihan"><h4><svg class="nodeIco" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="2.5" width="15" height="19" rx="3"/><path d="M6.5 8h7M6.5 12h7M6.5 16h4" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><path d="M21.6 9.4l1.6 1.6-8 8-2.6.9.9-2.6z" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg><span class="nodeTitle">Latihan Soal</span></h4><p>Asah kemampuan lewat latihan soal dengan pembahasan yang mudah dipahami, kapan saja.</p><a class="nodeBtn" href="app.html">Pelajari Lebih</a></div>
+<div class="node komunitas"><h4><svg class="nodeIco" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.8"/><path d="M1.5 21c0-4.4 3.2-6.8 7.5-6.8s7.5 2.4 7.5 6.8z"/><circle cx="17.6" cy="9" r="3"/><path d="M17.6 14c3.2 0 5.4 1.9 5.4 5.6v1.4h-4.6c0-2.6-.8-4.6-2.3-5.9a7 7 0 0 1 1.5-1.1z"/></svg><span class="nodeTitle">Komunitas</span></h4><p>Diskusikan soal, berbagi tips, dan saling menyemangati bersama pelajar lain agar belajar makin seru.</p><a class="nodeBtn" href="app.html">Pelajari Lebih</a></div>
 </div>
 </div>
 </div>

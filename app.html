@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="id">
 <head>
-<link rel="icon" type="image/png" href="/favicon.png">
-<link rel="shortcut icon" type="image/png" href="/favicon.png">
-<link rel="apple-touch-icon" href="/favicon.png">
+<link rel="icon" type="image/png" href="/favicon.png?v=2">
+<link rel="shortcut icon" type="image/png" href="/favicon.png?v=2">
+<link rel="apple-touch-icon" href="/favicon.png?v=2">
 
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -1259,6 +1259,16 @@ a.pa:hover{opacity:.85}
   .cgDet .cgRepNestedBranch .cgRepNestedBranch .cgRepNestedBranch>.cgRepDepth[data-depth="4"]{width:calc(100% - 72px)!important;margin-left:72px!important}
 }
 </style>
+
+<style id="cognera-app-responsive-logo-fix">
+.brandLogo { width: 188px; max-width: min(188px, 42vw); max-height: 50px; height: auto; }
+@media (max-width: 768px) { .brandLogo { width: 160px; max-width: 40vw; max-height: 42px; } }
+@media (max-width: 480px) { .brandLogo { width: 142px; max-width: 38vw; max-height: 36px; } }
+html, body { max-width: 100%; overflow-x: clip; }
+img, svg, video, canvas { max-width: 100%; }
+input, select, textarea, button { max-width: 100%; }
+</style>
+
 </head><body><div id="app"></div><noscript>Cognera membutuhkan JavaScript untuk berjalan.</noscript><script>
 /* ===== CONFIG ===== */
 const CONFIG = {
@@ -4914,7 +4924,187 @@ document.addEventListener('submit',async e=>{
   }
 })();
 </script>
-\n<style id="cg-comments-hierarchy-v4-final">\n/* ============================================================\n   COGIT V4 — COMMENT > REPLY HIERARCHY\n   Reference rule:\n   - Top-level comments: no indent.\n   - A direct reply: +1 indent.\n   - A reply to that reply: +1 more indent.\n   - Every further reply: +1 more indent.\n   - The toggle sits directly under THIS comment's Like/Balas row.\n   - Toggle NEVER receives an extra left offset of its own.\n   ============================================================ */\n\n.cgDet .cgReplies{\n  width:100% !important;\n  min-width:0 !important;\n}\n\n/* Each rendered reply lives inside the previous reply's body.\n   Therefore one fixed margin here naturally compounds one level at a time. */\n.cgDet .cgRep.cgRepDepth{\n  display:grid !important;\n  grid-template-columns:36px minmax(0,1fr) !important;\n  gap:10px !important;\n  width:calc(100% - 56px) !important;\n  max-width:none !important;\n  margin-left:56px !important;\n  margin-right:0 !important;\n  padding:12px 24px 7px 0 !important;\n  box-sizing:border-box !important;\n  align-items:start !important;\n}\n\n/* A top-level comment/reply must NOT be indented. */\n.cgDet .cgRepRoot > .cgRep.cgRepDepth{\n  width:100% !important;\n  margin-left:0 !important;\n  padding-left:24px !important;\n  padding-right:24px !important;\n}\n\n.cgDet .cgRep.cgRepDepth > .pa{\n  width:36px !important;\n  height:36px !important;\n  min-width:36px !important;\n}\n\n.cgDet .cgRepBody{\n  min-width:0 !important;\n  width:100% !important;\n}\n\n/* CRITICAL: nested descendants do NOT add a second CSS margin based on\n   data-depth. The DOM nesting itself is the hierarchy. */\n.cgDet .cgRepDescendants,\n.cgDet .cgRepChildren,\n.cgDet .cgRepNestedBranch{\n  width:100% !important;\n  margin:0 !important;\n  padding:0 !important;\n  border:0 !important;\n  box-sizing:border-box !important;\n}\n\n/* Kill all previous depth-based offsets. */\n.cgDet .cgRep.cgRepDepth[data-depth="2"],\n.cgDet .cgRep.cgRepDepth[data-depth="3"],\n.cgDet .cgRep.cgRepDepth[data-depth="4"],\n.cgDet .cgRep.cgRepDepth[data-depth="5"],\n.cgDet .cgRep.cgRepDepth[data-depth="6"],\n.cgDet .cgRep.cgRepDepth[data-depth="7"],\n.cgDet .cgRep.cgRepDepth[data-depth="8"],\n.cgDet .cgRep.cgRepDepth[data-depth="9"],\n.cgDet .cgRep.cgRepDepth[data-depth="10"]{\n  margin-left:56px !important;\n  width:calc(100% - 56px) !important;\n}\n\n/* No fake tree rails. Indentation alone communicates hierarchy. */\n.cgDet .cgRepNestedBranch:before,\n.cgDet .cgRepNestedBranch:after,\n.cgDet .cgRepDepth:before,\n.cgDet .cgRepDepth:after{\n  content:none !important;\n  display:none !important;\n}\n\n/* Like / Balas row. */\n.cgDet .cgRepActions{\n  display:flex !important;\n  align-items:center !important;\n  justify-content:flex-start !important;\n  gap:18px !important;\n  margin:8px 0 0 !important;\n  padding:0 !important;\n  width:100% !important;\n  min-width:0 !important;\n}\n\n/* "Lihat semua balasan" is DIRECTLY below the action row,\n   with exactly the same left edge as Like/Balas. */\n.cgDet .cgRepBody > .cgRepliesToggle,\n.cgDet .cgRepBody > .cgRepliesToggleIn{\n  display:block !important;\n  margin:3px 0 0 !important;\n  padding:0 !important;\n  width:max-content !important;\n  max-width:100% !important;\n  color:var(--muted) !important;\n  background:none !important;\n  border:0 !important;\n  font-size:12px !important;\n  font-weight:700 !important;\n  line-height:1.5 !important;\n  text-align:left !important;\n  white-space:normal !important;\n  cursor:pointer !important;\n}\n\n.cgDet .cgRepBody > .cgRepliesToggle:hover,\n.cgDet .cgRepBody > .cgRepliesToggleIn:hover{\n  color:var(--ink) !important;\n}\n\n/* Top-level comment separators: each comment is visually isolated. */\n.cgDet .cgRepRoot{\n  display:block !important;\n  width:100% !important;\n  margin:0 !important;\n  padding:0 !important;\n  border-top:1px solid var(--line) !important;\n  border-bottom:1px solid var(--line) !important;\n  box-sizing:border-box !important;\n}\n\n.cgDet .cgRepRoot + .cgRepRoot{\n  border-top:0 !important;\n}\n\n@media(max-width:640px){\n  .cgDet .cgRep.cgRepDepth{\n    grid-template-columns:32px minmax(0,1fr) !important;\n    gap:8px !important;\n    width:calc(100% - 34px) !important;\n    margin-left:34px !important;\n    padding:10px 12px 6px 0 !important;\n  }\n  .cgDet .cgRepRoot > .cgRep.cgRepDepth{\n    width:100% !important;\n    margin-left:0 !important;\n    padding-left:14px !important;\n    padding-right:14px !important;\n  }\n  .cgDet .cgRep.cgRepDepth > .pa{\n    width:32px !important;\n    height:32px !important;\n    min-width:32px !important;\n  }\n  .cgDet .cgRepActions{\n    gap:14px !important;\n    margin-top:7px !important;\n  }\n  .cgDet .cgRepBody > .cgRepliesToggle,\n  .cgDet .cgRepBody > .cgRepliesToggleIn{\n    margin-top:2px !important;\n    font-size:11.5px !important;\n  }\n}\n\n@media(max-width:380px){\n  .cgDet .cgRep.cgRepDepth{\n    width:calc(100% - 28px) !important;\n    margin-left:28px !important;\n  }\n  .cgDet .cgRepRoot > .cgRep.cgRepDepth{\n    width:100% !important;\n    margin-left:0 !important;\n  }\n}\n</style>\n
+
+<style id="cg-comments-hierarchy-v4-final">
+/* ============================================================
+   COGIT V4 — COMMENT > REPLY HIERARCHY
+   Reference rule:
+   - Top-level comments: no indent.
+   - A direct reply: +1 indent.
+   - A reply to that reply: +1 more indent.
+   - Every further reply: +1 more indent.
+   - The toggle sits directly under THIS comment's Like/Balas row.
+   - Toggle NEVER receives an extra left offset of its own.
+   ============================================================ */
+
+.cgDet .cgReplies{
+  width:100% !important;
+  min-width:0 !important;
+}
+
+/* Each rendered reply lives inside the previous reply's body.
+   Therefore one fixed margin here naturally compounds one level at a time. */
+.cgDet .cgRep.cgRepDepth{
+  display:grid !important;
+  grid-template-columns:36px minmax(0,1fr) !important;
+  gap:10px !important;
+  width:calc(100% - 56px) !important;
+  max-width:none !important;
+  margin-left:56px !important;
+  margin-right:0 !important;
+  padding:12px 24px 7px 0 !important;
+  box-sizing:border-box !important;
+  align-items:start !important;
+}
+
+/* A top-level comment/reply must NOT be indented. */
+.cgDet .cgRepRoot > .cgRep.cgRepDepth{
+  width:100% !important;
+  margin-left:0 !important;
+  padding-left:24px !important;
+  padding-right:24px !important;
+}
+
+.cgDet .cgRep.cgRepDepth > .pa{
+  width:36px !important;
+  height:36px !important;
+  min-width:36px !important;
+}
+
+.cgDet .cgRepBody{
+  min-width:0 !important;
+  width:100% !important;
+}
+
+/* CRITICAL: nested descendants do NOT add a second CSS margin based on
+   data-depth. The DOM nesting itself is the hierarchy. */
+.cgDet .cgRepDescendants,
+.cgDet .cgRepChildren,
+.cgDet .cgRepNestedBranch{
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border:0 !important;
+  box-sizing:border-box !important;
+}
+
+/* Kill all previous depth-based offsets. */
+.cgDet .cgRep.cgRepDepth[data-depth="2"],
+.cgDet .cgRep.cgRepDepth[data-depth="3"],
+.cgDet .cgRep.cgRepDepth[data-depth="4"],
+.cgDet .cgRep.cgRepDepth[data-depth="5"],
+.cgDet .cgRep.cgRepDepth[data-depth="6"],
+.cgDet .cgRep.cgRepDepth[data-depth="7"],
+.cgDet .cgRep.cgRepDepth[data-depth="8"],
+.cgDet .cgRep.cgRepDepth[data-depth="9"],
+.cgDet .cgRep.cgRepDepth[data-depth="10"]{
+  margin-left:56px !important;
+  width:calc(100% - 56px) !important;
+}
+
+/* No fake tree rails. Indentation alone communicates hierarchy. */
+.cgDet .cgRepNestedBranch:before,
+.cgDet .cgRepNestedBranch:after,
+.cgDet .cgRepDepth:before,
+.cgDet .cgRepDepth:after{
+  content:none !important;
+  display:none !important;
+}
+
+/* Like / Balas row. */
+.cgDet .cgRepActions{
+  display:flex !important;
+  align-items:center !important;
+  justify-content:flex-start !important;
+  gap:18px !important;
+  margin:8px 0 0 !important;
+  padding:0 !important;
+  width:100% !important;
+  min-width:0 !important;
+}
+
+/* "Lihat semua balasan" is DIRECTLY below the action row,
+   with exactly the same left edge as Like/Balas. */
+.cgDet .cgRepBody > .cgRepliesToggle,
+.cgDet .cgRepBody > .cgRepliesToggleIn{
+  display:block !important;
+  margin:3px 0 0 !important;
+  padding:0 !important;
+  width:max-content !important;
+  max-width:100% !important;
+  color:var(--muted) !important;
+  background:none !important;
+  border:0 !important;
+  font-size:12px !important;
+  font-weight:700 !important;
+  line-height:1.5 !important;
+  text-align:left !important;
+  white-space:normal !important;
+  cursor:pointer !important;
+}
+
+.cgDet .cgRepBody > .cgRepliesToggle:hover,
+.cgDet .cgRepBody > .cgRepliesToggleIn:hover{
+  color:var(--ink) !important;
+}
+
+/* Top-level comment separators: each comment is visually isolated. */
+.cgDet .cgRepRoot{
+  display:block !important;
+  width:100% !important;
+  margin:0 !important;
+  padding:0 !important;
+  border-top:1px solid var(--line) !important;
+  border-bottom:1px solid var(--line) !important;
+  box-sizing:border-box !important;
+}
+
+.cgDet .cgRepRoot + .cgRepRoot{
+  border-top:0 !important;
+}
+
+@media(max-width:640px){
+  .cgDet .cgRep.cgRepDepth{
+    grid-template-columns:32px minmax(0,1fr) !important;
+    gap:8px !important;
+    width:calc(100% - 34px) !important;
+    margin-left:34px !important;
+    padding:10px 12px 6px 0 !important;
+  }
+  .cgDet .cgRepRoot > .cgRep.cgRepDepth{
+    width:100% !important;
+    margin-left:0 !important;
+    padding-left:14px !important;
+    padding-right:14px !important;
+  }
+  .cgDet .cgRep.cgRepDepth > .pa{
+    width:32px !important;
+    height:32px !important;
+    min-width:32px !important;
+  }
+  .cgDet .cgRepActions{
+    gap:14px !important;
+    margin-top:7px !important;
+  }
+  .cgDet .cgRepBody > .cgRepliesToggle,
+  .cgDet .cgRepBody > .cgRepliesToggleIn{
+    margin-top:2px !important;
+    font-size:11.5px !important;
+  }
+}
+
+@media(max-width:380px){
+  .cgDet .cgRep.cgRepDepth{
+    width:calc(100% - 28px) !important;
+    margin-left:28px !important;
+  }
+  .cgDet .cgRepRoot > .cgRep.cgRepDepth{
+    width:100% !important;
+    margin-left:0 !important;
+  }
+}
+</style>
+
 <style id="cg-comments-hierarchy-v5-absolute-final">
 /* ============================================================
    COGIT V5 — EXACT THREAD RULE
