@@ -1,0 +1,1 @@
+Letakkan file logo Cognera dengan nama cognera.png di folder assets/. Semua lockup logo Cognera pada halaman HTML kini mereferensikan assets/cognera.png. Pastikan file assets/cognera.png tersedia saat deploy.

@@ -1,0 +1,1 @@
+Favicon routing sudah ditambahkan ke seluruh file HTML dengan path /favicon.png. Letakkan file favicon.png di root website (sejajar dengan index.html), lalu deploy.
