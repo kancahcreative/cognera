@@ -1480,12 +1480,15 @@ function loadSession(){
 let _pt;
 function save(){ if(!U) return; LS.set('data:'+U.id, DATA); if(SB && !U.guest){ clearTimeout(_pt); _pt=setTimeout(pushRemote,1500); } }
 async function pushRemote(){
-  if(!SB||!U||U.guest) return;
+  if(!SB||!U||U.guest) return {ok:false,reason:'Akun belum terhubung ke Supabase'};
   const d=Object.assign({},DATA); delete d.packages;
   try{
-    await SB.from('user_data').upsert({user_id:U.id,data:d,updated_at:new Date().toISOString()});
-    await SB.from('profiles').update({name:DATA.profile.name,username:DATA.profile.username||null,phone:DATA.profile.phone||null,jalur:DATA.profile.jalur,tahun:DATA.profile.tahun,goal:DATA.profile.goal,sekolah:DATA.profile.sekolah||'',kelas:DATA.profile.kelas||'',avatar:DATA.profile.avatar||DATA.profile.gpic||null,xp:DATA.xp||0,onboarded:!!DATA.onboarded}).eq('id',U.id);
-  }catch(e){ console.warn('sync gagal',e); }
+    const result=await SB.from('user_data').upsert({user_id:U.id,data:d,updated_at:new Date().toISOString()},{onConflict:'user_id'});
+    if(result.error) throw result.error;
+    const profileResult=await SB.from('profiles').update({name:DATA.profile.name,username:DATA.profile.username||null,phone:DATA.profile.phone||null,jalur:DATA.profile.jalur,tahun:DATA.profile.tahun,goal:DATA.profile.goal,sekolah:DATA.profile.sekolah||'',kelas:DATA.profile.kelas||'',avatar:DATA.profile.avatar||DATA.profile.gpic||null,xp:DATA.xp||0,onboarded:!!DATA.onboarded}).eq('id',U.id);
+    if(profileResult.error) console.warn('update profil gagal',profileResult.error);
+    return {ok:true};
+  }catch(e){ console.error('sync Supabase gagal:',e); return {ok:false,reason:e?.message||'Gagal menyimpan data ke Supabase',error:e}; }
 }
 const gpicOf=us=>(us&&us.user_metadata&&(us.user_metadata.avatar_url||us.user_metadata.picture))||'';
 // Username awal mengikuti nama pengguna, bukan user_XXXXXXXX.
@@ -2185,7 +2188,7 @@ function confirmFinish(){
     <div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Kembali mengerjakan</button><button class="btn btn-ink grow" data-act="run-submit">Kumpulkan</button></div>`);
 }
 
-function submitAttempt(auto){
+async function submitAttempt(auto){
   const A=DATA.inprogress; if(!A) return go('/tryout');
   clearTimers(); closeModal();
   const t=TRYOUTS.find(x=>x.id===A.tid), per={};
@@ -2199,6 +2202,16 @@ function submitAttempt(auto){
   const scores=Object.values(per).map(r=>r.score), total=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
   const att={id:uid(), tid:A.tid, at:Date.now(), total, subs:per, qids:A.qids, answers:A.answers, flags:A.flags, durSec:Math.round((Math.min(Date.now(),A.endsAt)-A.startedAt)/1000)};
   DATA.attempts.push(att); DATA.xp+=50; DATA.inprogress=null; save();
+  // Hasil tryout harus benar-benar dikirim ke Supabase sebelum berpindah halaman.
+  // Jangan hanya mengandalkan debounce save() karena navigasi/reload dapat memotongnya.
+  clearTimeout(_pt);
+  if(!U.guest && SB){
+    const sync=await pushRemote();
+    if(sync.ok) toast('Hasil tryout berhasil disimpan ke akun.');
+    else toast('Hasil tampil, tetapi gagal tersimpan ke database. Periksa koneksi/RLS Supabase.');
+  } else {
+    toast('Hasil tersimpan di perangkat ini. Login untuk menyinkronkan ke akun.');
+  }
   go('/hasil/'+att.id);
 }
 
