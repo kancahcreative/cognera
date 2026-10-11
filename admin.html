@@ -155,15 +155,16 @@ function bindPageButtons(){/* Semua navigasi data-page ditangani secara delegate
 async function tryoutResultsPage(){
  const [attemptRows,profiles,tryouts,dbAttemptRows]=await Promise.all([
   safe('user_data','user_id,data,updated_at',5000),
-  safe('profiles','id,name,username,email,sekolah,kelas,jalur,tahun',5000),
+  safe('profiles','id,name,username,sekolah,kelas,jalur,tahun',5000),
   safe('tryouts','id,title,jalur,access',2000),
   safe('attempts','id,user_id,tryout_id,started_at,finished_at,score,status',5000)
  ]);
  const profileById=Object.fromEntries(profiles.map(p=>[String(p.id),p]));
+ const userDataById=Object.fromEntries(attemptRows.map(r=>[String(r.user_id),r.data||{}]));
  const tryoutById=Object.fromEntries(tryouts.map(t=>[String(t.id),t]));
  const attempts=[];
  attemptRows.forEach(row=>(row.data?.attempts||[]).forEach((a,index)=>{
-   const profile=profileById[String(row.user_id)]||{};
+   const profile=profileById[String(row.user_id)]||userDataById[String(row.user_id)]?.profile||{};
    const tr=tryoutById[String(a.tid)]||{};
    const subs=a.subs||{};
    const vals=Object.values(subs);
@@ -171,7 +172,7 @@ async function tryoutResultsPage(){
    const wrong=vals.reduce((s,x)=>s+Number(x.wrong||0),0);
    const empty=vals.reduce((s,x)=>s+Number(x.empty||0),0);
    attempts.push({
-    uid:row.user_id, name:profile.name||profile.username||'Pengguna',email:profile.email||'',
+    uid:row.user_id, name:profile.name||profile.username||'Pengguna',email:profile.email||userDataById[String(row.user_id)]?.email||'',
     username:profile.username||'', sekolah:profile.sekolah||'',kelas:profile.kelas||'',
     tid:a.tid,tryout:tr.title||a.title||('Tryout #'+String(a.tid||'-')),
     jalur:tr.jalur||a.jalur||profile.jalur||'-', attemptNo:0,
@@ -186,11 +187,11 @@ async function tryoutResultsPage(){
   attemptRows.forEach(row=>(row.data?.attempts||[]).forEach(a=>{if(a.dbId)jsonByDbId.set(String(a.dbId),{a,row})}));
   attempts.length=0;
   dbAttemptRows.forEach(r=>{
-   const profile=profileById[String(r.user_id)]||{};
+   const profile=profileById[String(r.user_id)]||userDataById[String(r.user_id)]?.profile||{};
    const tr=tryoutById[String(r.tryout_id)]||{};
    const match=jsonByDbId.get(String(r.id));
    const a=match?.a||{}; const subs=a.subs||{}; const vals=Object.values(subs);
-   attempts.push({uid:r.user_id,name:profile.name||profile.username||'Pengguna',email:profile.email||'',username:profile.username||'',sekolah:profile.sekolah||'',kelas:profile.kelas||'',tid:r.tryout_id,tryout:tr.title||a.title||('Tryout #'+r.tryout_id),jalur:tr.jalur||a.jalur||profile.jalur||'-',attemptNo:0,at:r.finished_at||null,total:Number(r.score||0),qcount:(a.qids||[]).length,correct:vals.reduce((n,x)=>n+Number(x.correct||0),0),wrong:vals.reduce((n,x)=>n+Number(x.wrong||0),0),empty:vals.reduce((n,x)=>n+Number(x.empty||0),0),durSec:Number(a.durSec||0),subs,a,dbId:r.id,status:r.status,started_at:r.started_at});
+   attempts.push({uid:r.user_id,name:profile.name||profile.username||'Pengguna',email:profile.email||userDataById[String(row.user_id)]?.email||'',username:profile.username||'',sekolah:profile.sekolah||'',kelas:profile.kelas||'',tid:r.tryout_id,tryout:tr.title||a.title||('Tryout #'+r.tryout_id),jalur:tr.jalur||a.jalur||profile.jalur||'-',attemptNo:0,at:r.finished_at||null,total:Number(r.score||0),qcount:(a.qids||[]).length,correct:vals.reduce((n,x)=>n+Number(x.correct||0),0),wrong:vals.reduce((n,x)=>n+Number(x.wrong||0),0),empty:vals.reduce((n,x)=>n+Number(x.empty||0),0),durSec:Number(a.durSec||0),subs,a,dbId:r.id,status:r.status,started_at:r.started_at});
   });
  }
  attempts.sort((a,b)=>new Date(a.at||0)-new Date(b.at||0));
@@ -211,19 +212,22 @@ async function tryoutResultsPage(){
    <td><b>${esc(a.tryout)}</b><div class="muted small">${esc(a.jalur)}</div></td>
    <td>#${a.attemptNo}</td><td><b>${a.total}</b></td>
    <td><span class="pill">${a.correct} benar</span><div class="muted small">${a.wrong} salah · ${a.empty} kosong</div></td>
-   <td>${a.qcount}</td><td>${fmtDur(a.durSec)}</td><td>${a.at?esc(new Date(a.at).toLocaleString('id-ID')):'-'}</td>
+   <td>${a.qcount||'-'}</td><td>${fmtDur(a.durSec)}</td><td>${a.started_at?esc(new Date(a.started_at).toLocaleString('id-ID')):'-'}</td><td>${a.at?esc(new Date(a.at).toLocaleString('id-ID')):'-'}</td><td><span class="pill">${esc(a.status||'completed')}</span></td>
    <td><button class="btn sm" data-detail="${i}">Detail</button></td>
-  </tr>`).join(''):`<tr><td colspan="9"><div class="empty">Belum ada hasil tryout yang tersimpan atau data tidak dapat dibaca oleh akun admin.</div></td></tr>`;
+  </tr>`).join(''):`<tr><td colspan="11"><div class="empty">Belum ada hasil tryout yang tersimpan atau data tidak dapat dibaca oleh akun admin.</div></td></tr>`;
   tbody.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>showAttemptDetail(filtered[Number(b.dataset.detail)]));
   document.querySelector('#resultsCount').textContent=`${filtered.length} hasil · ${new Set(filtered.map(a=>a.uid)).size} pengguna`;
  };
  page.innerHTML=`<div class="section-head"><div><h2>📊 Hasil Tryout</h2><div class="muted">Pantau setiap percobaan pengguna, nilai, jawaban benar/salah/kosong, durasi, dan riwayat pengerjaan.</div></div><button class="btn" id="refreshResults">↻ Refresh</button></div>
  <div class="grid3">
-  <div class="card"><div class="cardhead"><b>Total pengerjaan</b></div><div class="cardbody"><strong style="font-size:30px">${attempts.length}</strong></div></div>
-  <div class="card"><div class="cardhead"><b>Pengguna mengerjakan</b></div><div class="cardbody"><strong style="font-size:30px">${new Set(attempts.map(a=>a.uid)).size}</strong></div></div>
+  <div class="card"><div class="cardhead"><b>Total pengerjaan</b></div><div class="cardbody"><strong style="font-size:30px">${attempts.length}</strong><div class="muted small">Semua percobaan tersimpan</div></div></div>
+  <div class="card"><div class="cardhead"><b>Pengguna mengerjakan</b></div><div class="cardbody"><strong style="font-size:30px">${new Set(attempts.map(a=>a.uid)).size}</strong><div class="muted small">Akun unik</div></div></div>
   <div class="card"><div class="cardhead"><b>Rata-rata nilai</b></div><div class="cardbody"><strong style="font-size:30px">${attempts.length?Math.round(attempts.reduce((s,a)=>s+a.total,0)/attempts.length):0}</strong></div></div>
+  <div class="card"><div class="cardhead"><b>Nilai tertinggi</b></div><div class="cardbody"><strong style="font-size:30px">${attempts.length?Math.max(...attempts.map(a=>a.total)):0}</strong><div class="muted small">${attempts.length?esc(attempts.slice().sort((a,b)=>b.total-a.total)[0].name)+' · '+esc(attempts.slice().sort((a,b)=>b.total-a.total)[0].tryout):'Belum ada data'}</div></div></div>
+  <div class="card"><div class="cardhead"><b>Pengerjaan terbaru</b></div><div class="cardbody"><strong style="font-size:16px">${attempts.length?esc(attempts[0].name):'Belum ada'}</strong><div class="muted small">${attempts.length?esc(attempts[0].tryout)+' · Nilai '+attempts[0].total+' · '+(attempts[0].at?esc(new Date(attempts[0].at).toLocaleString('id-ID')):'waktu belum tersedia'):'Belum ada data'}</div></div></div>
+  <div class="card"><div class="cardhead"><b>Rata-rata per pengguna</b></div><div class="cardbody"><strong style="font-size:30px">${(()=>{const vals=[...new Set(attempts.map(a=>String(a.uid)))].map(uid=>{const xs=attempts.filter(a=>String(a.uid)===uid);return xs.reduce((s,a)=>s+a.total,0)/xs.length});return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):0})()}</strong><div class="muted small">Rata-rata nilai tiap akun</div></div></div>
  </div>
- <div class="card" style="margin-top:16px"><div class="cardbody"><div class="toolbar"><input class="grow" id="resultFilter" placeholder="Cari nama, email, sekolah, nama tryout, atau user ID…"><select id="resultSort" class="input" style="max-width:190px"><option value="new">Terbaru</option><option value="high">Nilai tertinggi</option><option value="low">Nilai terendah</option></select><button class="btn" id="exportResults">Export CSV</button></div><div class="muted small" id="resultsCount" style="margin-bottom:10px"></div><div class="tablewrap"><table id="resultsTable"><thead><tr><th>Pengguna</th><th>Tryout</th><th>Percobaan</th><th>Nilai</th><th>Rincian jawaban</th><th>Jumlah soal</th><th>Durasi</th><th>Waktu selesai</th><th>Aksi</th></tr></thead><tbody></tbody></table></div></div></div>`;
+ <div class="card" style="margin-top:16px"><div class="cardbody"><div class="toolbar"><input class="grow" id="resultFilter" placeholder="Cari nama, email, sekolah, nama tryout, atau user ID…"><select id="resultSort" class="input" style="max-width:190px"><option value="new">Terbaru</option><option value="high">Nilai tertinggi</option><option value="low">Nilai terendah</option></select><button class="btn" id="exportResults">Export CSV</button></div><div class="muted small" id="resultsCount" style="margin-bottom:10px"></div><div class="tablewrap"><table id="resultsTable"><thead><tr><th>Pengguna</th><th>Tryout</th><th>Percobaan</th><th>Nilai</th><th>Rincian jawaban</th><th>Jumlah soal</th><th>Durasi</th><th>Mulai</th><th>Selesai</th><th>Status</th><th>Aksi</th></tr></thead><tbody></tbody></table></div></div></div>`;
  const showAttemptDetail=a=>{
   if(!a)return;
   const subs=Object.entries(a.subs||{});
