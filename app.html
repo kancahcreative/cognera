@@ -1481,12 +1481,29 @@ let _pt;
 function save(){ if(!U) return; LS.set('data:'+U.id, DATA); if(SB && !U.guest){ clearTimeout(_pt); _pt=setTimeout(pushRemote,1500); } }
 async function pushRemote(){
   if(!SB||!U||U.guest) return {ok:false,reason:'Akun belum terhubung ke Supabase'};
-  const d=Object.assign({},DATA); delete d.packages;
   try{
+    // Baca data server dahulu supaya tab/perangkat lain tidak menimpa riwayat attempts.
+    const remoteRes=await SB.from('user_data').select('data').eq('user_id',U.id).maybeSingle();
+    if(remoteRes.error) throw new Error('Gagal membaca user_data: '+remoteRes.error.message);
+    const remote=(remoteRes.data&&remoteRes.data.data)||{};
+    const localAttempts=Array.isArray(DATA.attempts)?DATA.attempts:[];
+    const remoteAttempts=Array.isArray(remote.attempts)?remote.attempts:[];
+    const byId=new Map();
+    [...remoteAttempts,...localAttempts].forEach(a=>{if(a&&a.id)byId.set(String(a.id),a)});
+    DATA.attempts=[...byId.values()].sort((a,b)=>Number(a.at||0)-Number(b.at||0));
+    const d=Object.assign({},remote,DATA,{attempts:DATA.attempts}); delete d.packages;
     const result=await SB.from('user_data').upsert({user_id:U.id,data:d,updated_at:new Date().toISOString()},{onConflict:'user_id'});
-    if(result.error) throw result.error;
+    if(result.error) throw new Error('Gagal menulis user_data: '+result.error.message);
+    // Read-after-write verification: jangan laporkan sukses kalau attempt tidak benar-benar ada di DB.
+    const verify=await SB.from('user_data').select('data').eq('user_id',U.id).maybeSingle();
+    if(verify.error) throw new Error('Data dikirim tetapi verifikasi database gagal: '+verify.error.message);
+    const saved=(verify.data&&verify.data.data&&verify.data.data.attempts)||[];
+    const expected=DATA.attempts.map(a=>String(a.id));
+    const missing=expected.filter(id=>!saved.some(a=>String(a.id)===id));
+    if(missing.length) throw new Error('Verifikasi gagal: '+missing.length+' hasil belum terbukti tersimpan pada user_data.data.attempts. Periksa policy RLS dan struktur tabel.');
     const profileResult=await SB.from('profiles').update({name:DATA.profile.name,username:DATA.profile.username||null,phone:DATA.profile.phone||null,jalur:DATA.profile.jalur,tahun:DATA.profile.tahun,goal:DATA.profile.goal,sekolah:DATA.profile.sekolah||'',kelas:DATA.profile.kelas||'',avatar:DATA.profile.avatar||DATA.profile.gpic||null,xp:DATA.xp||0,onboarded:!!DATA.onboarded}).eq('id',U.id);
     if(profileResult.error) console.warn('update profil gagal',profileResult.error);
+    LS.set('data:'+U.id,DATA);
     return {ok:true};
   }catch(e){ console.error('sync Supabase gagal:',e); return {ok:false,reason:e?.message||'Gagal menyimpan data ke Supabase',error:e}; }
 }
@@ -1534,6 +1551,10 @@ async function pullRemote(uid,name,email,pic,meta={}){
     const remote=(d.data&&d.data.data)||{};
     const current=LS.get('data:'+uid,null)||defaultData(u);
     const merged=Object.assign(defaultData(u),current,remote.profile?remote:{},{packages:pk});
+    // Jangan hilangkan percobaan lokal ketika data remote lama belum memiliki attempts.
+    const attemptMap=new Map();
+    [...(Array.isArray(remote.attempts)?remote.attempts:[]),...(Array.isArray(current.attempts)?current.attempts:[])].forEach(a=>{if(a&&a.id)attemptMap.set(String(a.id),a)});
+    merged.attempts=[...attemptMap.values()].sort((a,b)=>Number(a.at||0)-Number(b.at||0));
     merged.profile=Object.assign({},defaultData(u).profile,merged.profile||{},{name:(merged.profile&&merged.profile.name)||u.name,username:(merged.profile&&merged.profile.username)||u.username,phone:(merged.profile&&merged.profile.phone)||u.phone,sekolah:(merged.profile&&merged.profile.sekolah)||u.sekolah,kelas:(merged.profile&&merged.profile.kelas)||u.kelas});
     if(pic) merged.profile.gpic=pic;
     LS.set('data:'+uid,merged);
@@ -2200,7 +2221,7 @@ async function submitAttempt(auto){
   });
   Object.values(per).forEach(r=>r.score=Math.round(200+800*r.pts/r.max));
   const scores=Object.values(per).map(r=>r.score), total=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
-  const att={id:uid(), tid:A.tid, at:Date.now(), total, subs:per, qids:A.qids, answers:A.answers, flags:A.flags, durSec:Math.round((Math.min(Date.now(),A.endsAt)-A.startedAt)/1000)};
+  const att={id:uid(), tid:A.tid, title:t?.title||('Tryout #'+A.tid), jalur:t?.jalur||DATA.profile.jalur||'utbk', at:Date.now(), total, subs:per, qids:A.qids, answers:A.answers, flags:A.flags, durSec:Math.round((Math.min(Date.now(),A.endsAt)-A.startedAt)/1000)};
   DATA.attempts.push(att); DATA.xp+=50; DATA.inprogress=null; save();
   // Hasil tryout harus benar-benar dikirim ke Supabase sebelum berpindah halaman.
   // Jangan hanya mengandalkan debounce save() karena navigasi/reload dapat memotongnya.
@@ -2208,7 +2229,7 @@ async function submitAttempt(auto){
   if(!U.guest && SB){
     const sync=await pushRemote();
     if(sync.ok) toast('Hasil tryout berhasil disimpan ke akun.');
-    else toast('Hasil tampil, tetapi gagal tersimpan ke database. Periksa koneksi/RLS Supabase.');
+    else { console.error('Hasil tryout gagal tersimpan:',sync.reason); toast('GAGAL SIMPAN DB: '+(sync.reason||'Periksa Console dan policy RLS Supabase')); }
   } else {
     toast('Hasil tersimpan di perangkat ini. Login untuk menyinkronkan ke akun.');
   }
