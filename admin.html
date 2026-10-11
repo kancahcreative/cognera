@@ -129,7 +129,7 @@ const ADMIN_ICONS={
 };
 const adminIc=n=>`<svg class="adminIc" viewBox="0 0 24 24" aria-hidden="true">${ADMIN_ICONS[n]||''}</svg>`;
 const menu=[
- ['dashboard','home','Beranda'],['tryouts','tryout','Tryout'],['questions','book','Bank soal'],['importpdf','book','Import PDF'],['latihan','drill','Latihan'],['content','book','Materi'],['analytics','chart','Laporan belajar'],['community','users','Cogit'],['users','user','Pengguna'],['transactions','card','Transaksi'],['packages','bag','Beli paket'],
+ ['dashboard','home','Beranda'],['tryouts','tryout','Tryout'],['questions','book','Bank soal'],['importpdf','book','Import PDF'],['latihan','drill','Latihan'],['content','book','Materi'],['results','chart','Hasil Tryout'],['analytics','chart','Laporan belajar'],['community','users','Cogit'],['users','user','Pengguna'],['transactions','card','Transaksi'],['packages','bag','Beli paket'],
  ['promos','tag','Promo & voucher'],['notifications','bell','Notifikasi'],['moderation','flag','Moderasi'],['activity','clock','Aktivitas'],['audit','list','Audit log'],['settings','settings','Pengaturan']
 ];
 function navigatePage(next){if(!menu.some(x=>x[0]===next))return;state.page=next;state.search='';document.querySelectorAll('.nav[data-page]').forEach(b=>b.classList.toggle('on',b.dataset.page===next));const h=document.querySelector('.top h1');if(h)h.textContent=menu.find(x=>x[0]===next)?.[2]||'Dashboard';const search=document.querySelector('#globalSearch');if(search)search.value='';render();}
@@ -151,6 +151,78 @@ async function dashboard(){
 }
 function money(v){return v==null?'—':'Rp '+Number(v).toLocaleString('id-ID')}
 function bindPageButtons(){/* Semua navigasi data-page ditangani secara delegated oleh root; shell tidak dibangun ulang sehingga posisi scroll tetap. */}
+
+async function tryoutResultsPage(){
+ const [attemptRows,profiles,tryouts]=await Promise.all([
+  safe('user_data','user_id,data,updated_at',5000),
+  safe('profiles','id,name,username,email,sekolah,kelas,jalur,tahun',5000),
+  safe('tryouts','id,title,jalur,access',2000)
+ ]);
+ const profileById=Object.fromEntries(profiles.map(p=>[String(p.id),p]));
+ const tryoutById=Object.fromEntries(tryouts.map(t=>[String(t.id),t]));
+ const attempts=[];
+ attemptRows.forEach(row=>(row.data?.attempts||[]).forEach((a,index)=>{
+   const profile=profileById[String(row.user_id)]||{};
+   const tr=tryoutById[String(a.tid)]||{};
+   const subs=a.subs||{};
+   const vals=Object.values(subs);
+   const correct=vals.reduce((s,x)=>s+Number(x.correct||0),0);
+   const wrong=vals.reduce((s,x)=>s+Number(x.wrong||0),0);
+   const empty=vals.reduce((s,x)=>s+Number(x.empty||0),0);
+   attempts.push({
+    uid:row.user_id, name:profile.name||profile.username||'Pengguna',email:profile.email||'',
+    username:profile.username||'', sekolah:profile.sekolah||'',kelas:profile.kelas||'',
+    tid:a.tid,tryout:tr.title||a.title||('Tryout #'+String(a.tid||'-')),
+    jalur:tr.jalur||a.jalur||profile.jalur||'-', attemptNo:0,
+    at:a.at||null,total:Number(a.total||0),qcount:(a.qids||[]).length,
+    correct,wrong,empty,durSec:Number(a.durSec||0),subs,a,
+    updated_at:row.updated_at||null
+   });
+ }));
+ attempts.sort((a,b)=>new Date(a.at||0)-new Date(b.at||0));
+ const counts={};
+ attempts.forEach(a=>{const k=String(a.uid)+'|'+String(a.tid);counts[k]=(counts[k]||0)+1;a.attemptNo=counts[k]});
+ attempts.sort((a,b)=>new Date(b.at||0)-new Date(a.at||0));
+ const fmtDur=s=>{s=Math.max(0,Number(s)||0);return Math.floor(s/60)+' mnt '+String(s%60).padStart(2,'0')+' dtk'};
+ const render=()=>{
+  const q=(document.querySelector('#resultFilter')?.value||'').toLowerCase().trim();
+  const range=document.querySelector('#resultSort')?.value||'new';
+  let filtered=attempts.filter(a=>!q||[a.name,a.email,a.username,a.tryout,a.jalur,a.uid].join(' ').toLowerCase().includes(q));
+  if(range==='high')filtered.sort((a,b)=>b.total-a.total);
+  else if(range==='low')filtered.sort((a,b)=>a.total-b.total);
+  else filtered.sort((a,b)=>new Date(b.at||0)-new Date(a.at||0));
+  const tbody=document.querySelector('#resultsTable tbody');
+  tbody.innerHTML=filtered.length?filtered.map((a,i)=>`<tr>
+   <td><b>${esc(a.name)}</b><div class="muted small">${esc(a.email||a.username||String(a.uid).slice(0,12))}</div>${a.sekolah?`<div class="muted small">${esc(a.sekolah)}${a.kelas?' · '+esc(a.kelas):''}</div>`:''}</td>
+   <td><b>${esc(a.tryout)}</b><div class="muted small">${esc(a.jalur)}</div></td>
+   <td>#${a.attemptNo}</td><td><b>${a.total}</b></td>
+   <td><span class="pill">${a.correct} benar</span><div class="muted small">${a.wrong} salah · ${a.empty} kosong</div></td>
+   <td>${a.qcount}</td><td>${fmtDur(a.durSec)}</td><td>${a.at?esc(new Date(a.at).toLocaleString('id-ID')):'-'}</td>
+   <td><button class="btn sm" data-detail="${i}">Detail</button></td>
+  </tr>`).join(''):`<tr><td colspan="9"><div class="empty">Belum ada hasil tryout yang tersimpan atau data tidak dapat dibaca oleh akun admin.</div></td></tr>`;
+  tbody.querySelectorAll('[data-detail]').forEach(b=>b.onclick=()=>showAttemptDetail(filtered[Number(b.dataset.detail)]));
+  document.querySelector('#resultsCount').textContent=`${filtered.length} hasil · ${new Set(filtered.map(a=>a.uid)).size} pengguna`;
+ };
+ page.innerHTML=`<div class="section-head"><div><h2>📊 Hasil Tryout</h2><div class="muted">Pantau setiap percobaan pengguna, nilai, jawaban benar/salah/kosong, durasi, dan riwayat pengerjaan.</div></div><button class="btn" id="refreshResults">↻ Refresh</button></div>
+ <div class="grid3">
+  <div class="card"><div class="cardhead"><b>Total pengerjaan</b></div><div class="cardbody"><strong style="font-size:30px">${attempts.length}</strong></div></div>
+  <div class="card"><div class="cardhead"><b>Pengguna mengerjakan</b></div><div class="cardbody"><strong style="font-size:30px">${new Set(attempts.map(a=>a.uid)).size}</strong></div></div>
+  <div class="card"><div class="cardhead"><b>Rata-rata nilai</b></div><div class="cardbody"><strong style="font-size:30px">${attempts.length?Math.round(attempts.reduce((s,a)=>s+a.total,0)/attempts.length):0}</strong></div></div>
+ </div>
+ <div class="card" style="margin-top:16px"><div class="cardbody"><div class="toolbar"><input class="grow" id="resultFilter" placeholder="Cari nama, email, sekolah, nama tryout, atau user ID…"><select id="resultSort" class="input" style="max-width:190px"><option value="new">Terbaru</option><option value="high">Nilai tertinggi</option><option value="low">Nilai terendah</option></select><button class="btn" id="exportResults">Export CSV</button></div><div class="muted small" id="resultsCount" style="margin-bottom:10px"></div><div class="tablewrap"><table id="resultsTable"><thead><tr><th>Pengguna</th><th>Tryout</th><th>Percobaan</th><th>Nilai</th><th>Rincian jawaban</th><th>Jumlah soal</th><th>Durasi</th><th>Waktu selesai</th><th>Aksi</th></tr></thead><tbody></tbody></table></div></div></div>`;
+ const showAttemptDetail=a=>{
+  if(!a)return;
+  const subs=Object.entries(a.subs||{});
+  const subHtml=subs.length?`<div class="tablewrap"><table><thead><tr><th>Subtes</th><th>Nilai</th><th>Benar</th><th>Salah</th><th>Kosong</th></tr></thead><tbody>${subs.map(([k,v])=>`<tr><td>${esc(k.toUpperCase())}</td><td>${Number(v.score||0)}</td><td>${Number(v.correct||0)}</td><td>${Number(v.wrong||0)}</td><td>${Number(v.empty||0)}</td></tr>`).join('')}</tbody></table></div>`:'<p class="muted">Rincian subtes tidak tersedia.</p>';
+  const answerRows=(a.a.qids||[]).map((qid,i)=>{const val=(a.a.answers||{})[qid];return `<tr><td>${i+1}</td><td>${esc(String(qid))}</td><td>${esc(val==null||val===''?'Kosong':typeof val==='object'?JSON.stringify(val):String(val))}</td></tr>`}).join('');
+  const m=modal('Detail hasil tryout',`<div class="grid2"><div><div class="muted small">Nama pengguna</div><b>${esc(a.name)}</b><div class="muted small">${esc(a.email||a.uid)}</div></div><div><div class="muted small">Tryout / percobaan</div><b>${esc(a.tryout)} · #${a.attemptNo}</b><div class="muted small">${a.at?esc(new Date(a.at).toLocaleString('id-ID')):'Waktu tidak tersedia'}</div></div></div><div class="grid3" style="margin:14px 0"><div class="card"><div class="cardbody"><div class="muted small">Nilai</div><strong style="font-size:24px">${a.total}</strong></div></div><div class="card"><div class="cardbody"><div class="muted small">Benar / Salah</div><strong style="font-size:24px">${a.correct} / ${a.wrong}</strong></div></div><div class="card"><div class="cardbody"><div class="muted small">Durasi</div><strong style="font-size:24px">${fmtDur(a.durSec)}</strong></div></div></div><h3>Nilai per subtes</h3>${subHtml}<h3 style="margin-top:16px">Jawaban tersimpan</h3><p class="muted small">ID soal dan pilihan yang disimpan pada percobaan ini. Teks soal tidak selalu tersimpan dalam riwayat.</p><div class="tablewrap"><table><thead><tr><th>No.</th><th>ID soal</th><th>Jawaban</th></tr></thead><tbody>${answerRows||'<tr><td colspan="3">Tidak ada rincian jawaban.</td></tr>'}</tbody></table></div>`);
+ };
+ document.querySelector('#resultFilter').oninput=render;document.querySelector('#resultSort').onchange=render;
+ document.querySelector('#refreshResults').onclick=()=>tryoutResultsPage();
+ document.querySelector('#exportResults').onclick=()=>downloadCSV(attempts.map(a=>({nama:a.name,email:a.email,username:a.username,sekolah:a.sekolah,kelas:a.kelas,user_id:a.uid,tryout:a.tryout,tryout_id:a.tid,jalur:a.jalur,percobaan:a.attemptNo,nilai:a.total,benar:a.correct,salah:a.wrong,kosong:a.empty,jumlah_soal:a.qcount,durasi_detik:a.durSec,waktu_selesai:a.at?new Date(a.at).toISOString():''})),'hasil-tryout.csv');
+ render();
+}
+
 async function analytics(){const rows=await safe('user_data','user_id,data,updated_at',3000);let attempts=[];rows.forEach(x=>(x.data?.attempts||[]).forEach(a=>attempts.push(a)));const scores=attempts.map(a=>Number(a.total||0)).filter(Number.isFinite);const buckets=[['0–399',0],['400–599',0],['600–799',0],['800+',0]];scores.forEach(x=>x<400?buckets[0][1]++:x<600?buckets[1][1]++:x<800?buckets[2][1]++:buckets[3][1]++);const jal={};for(const a of attempts)jal[a.jalur||'lainnya']=(jal[a.jalur||'lainnya']||0)+1;page.innerHTML=`<div class="section-head"><div><h2>Analitik & Rekap</h2><div class="muted">Ringkasan performa tryout dari data hasil yang tersimpan di user_data.</div></div></div><div class="grid3"><div class="card"><div class="cardhead"><b>Total attempt</b></div><div class="cardbody"><strong style="font-size:36px">${attempts.length}</strong></div></div><div class="card"><div class="cardhead"><b>Rata-rata skor</b></div><div class="cardbody"><strong style="font-size:36px">${scores.length?Math.round(scores.reduce((a,b)=>a+b,0)/scores.length):0}</strong></div></div><div class="card"><div class="cardhead"><b>Skor tertinggi</b></div><div class="cardbody"><strong style="font-size:36px">${scores.length?Math.max(...scores):0}</strong></div></div></div><div class="grid2" style="margin-top:16px"><div class="card"><div class="cardhead"><b>Distribusi skor</b></div><div class="cardbody">${barChart(buckets.map(x=>({k:x[0],v:x[1]})))}</div></div><div class="card"><div class="cardhead"><b>Rekap jalur</b></div><div class="cardbody">${barChart(Object.entries(jal).map(x=>({k:x[0],v:x[1]})))||'<div class="empty">Belum ada data.</div>'}</div></div></div><div class="card" style="margin-top:16px"><div class="cardhead"><b>Export rekap hasil</b></div><div class="cardbody"><p class="muted">Unduh seluruh attempt yang terbaca dari user_data untuk analisis lanjutan.</p><button class="btn y" id="exportAttempts">Export CSV</button></div></div>`;document.querySelector('#exportAttempts').onclick=()=>downloadCSV(attempts,'rekap-tryout.csv')}
 async function tryoutsPage(){
  const {data:rows,error}=await SB.from('tryouts').select('id,title,jalur,access,minutes,max_tries,open_at,close_at,subs,image_url,active,created_at').order('created_at',{ascending:false}).limit(1000);if(error)return toast(error.message);
@@ -355,7 +427,7 @@ async function parsePdfQuestions(file,keyFile){
 async function promosPage(){return simpleManagerPage('promos')}
 async function notificationsPage(){return simpleManagerPage('notifications')}
 async function auditPage(){return simpleManagerPage('audit_logs')}
-async function render(){page=document.querySelector('#page');if(!page)return;if(state.page==='dashboard')return dashboard();if(state.page==='analytics')return analytics();if(state.page==='tryouts')return tryoutsPage();if(state.page==='questions')return questionsPage();if(state.page==='importpdf')return importPdfPage();if(state.page==='latihan')return latihanPage();if(state.page==='content')return contentPage();if(state.page==='community')return communityPage();if(state.page==='users')return usersPage();if(state.page==='transactions')return transactionsPage();if(state.page==='packages')return packagesPage();if(state.page==='promos')return promosPage();if(state.page==='notifications')return notificationsPage();if(state.page==='moderation')return moderationPage();if(state.page==='activity')return activityPage();if(state.page==='audit')return auditPage();if(state.page==='settings')return settingsPage()}
+async function render(){page=document.querySelector('#page');if(!page)return;if(state.page==='dashboard')return dashboard();if(state.page==='analytics')return analytics();if(state.page==='results')return tryoutResultsPage();if(state.page==='tryouts')return tryoutsPage();if(state.page==='questions')return questionsPage();if(state.page==='importpdf')return importPdfPage();if(state.page==='latihan')return latihanPage();if(state.page==='content')return contentPage();if(state.page==='community')return communityPage();if(state.page==='users')return usersPage();if(state.page==='transactions')return transactionsPage();if(state.page==='packages')return packagesPage();if(state.page==='promos')return promosPage();if(state.page==='notifications')return notificationsPage();if(state.page==='moderation')return moderationPage();if(state.page==='activity')return activityPage();if(state.page==='audit')return auditPage();if(state.page==='settings')return settingsPage()}
 function settingsPage(){page.innerHTML=`<div class="section-head"><div><h2>Pengaturan Admin</h2><div class="muted">Kontrol operasional yang aman dari sisi dashboard.</div></div></div><div class="grid2"><div class="card"><div class="cardhead"><b>Konfigurasi koneksi</b></div><div class="cardbody"><div class="notice">Dashboard terhubung ke Supabase project Cognera menggunakan anon/publishable key. Operasi tetap tunduk pada RLS Supabase.</div><p><b>Project:</b> ${esc(CFG.URL)}</p><p><b>Mode:</b> Production</p></div></div><div class="card"><div class="cardhead"><b>Catatan keamanan</b></div><div class="cardbody"><p class="muted">Akun admin harus tercatat di tabel <b>admins</b>. Jangan menaruh service-role key di browser.</p><p class="muted">Untuk operasi massal atau data sensitif, gunakan Edge Function/server-side.</p></div></div></div>`}
 let page;
 async function boot(){

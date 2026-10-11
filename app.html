@@ -1594,10 +1594,12 @@ const Auth = {
   },
   async googleToken(){
     if(!SB) throw new Error('Supabase belum terhubung.');
-    const redirectTo=location.origin+location.pathname;
-    const {data,error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo,queryParams:{prompt:'select_account'}}});
+    const redirectTo=new URL(location.pathname,location.origin).href;
+    // Hindari dua navigasi sekaligus: minta URL OAuth dari Supabase lalu redirect sekali secara eksplisit.
+    const {data,error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo,queryParams:{prompt:'select_account'},skipBrowserRedirect:true}});
     if(error) throw new Error(error.message);
-    if(data&&data.url) location.assign(data.url);
+    if(!data||!data.url) throw new Error('URL login Google tidak diterima Supabase.');
+    window.location.assign(data.url);
     return null;
   },
   logout(){ if(SB) SB.auth.signOut(); LS.del('session'); loadSession(); }
@@ -3486,14 +3488,15 @@ const ACT = {
     if(t) t.disabled=true;
     LS.del('volatile');
     try{
-      const redirectTo=location.origin+location.pathname;
+      const redirectTo=new URL(location.pathname,location.origin).href;
+      // Supabase tidak melakukan redirect otomatis di sini; navigasi hanya sekali ke endpoint OAuth.
       const {data,error}=await SB.auth.signInWithOAuth({
         provider:'google',
-        options:{redirectTo,queryParams:{prompt:'select_account'}}
+        options:{redirectTo,queryParams:{prompt:'select_account'},skipBrowserRedirect:true}
       });
       if(error) throw error;
       if(!data||!data.url) throw new Error('URL login Google tidak diterima Supabase.');
-      location.assign(data.url);
+      window.location.assign(data.url);
     }catch(e){
       if(t) t.disabled=false;
       toast(e.message||'Login Google gagal.');
