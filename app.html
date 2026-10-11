@@ -2223,15 +2223,36 @@ async function submitAttempt(auto){
   const scores=Object.values(per).map(r=>r.score), total=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
   const att={id:uid(), tid:A.tid, title:t?.title||('Tryout #'+A.tid), jalur:t?.jalur||DATA.profile.jalur||'utbk', at:Date.now(), total, subs:per, qids:A.qids, answers:A.answers, flags:A.flags, durSec:Math.round((Math.min(Date.now(),A.endsAt)-A.startedAt)/1000)};
   DATA.attempts.push(att); DATA.xp+=50; DATA.inprogress=null; save();
-  // Hasil tryout harus benar-benar dikirim ke Supabase sebelum berpindah halaman.
-  // Jangan hanya mengandalkan debounce save() karena navigasi/reload dapat memotongnya.
+  // Simpan ke tabel relasional public.attempts (bukan hanya JSON user_data.data.attempts).
   clearTimeout(_pt);
   if(!U.guest && SB){
-    const sync=await pushRemote();
-    if(sync.ok) toast('Hasil tryout berhasil disimpan ke akun.');
-    else { console.error('Hasil tryout gagal tersimpan:',sync.reason); toast('GAGAL SIMPAN DB: '+(sync.reason||'Periksa Console dan policy RLS Supabase')); }
+    try {
+      const finishedAt=new Date(att.at).toISOString();
+      const dbRow={
+        id:att.dbId||(att.dbId=crypto.randomUUID()),
+        user_id:U.id,
+        tryout_id:att.tid,
+        started_at:new Date(A.startedAt).toISOString(),
+        finished_at:finishedAt,
+        score:Number(att.total)||0,
+        status:'completed'
+      };
+      const ins=await SB.from('attempts').upsert(dbRow,{onConflict:'id'}).select('id').single();
+      if(ins.error) throw new Error('Tabel attempts gagal menyimpan: '+ins.error.message);
+      const check=await SB.from('attempts').select('id,user_id,tryout_id,score,status').eq('id',dbRow.id).maybeSingle();
+      if(check.error) throw new Error('Gagal memverifikasi tabel attempts: '+check.error.message);
+      if(!check.data || check.data.user_id!==U.id) throw new Error('Hasil belum terbukti tersimpan pada tabel attempts.');
+      att.dbSaved=true;
+      const sync=await pushRemote();
+      if(!sync.ok) console.warn('Riwayat JSON user_data gagal disinkronkan:',sync.reason);
+      save();
+      toast('Hasil tryout tersimpan di tabel attempts.');
+    } catch(e) {
+      console.error('GAGAL SIMPAN public.attempts:',e);
+      toast('GAGAL SIMPAN attempts: '+(e?.message||String(e)));
+    }
   } else {
-    toast('Hasil tersimpan di perangkat ini. Login untuk menyinkronkan ke akun.');
+    toast('Hasil tersimpan di perangkat ini. Login untuk menyimpan ke database.');
   }
   go('/hasil/'+att.id);
 }

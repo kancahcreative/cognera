@@ -153,10 +153,11 @@ function money(v){return v==null?'—':'Rp '+Number(v).toLocaleString('id-ID')}
 function bindPageButtons(){/* Semua navigasi data-page ditangani secara delegated oleh root; shell tidak dibangun ulang sehingga posisi scroll tetap. */}
 
 async function tryoutResultsPage(){
- const [attemptRows,profiles,tryouts]=await Promise.all([
+ const [attemptRows,profiles,tryouts,dbAttemptRows]=await Promise.all([
   safe('user_data','user_id,data,updated_at',5000),
   safe('profiles','id,name,username,email,sekolah,kelas,jalur,tahun',5000),
-  safe('tryouts','id,title,jalur,access',2000)
+  safe('tryouts','id,title,jalur,access',2000),
+  safe('attempts','id,user_id,tryout_id,started_at,finished_at,score,status',5000)
  ]);
  const profileById=Object.fromEntries(profiles.map(p=>[String(p.id),p]));
  const tryoutById=Object.fromEntries(tryouts.map(t=>[String(t.id),t]));
@@ -179,6 +180,19 @@ async function tryoutResultsPage(){
     updated_at:row.updated_at||null
    });
  }));
+ // Tabel public.attempts menjadi sumber utama; user_data hanya dipakai untuk rincian jawaban.
+ if(dbAttemptRows.length){
+  const jsonByDbId=new Map();
+  attemptRows.forEach(row=>(row.data?.attempts||[]).forEach(a=>{if(a.dbId)jsonByDbId.set(String(a.dbId),{a,row})}));
+  attempts.length=0;
+  dbAttemptRows.forEach(r=>{
+   const profile=profileById[String(r.user_id)]||{};
+   const tr=tryoutById[String(r.tryout_id)]||{};
+   const match=jsonByDbId.get(String(r.id));
+   const a=match?.a||{}; const subs=a.subs||{}; const vals=Object.values(subs);
+   attempts.push({uid:r.user_id,name:profile.name||profile.username||'Pengguna',email:profile.email||'',username:profile.username||'',sekolah:profile.sekolah||'',kelas:profile.kelas||'',tid:r.tryout_id,tryout:tr.title||a.title||('Tryout #'+r.tryout_id),jalur:tr.jalur||a.jalur||profile.jalur||'-',attemptNo:0,at:r.finished_at||null,total:Number(r.score||0),qcount:(a.qids||[]).length,correct:vals.reduce((n,x)=>n+Number(x.correct||0),0),wrong:vals.reduce((n,x)=>n+Number(x.wrong||0),0),empty:vals.reduce((n,x)=>n+Number(x.empty||0),0),durSec:Number(a.durSec||0),subs,a,dbId:r.id,status:r.status,started_at:r.started_at});
+  });
+ }
  attempts.sort((a,b)=>new Date(a.at||0)-new Date(b.at||0));
  const counts={};
  attempts.forEach(a=>{const k=String(a.uid)+'|'+String(a.tid);counts[k]=(counts[k]||0)+1;a.attemptNo=counts[k]});
