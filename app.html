@@ -1390,7 +1390,7 @@ const TRYOUTS = [];
 
 /* ===== PAKET (harga dari landing page) ===== */
 const PACKAGES = [
-  {id:'utbk27', name:'UTBK SNBT 2027', tag:'Paling lengkap', covers:['utbk'], price:40000, strike:105000, items:['Akses semua tryout Premium UTBK selama masa paket aktif','Materi belajar Premium dan latihan drill per subtes','Pembahasan soal tryout lengkap untuk konten yang tersedia','Analisis kelemahan setelah setiap tryout dan laporan progres subtes','Prediksi kampus dan program studi berdasarkan skor serta data pembanding tersedia','Analisis kecocokan prodi berdasarkan hasil asesmen kepribadian dan minat','Rencana belajar terarah sesuai target, waktu, dan kelemahan','Leaderboard penuh, Nera AI dengan akses Premium, Error Notebook, Retry Salah Saja, Smart Flashcards, dan ekspor PDF']},
+  {id:'utbk27', name:'UTBK SNBT 2027', tag:'Paling lengkap', covers:['utbk'], price:35000, strike:105000, items:['Akses semua tryout Premium UTBK selama masa paket aktif','Materi belajar Premium dan latihan drill per subtes','Pembahasan soal tryout lengkap untuk konten yang tersedia','Analisis kelemahan setelah setiap tryout dan laporan progres subtes','Prediksi kampus dan program studi berdasarkan skor serta data pembanding tersedia','Analisis kecocokan prodi berdasarkan hasil asesmen kepribadian dan minat','Rencana belajar terarah sesuai target, waktu, dan kelemahan','Leaderboard penuh, Nera AI dengan akses Premium, Error Notebook, Retry Salah Saja, Smart Flashcards, dan ekspor PDF']},
   {id:'tka-sma', name:'TKA SMA 2026', covers:['tka'], price:0, strike:0, comingSoon:true, items:['Simulasi tryout TKA SMA selama paket aktif','Latihan drill mata pelajaran wajib dan pilihan','Pembahasan soal berbasis teks','Riwayat hasil untuk mengevaluasi progres']},
   {id:'skd-2026', name:'SKD Kedinasan 2026', tag:'Segera Hadir', covers:['kedinasan'], price:0, strike:0, comingSoon:true, items:['Akses program UTBK, TKA, Kedinasan, dan jalur Mandiri PTN sesuai paket','Semua tryout Premium dan materi belajar yang termasuk paket','Pembahasan soal tryout lengkap untuk konten yang tersedia','Analisis kelemahan di setiap tryout dan laporan skor lintas latihan','Prediksi kampus/prodi berdasarkan skor dan data pembanding yang tersedia','Analisis kecocokan prodi melalui asesmen kepribadian dan minat','Rencana belajar terarah, leaderboard penuh, Nera AI Premium, Error Notebook, Retry Salah Saja, Smart Flashcards, dan ekspor PDF']}
 ];
@@ -1480,32 +1480,12 @@ function loadSession(){
 let _pt;
 function save(){ if(!U) return; LS.set('data:'+U.id, DATA); if(SB && !U.guest){ clearTimeout(_pt); _pt=setTimeout(pushRemote,1500); } }
 async function pushRemote(){
-  if(!SB||!U||U.guest) return {ok:false,reason:'Akun belum terhubung ke Supabase'};
+  if(!SB||!U||U.guest) return;
+  const d=Object.assign({},DATA); delete d.packages;
   try{
-    // Baca data server dahulu supaya tab/perangkat lain tidak menimpa riwayat attempts.
-    const remoteRes=await SB.from('user_data').select('data').eq('user_id',U.id).maybeSingle();
-    if(remoteRes.error) throw new Error('Gagal membaca user_data: '+remoteRes.error.message);
-    const remote=(remoteRes.data&&remoteRes.data.data)||{};
-    const localAttempts=Array.isArray(DATA.attempts)?DATA.attempts:[];
-    const remoteAttempts=Array.isArray(remote.attempts)?remote.attempts:[];
-    const byId=new Map();
-    [...remoteAttempts,...localAttempts].forEach(a=>{if(a&&a.id)byId.set(String(a.id),a)});
-    DATA.attempts=[...byId.values()].sort((a,b)=>Number(a.at||0)-Number(b.at||0));
-    const d=Object.assign({},remote,DATA,{attempts:DATA.attempts}); delete d.packages;
-    const result=await SB.from('user_data').upsert({user_id:U.id,data:d,updated_at:new Date().toISOString()},{onConflict:'user_id'});
-    if(result.error) throw new Error('Gagal menulis user_data: '+result.error.message);
-    // Read-after-write verification: jangan laporkan sukses kalau attempt tidak benar-benar ada di DB.
-    const verify=await SB.from('user_data').select('data').eq('user_id',U.id).maybeSingle();
-    if(verify.error) throw new Error('Data dikirim tetapi verifikasi database gagal: '+verify.error.message);
-    const saved=(verify.data&&verify.data.data&&verify.data.data.attempts)||[];
-    const expected=DATA.attempts.map(a=>String(a.id));
-    const missing=expected.filter(id=>!saved.some(a=>String(a.id)===id));
-    if(missing.length) throw new Error('Verifikasi gagal: '+missing.length+' hasil belum terbukti tersimpan pada user_data.data.attempts. Periksa policy RLS dan struktur tabel.');
-    const profileResult=await SB.from('profiles').update({name:DATA.profile.name,username:DATA.profile.username||null,phone:DATA.profile.phone||null,jalur:DATA.profile.jalur,tahun:DATA.profile.tahun,goal:DATA.profile.goal,sekolah:DATA.profile.sekolah||'',kelas:DATA.profile.kelas||'',avatar:DATA.profile.avatar||DATA.profile.gpic||null,xp:DATA.xp||0,onboarded:!!DATA.onboarded}).eq('id',U.id);
-    if(profileResult.error) console.warn('update profil gagal',profileResult.error);
-    LS.set('data:'+U.id,DATA);
-    return {ok:true};
-  }catch(e){ console.error('sync Supabase gagal:',e); return {ok:false,reason:e?.message||'Gagal menyimpan data ke Supabase',error:e}; }
+    await SB.from('user_data').upsert({user_id:U.id,data:d,updated_at:new Date().toISOString()});
+    await SB.from('profiles').update({name:DATA.profile.name,username:DATA.profile.username||null,phone:DATA.profile.phone||null,jalur:DATA.profile.jalur,tahun:DATA.profile.tahun,goal:DATA.profile.goal,sekolah:DATA.profile.sekolah||'',kelas:DATA.profile.kelas||'',avatar:DATA.profile.avatar||DATA.profile.gpic||null,xp:DATA.xp||0,onboarded:!!DATA.onboarded}).eq('id',U.id);
+  }catch(e){ console.warn('sync gagal',e); }
 }
 const gpicOf=us=>(us&&us.user_metadata&&(us.user_metadata.avatar_url||us.user_metadata.picture))||'';
 // Username awal mengikuti nama pengguna, bukan user_XXXXXXXX.
@@ -1551,10 +1531,6 @@ async function pullRemote(uid,name,email,pic,meta={}){
     const remote=(d.data&&d.data.data)||{};
     const current=LS.get('data:'+uid,null)||defaultData(u);
     const merged=Object.assign(defaultData(u),current,remote.profile?remote:{},{packages:pk});
-    // Jangan hilangkan percobaan lokal ketika data remote lama belum memiliki attempts.
-    const attemptMap=new Map();
-    [...(Array.isArray(remote.attempts)?remote.attempts:[]),...(Array.isArray(current.attempts)?current.attempts:[])].forEach(a=>{if(a&&a.id)attemptMap.set(String(a.id),a)});
-    merged.attempts=[...attemptMap.values()].sort((a,b)=>Number(a.at||0)-Number(b.at||0));
     merged.profile=Object.assign({},defaultData(u).profile,merged.profile||{},{name:(merged.profile&&merged.profile.name)||u.name,username:(merged.profile&&merged.profile.username)||u.username,phone:(merged.profile&&merged.profile.phone)||u.phone,sekolah:(merged.profile&&merged.profile.sekolah)||u.sekolah,kelas:(merged.profile&&merged.profile.kelas)||u.kelas});
     if(pic) merged.profile.gpic=pic;
     LS.set('data:'+uid,merged);
@@ -1618,12 +1594,10 @@ const Auth = {
   },
   async googleToken(){
     if(!SB) throw new Error('Supabase belum terhubung.');
-    const redirectTo=new URL(location.pathname,location.origin).href;
-    // Hindari dua navigasi sekaligus: minta URL OAuth dari Supabase lalu redirect sekali secara eksplisit.
-    const {data,error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo,queryParams:{prompt:'select_account'},skipBrowserRedirect:true}});
+    const redirectTo=location.origin+location.pathname;
+    const {data,error}=await SB.auth.signInWithOAuth({provider:'google',options:{redirectTo,queryParams:{prompt:'select_account'}}});
     if(error) throw new Error(error.message);
-    if(!data||!data.url) throw new Error('URL login Google tidak diterima Supabase.');
-    window.location.assign(data.url);
+    if(data&&data.url) location.assign(data.url);
     return null;
   },
   logout(){ if(SB) SB.auth.signOut(); LS.del('session'); loadSession(); }
@@ -2209,7 +2183,7 @@ function confirmFinish(){
     <div class="row mt16"><button class="btn btn-ghost grow" data-act="close">Kembali mengerjakan</button><button class="btn btn-ink grow" data-act="run-submit">Kumpulkan</button></div>`);
 }
 
-async function submitAttempt(auto){
+function submitAttempt(auto){
   const A=DATA.inprogress; if(!A) return go('/tryout');
   clearTimers(); closeModal();
   const t=TRYOUTS.find(x=>x.id===A.tid), per={};
@@ -2221,43 +2195,8 @@ async function submitAttempt(auto){
   });
   Object.values(per).forEach(r=>r.score=Math.round(200+800*r.pts/r.max));
   const scores=Object.values(per).map(r=>r.score), total=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
-  const att={id:uid(), tid:A.tid, title:t?.title||('Tryout #'+A.tid), jalur:t?.jalur||DATA.profile.jalur||'utbk', at:Date.now(), total, subs:per, qids:A.qids, answers:A.answers, flags:A.flags, durSec:Math.round((Math.min(Date.now(),A.endsAt)-A.startedAt)/1000)};
+  const att={id:uid(), tid:A.tid, at:Date.now(), total, subs:per, qids:A.qids, answers:A.answers, flags:A.flags, durSec:Math.round((Math.min(Date.now(),A.endsAt)-A.startedAt)/1000)};
   DATA.attempts.push(att); DATA.xp+=50; DATA.inprogress=null; save();
-  // Simpan hasil ke tabel relasional. Jangan mengandalkan status lokal: periksa sesi Supabase nyata.
-  clearTimeout(_pt);
-  let dbSaved=false;
-  if(SB){
-    try {
-      const {data:sessionData,error:sessionError}=await SB.auth.getSession();
-      if(sessionError) throw new Error('Tidak dapat memeriksa sesi login: '+sessionError.message);
-      const authUser=sessionData?.session?.user;
-      if(!authUser) throw new Error('Sesi login tidak ditemukan. Login dengan Google/akun Cognera dahulu; hasil ini baru tersimpan di perangkat.');
-      if(U.guest || String(U.id)!==String(authUser.id)) {
-        await pullRemote(authUser.id,(authUser.user_metadata&&(authUser.user_metadata.name||authUser.user_metadata.full_name))||authUser.email?.split('@')[0],authUser.email,gpicOf(authUser));
-      }
-      const dbRow={
-        id:crypto.randomUUID(), user_id:authUser.id, tryout_id:String(att.tid),
-        started_at:new Date(A.startedAt||att.at).toISOString(), finished_at:new Date(att.at).toISOString(),
-        score:Math.round(Number(att.total)||0), status:'completed'
-      };
-      const ins=await SB.from('attempts').insert(dbRow).select('id,user_id,tryout_id,score,status').single();
-      if(ins.error) throw new Error('INSERT public.attempts ditolak: '+ins.error.message+' (code '+(ins.error.code||'unknown')+'). Periksa policy RLS dan tipe kolom.');
-      const check=await SB.from('attempts').select('id,user_id,tryout_id,score,status').eq('id',dbRow.id).maybeSingle();
-      if(check.error) throw new Error('INSERT mungkin berhasil, tetapi verifikasi gagal: '+check.error.message);
-      if(!check.data || String(check.data.user_id)!==String(authUser.id)) throw new Error('Verifikasi gagal: baris hasil tidak ditemukan setelah INSERT.');
-      att.dbId=dbRow.id; att.dbSaved=true; dbSaved=true;
-      const sync=await pushRemote();
-      if(!sync.ok) console.warn('Riwayat JSON user_data gagal disinkronkan:',sync.reason);
-      LS.set('data:'+U.id,DATA);
-      toast('Tersimpan di public.attempts.');
-    } catch(e) {
-      console.error('GAGAL SIMPAN public.attempts:',e);
-      toast('GAGAL SIMPAN DATABASE: '+(e?.message||String(e)));
-    }
-  } else {
-    toast('Supabase tidak terhubung; hasil hanya tersimpan di perangkat.');
-  }
-  if(!dbSaved) console.error('ATTEMPT TIDAK TERSIMPAN KE DATABASE', {userId:U?.id, guest:U?.guest, attemptId:att.id, tryoutId:att.tid});
   go('/hasil/'+att.id);
 }
 
@@ -3547,15 +3486,14 @@ const ACT = {
     if(t) t.disabled=true;
     LS.del('volatile');
     try{
-      const redirectTo=new URL(location.pathname,location.origin).href;
-      // Supabase tidak melakukan redirect otomatis di sini; navigasi hanya sekali ke endpoint OAuth.
+      const redirectTo=location.origin+location.pathname;
       const {data,error}=await SB.auth.signInWithOAuth({
         provider:'google',
-        options:{redirectTo,queryParams:{prompt:'select_account'},skipBrowserRedirect:true}
+        options:{redirectTo,queryParams:{prompt:'select_account'}}
       });
       if(error) throw error;
       if(!data||!data.url) throw new Error('URL login Google tidak diterima Supabase.');
-      window.location.assign(data.url);
+      location.assign(data.url);
     }catch(e){
       if(t) t.disabled=false;
       toast(e.message||'Login Google gagal.');
@@ -4017,19 +3955,8 @@ document.addEventListener('submit',async e=>{
       if(sess){ loadSession(); const gp=gpicOf(sess.user); if(gp&&U&&!U.guest&&DATA&&DATA.profile&&DATA.profile.gpic!==gp){ DATA.profile.gpic=gp; save(); } }
     }catch(e){ console.warn(e); }
   }
-  const oauthParams=new URLSearchParams(location.search);
-  const oauthError=oauthParams.get('error_description')||oauthParams.get('error');
-  if(oauthError){
-    console.error('Google OAuth gagal:',oauthError);
-    history.replaceState(null,'',location.pathname+(location.hash||''));
-    setTimeout(()=>toast('Login Google gagal: '+decodeURIComponent(String(oauthError).replace(/\+/g,' '))),250);
-  }
+  if(/[?&]error=/.test(location.search)) history.replaceState(null,'',location.pathname+(location.hash||''));
   await Promise.all([loadRemoteTryouts(),loadRemoteDrillQuestions(),loadRemoteLessons()]);
-  if(SB && !oauthError){
-    const {data:{session:activeSession}}=await SB.auth.getSession();
-    // Bila callback OAuth tidak menghasilkan sesi, arahkan ke halaman masuk di aplikasi (bukan diam-diam sebagai guest).
-    if(!activeSession && /[?&](code|state)=/.test(location.search)) { go('/masuk'); }
-  }
   route();
 })();
 </script>
