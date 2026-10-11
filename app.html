@@ -2223,37 +2223,41 @@ async function submitAttempt(auto){
   const scores=Object.values(per).map(r=>r.score), total=Math.round(scores.reduce((a,b)=>a+b,0)/scores.length);
   const att={id:uid(), tid:A.tid, title:t?.title||('Tryout #'+A.tid), jalur:t?.jalur||DATA.profile.jalur||'utbk', at:Date.now(), total, subs:per, qids:A.qids, answers:A.answers, flags:A.flags, durSec:Math.round((Math.min(Date.now(),A.endsAt)-A.startedAt)/1000)};
   DATA.attempts.push(att); DATA.xp+=50; DATA.inprogress=null; save();
-  // Simpan ke tabel relasional public.attempts (bukan hanya JSON user_data.data.attempts).
+  // Simpan hasil ke tabel relasional. Jangan mengandalkan status lokal: periksa sesi Supabase nyata.
   clearTimeout(_pt);
-  if(!U.guest && SB){
+  let dbSaved=false;
+  if(SB){
     try {
-      const finishedAt=new Date(att.at).toISOString();
+      const {data:sessionData,error:sessionError}=await SB.auth.getSession();
+      if(sessionError) throw new Error('Tidak dapat memeriksa sesi login: '+sessionError.message);
+      const authUser=sessionData?.session?.user;
+      if(!authUser) throw new Error('Sesi login tidak ditemukan. Login dengan Google/akun Cognera dahulu; hasil ini baru tersimpan di perangkat.');
+      if(U.guest || String(U.id)!==String(authUser.id)) {
+        await pullRemote(authUser.id,(authUser.user_metadata&&(authUser.user_metadata.name||authUser.user_metadata.full_name))||authUser.email?.split('@')[0],authUser.email,gpicOf(authUser));
+      }
       const dbRow={
-        id:att.dbId||(att.dbId=crypto.randomUUID()),
-        user_id:U.id,
-        tryout_id:att.tid,
-        started_at:new Date(A.startedAt).toISOString(),
-        finished_at:finishedAt,
-        score:Number(att.total)||0,
-        status:'completed'
+        id:crypto.randomUUID(), user_id:authUser.id, tryout_id:String(att.tid),
+        started_at:new Date(A.startedAt||att.at).toISOString(), finished_at:new Date(att.at).toISOString(),
+        score:Math.round(Number(att.total)||0), status:'completed'
       };
-      const ins=await SB.from('attempts').upsert(dbRow,{onConflict:'id'}).select('id').single();
-      if(ins.error) throw new Error('Tabel attempts gagal menyimpan: '+ins.error.message);
+      const ins=await SB.from('attempts').insert(dbRow).select('id,user_id,tryout_id,score,status').single();
+      if(ins.error) throw new Error('INSERT public.attempts ditolak: '+ins.error.message+' (code '+(ins.error.code||'unknown')+'). Periksa policy RLS dan tipe kolom.');
       const check=await SB.from('attempts').select('id,user_id,tryout_id,score,status').eq('id',dbRow.id).maybeSingle();
-      if(check.error) throw new Error('Gagal memverifikasi tabel attempts: '+check.error.message);
-      if(!check.data || check.data.user_id!==U.id) throw new Error('Hasil belum terbukti tersimpan pada tabel attempts.');
-      att.dbSaved=true;
+      if(check.error) throw new Error('INSERT mungkin berhasil, tetapi verifikasi gagal: '+check.error.message);
+      if(!check.data || String(check.data.user_id)!==String(authUser.id)) throw new Error('Verifikasi gagal: baris hasil tidak ditemukan setelah INSERT.');
+      att.dbId=dbRow.id; att.dbSaved=true; dbSaved=true;
       const sync=await pushRemote();
       if(!sync.ok) console.warn('Riwayat JSON user_data gagal disinkronkan:',sync.reason);
-      save();
-      toast('Hasil tryout tersimpan di tabel attempts.');
+      LS.set('data:'+U.id,DATA);
+      toast('Tersimpan di public.attempts.');
     } catch(e) {
       console.error('GAGAL SIMPAN public.attempts:',e);
-      toast('GAGAL SIMPAN attempts: '+(e?.message||String(e)));
+      toast('GAGAL SIMPAN DATABASE: '+(e?.message||String(e)));
     }
   } else {
-    toast('Hasil tersimpan di perangkat ini. Login untuk menyimpan ke database.');
+    toast('Supabase tidak terhubung; hasil hanya tersimpan di perangkat.');
   }
+  if(!dbSaved) console.error('ATTEMPT TIDAK TERSIMPAN KE DATABASE', {userId:U?.id, guest:U?.guest, attemptId:att.id, tryoutId:att.tid});
   go('/hasil/'+att.id);
 }
 
@@ -4013,8 +4017,19 @@ document.addEventListener('submit',async e=>{
       if(sess){ loadSession(); const gp=gpicOf(sess.user); if(gp&&U&&!U.guest&&DATA&&DATA.profile&&DATA.profile.gpic!==gp){ DATA.profile.gpic=gp; save(); } }
     }catch(e){ console.warn(e); }
   }
-  if(/[?&]error=/.test(location.search)) history.replaceState(null,'',location.pathname+(location.hash||''));
+  const oauthParams=new URLSearchParams(location.search);
+  const oauthError=oauthParams.get('error_description')||oauthParams.get('error');
+  if(oauthError){
+    console.error('Google OAuth gagal:',oauthError);
+    history.replaceState(null,'',location.pathname+(location.hash||''));
+    setTimeout(()=>toast('Login Google gagal: '+decodeURIComponent(String(oauthError).replace(/\+/g,' '))),250);
+  }
   await Promise.all([loadRemoteTryouts(),loadRemoteDrillQuestions(),loadRemoteLessons()]);
+  if(SB && !oauthError){
+    const {data:{session:activeSession}}=await SB.auth.getSession();
+    // Bila callback OAuth tidak menghasilkan sesi, arahkan ke halaman masuk di aplikasi (bukan diam-diam sebagai guest).
+    if(!activeSession && /[?&](code|state)=/.test(location.search)) { go('/masuk'); }
+  }
   route();
 })();
 </script>
